@@ -1,5 +1,3 @@
-**superbase db password :** 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
-
 # Folder Structure
 
 ```plaintext
@@ -249,4 +247,43 @@ coco_dev/
 └── docker-compose.yml
 ```
 
+CREATE TABLE stores (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name TEXT NOT NULL UNIQUE,
+    -- url TEXT NOT NULL UNIQUE,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    modified_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
 
+create table public.users (
+  id uuid not null references auth.users on delete cascade,
+  email TEXT NOT NULL UNIQUE,
+  store_id UUID REFERENCES stores(id),
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  modified_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  primary key (id)
+);
+alter table public.users enable row level security;
+
+
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.users (id, email)
+  values (new.id, new.email);
+  return new;
+end;
+$$ language plpgsql security definer;
+
+
+create trigger on_auth_user_created
+after insert on auth.users
+for each row execute function public.handle_new_user();
+
+ALTER TABLE public.users
+ADD name TEXT NOT NULL;
+
+
+
+
+db password : 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

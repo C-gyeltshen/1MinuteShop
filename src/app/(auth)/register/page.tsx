@@ -20,6 +20,7 @@ import Link from "next/link";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import Left from "./components/left";
+import { signup } from "../actions";
 
 interface RegisterData {
   fullName: string;
@@ -190,18 +191,20 @@ export default function Register() {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Create FormData object for the server action
+      const formData = new FormData();
+      formData.append("email", registerData.email);
+      formData.append("password", registerData.password);
+      // We could also add other fields like name, though the current server action doesn't use them
+      formData.append("name", registerData.fullName);
+      formData.append("shopName", registerData.shopName);
 
-      console.log("Registration submitted:", registerData);
+      // Call the server action
+      await signup(formData);
 
-      // Show success state
+      // If we reach here, it means the redirect didn't happen
+      // This could be because we're in development mode
       setShowSuccess(true);
-      
-      // Simulate redirect after success
-      setTimeout(() => {
-        alert("Registration successful! Please check your email to verify your account.");
-      }, 1500);
 
       // Reset form
       setRegisterData({
@@ -231,7 +234,7 @@ export default function Register() {
         <div className="grid lg:grid-cols-2 gap-16 items-center min-h-[calc(100vh-200px)]">
           {/* Left Column - Features */}
           <Left />
-          
+
           {/* Right Column - Register Form */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -252,7 +255,8 @@ export default function Register() {
                 Create Your Store
               </h2>
               <p className="text-slate-600">
-                Join thousands of entrepreneurs and start your ecommerce journey today
+                Join thousands of entrepreneurs and start your ecommerce journey
+                today
               </p>
             </div>
 
@@ -264,7 +268,9 @@ export default function Register() {
                 className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center space-x-3"
               >
                 <CheckCircle className="w-5 h-5 text-green-600" />
-                <span className="text-green-800 font-medium">Account created successfully! Check your email.</span>
+                <span className="text-green-800 font-medium">
+                  Account created successfully! Check your email.
+                </span>
               </motion.div>
             )}
 
@@ -305,9 +311,13 @@ export default function Register() {
                     }`}
                     placeholder="John Doe"
                   />
-                  <User className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
-                    errors.fullName ? "text-red-400" : "text-slate-400 group-hover:text-slate-600"
-                  }`} />
+                  <User
+                    className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
+                      errors.fullName
+                        ? "text-red-400"
+                        : "text-slate-400 group-hover:text-slate-600"
+                    }`}
+                  />
                 </div>
                 {errors.fullName && (
                   <motion.p
@@ -345,13 +355,23 @@ export default function Register() {
                     }`}
                     placeholder="My Awesome Store"
                   />
-                  <Store className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
-                    errors.shopName ? "text-red-400" : "text-slate-400 group-hover:text-slate-600"
-                  }`} />
+                  <Store
+                    className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
+                      errors.shopName
+                        ? "text-red-400"
+                        : "text-slate-400 group-hover:text-slate-600"
+                    }`}
+                  />
                 </div>
                 {registerData.shopName && (
                   <p className="mt-1 text-xs text-slate-500">
-                    Your store URL will be: {registerData.shopName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')}.1minuteshop.com
+                    Your store URL will be:{" "}
+                    {registerData.shopName
+                      .toLowerCase()
+                      .replace(/[^a-z0-9]/g, "-")
+                      .replace(/-+/g, "-")
+                      .replace(/^-|-$/g, "")}
+                    .1minuteshop.com
                   </p>
                 )}
                 {errors.shopName && (
@@ -390,9 +410,13 @@ export default function Register() {
                     }`}
                     placeholder="john@company.com"
                   />
-                  <Mail className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
-                    errors.email ? "text-red-400" : "text-slate-400 group-hover:text-slate-600"
-                  }`} />
+                  <Mail
+                    className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
+                      errors.email
+                        ? "text-red-400"
+                        : "text-slate-400 group-hover:text-slate-600"
+                    }`}
+                  />
                 </div>
                 {errors.email && (
                   <motion.p
@@ -430,14 +454,20 @@ export default function Register() {
                     }`}
                     placeholder="Create a strong password"
                   />
-                  <Lock className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
-                    errors.password ? "text-red-400" : "text-slate-400 group-hover:text-slate-600"
-                  }`} />
+                  <Lock
+                    className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
+                      errors.password
+                        ? "text-red-400"
+                        : "text-slate-400 group-hover:text-slate-600"
+                    }`}
+                  />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-lg hover:bg-slate-100"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                   >
                     {showPassword ? (
                       <EyeOff className="w-5 h-5" />
@@ -451,11 +481,17 @@ export default function Register() {
                 {registerData.password && (
                   <div className="mt-3">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-slate-700">Password Strength</span>
+                      <span className="text-sm font-medium text-slate-700">
+                        Password Strength
+                      </span>
                       <span className="text-sm text-slate-500">
-                        {passwordStrength.score < 25 ? "Weak" : 
-                         passwordStrength.score < 50 ? "Fair" :
-                         passwordStrength.score < 75 ? "Good" : "Strong"}
+                        {passwordStrength.score < 25
+                          ? "Weak"
+                          : passwordStrength.score < 50
+                          ? "Fair"
+                          : passwordStrength.score < 75
+                          ? "Good"
+                          : "Strong"}
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
@@ -511,22 +547,30 @@ export default function Register() {
                     className={`w-full px-4 py-4 pl-12 pr-12 border-2 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-slate-50/50 hover:bg-white ${
                       errors.confirmPassword
                         ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500"
-                        : registerData.confirmPassword && registerData.password === registerData.confirmPassword
+                        : registerData.confirmPassword &&
+                          registerData.password === registerData.confirmPassword
                         ? "border-green-300 bg-green-50"
                         : "border-slate-200 hover:border-slate-300"
                     }`}
                     placeholder="Confirm your password"
                   />
-                  <Lock className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
-                    errors.confirmPassword ? "text-red-400" : 
-                    registerData.confirmPassword && registerData.password === registerData.confirmPassword ? "text-green-400" :
-                    "text-slate-400 group-hover:text-slate-600"
-                  }`} />
+                  <Lock
+                    className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
+                      errors.confirmPassword
+                        ? "text-red-400"
+                        : registerData.confirmPassword &&
+                          registerData.password === registerData.confirmPassword
+                        ? "text-green-400"
+                        : "text-slate-400 group-hover:text-slate-600"
+                    }`}
+                  />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-lg hover:bg-slate-100"
-                    aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                    aria-label={
+                      showConfirmPassword ? "Hide password" : "Show password"
+                    }
                   >
                     {showConfirmPassword ? (
                       <EyeOff className="w-5 h-5" />
@@ -534,9 +578,10 @@ export default function Register() {
                       <Eye className="w-5 h-5" />
                     )}
                   </button>
-                  {registerData.confirmPassword && registerData.password === registerData.confirmPassword && (
-                    <Check className="absolute right-10 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-500" />
-                  )}
+                  {registerData.confirmPassword &&
+                    registerData.password === registerData.confirmPassword && (
+                      <Check className="absolute right-10 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-500" />
+                    )}
                 </div>
                 {errors.confirmPassword && (
                   <motion.p
@@ -707,7 +752,7 @@ export default function Register() {
                     fill="currentColor"
                     viewBox="0 0 24 24"
                   >
-                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
                   </svg>
                   <span className="ml-2">GitHub</span>
                 </motion.button>
@@ -718,7 +763,8 @@ export default function Register() {
             <div className="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
               <p className="text-xs text-slate-600 text-center">
                 <Shield className="w-4 h-4 inline mr-1" />
-                Your information is protected with bank-level 256-bit SSL encryption
+                Your information is protected with bank-level 256-bit SSL
+                encryption
               </p>
             </div>
           </motion.div>
