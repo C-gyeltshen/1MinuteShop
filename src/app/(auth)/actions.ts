@@ -29,27 +29,25 @@ export async function login(formData: FormData) {
 export async function signup(formData: FormData) {
   const supabase = await createClient();
 
-  // Get all required data from form
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const fullName = formData.get("name") as string;
   const shopName = formData.get("shopName") as string;
 
-  // Validate required fields
   if (!email || !password || !fullName || !shopName) {
     return { error: "All fields are required" };
   }
 
   try {
-    // Step 1: Create the auth user first
+    // Step 1: Create auth user (this will trigger user creation via database trigger)
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
-          full_name: fullName
-        }
-      }
+          full_name: fullName,
+        },
+      },
     });
 
     if (authError) {
@@ -65,71 +63,42 @@ export async function signup(formData: FormData) {
 
     // Step 2: Create the store
     const { data: storeData, error: storeError } = await supabase
-      .from('stores')
-      .insert({ 
-        name: shopName
-      })
-      .select('id')
+      .from("stores")
+      .insert({ name: shopName })
+      .select("id")
       .single();
 
     if (storeError) {
       console.error("Error creating store:", storeError);
-      // Consider cleanup: delete the auth user if store creation fails
       return { error: "Failed to create store: " + storeError.message };
     }
 
     console.log("Store created successfully with ID:", storeData.id);
 
-    // Step 3: Wait for user record to be created by trigger
-    // The trigger will automatically create the user with name from metadata
-    let retries = 0;
-    const maxRetries = 10;
-    let userData = null;
+    // Step 3: Wait longer for trigger to create the user record (2 seconds)
+    // await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    while (retries < maxRetries && !userData) {
-      await new Promise(resolve => setTimeout(resolve, 500)); // Wait 500ms
-      
-      const { data } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', authData.user.id)
-        .single();
-      
-      userData = data;
-      retries++;
+    console.log("checking payload store", storeData);
+    console.log("check", authData);
+    // Step 4: Update user with store_id directly in the database
+    const { data, error } = await supabase
+      .from("users")
+      .update({ store_id: storeData.id })
+      // .update({ name: "whywhywhy" })
+      .eq("email", authData.user.email)
+      .select();
+
+    if (error) {
+      console.error("Failed to link user to store:", error);
+      return { errorMessage: "Failed to link user to store: " + error };
     }
-
-    if (!userData) {
-      console.error("User record not found after retries");
-      return { error: "User profile creation failed" };
-    }
-
-    console.log("User data found, user_id:", userData.id);
-
-    // Step 4: Update user with store_id (name should already be set by trigger)
-    const { error: updateError } = await supabase
-      .from('users')
-      .update({ 
-        store_id: storeData.id
-      })
-      .eq('id', authData.user.id);
-
-    if (updateError) {
-      console.error("Failed to link user to store:", updateError.message);
-      console.error("Details:", updateError.details);
-      console.error("Hint:", updateError.hint);
-      console.error("Error updating user with store_id:", updateError);
-      return { error: "Failed to link user to store: " + updateError.message };
-    }
-
-    console.log("Registration successful!");
-    
-    return { 
-      success: true, 
+    console.log("response from store id update to user", data);
+    // console.log("User linked to store successfully");
+    return {
+      success: true,
       user: authData.user,
-      storeId: storeData.id 
+      storeId: storeData.id,
     };
-
   } catch (error) {
     console.error("Unexpected error during signup:", error);
     return { error: "An unexpected error occurred during registration" };
