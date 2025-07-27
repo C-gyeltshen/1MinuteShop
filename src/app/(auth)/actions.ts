@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "../../../utils/superbase/server";
+import { supabaseAdmin } from "../../../utils/superbase/admin";
 
 // import { createClient } from '@/utils/supabase/server'
 
@@ -75,16 +76,12 @@ export async function signup(formData: FormData) {
 
     console.log("Store created successfully with ID:", storeData.id);
 
-    // Step 3: Wait longer for trigger to create the user record (2 seconds)
-    // await new Promise((resolve) => setTimeout(resolve, 2000));
 
     console.log("checking payload store", storeData);
     console.log("check", authData);
-    // Step 4: Update user with store_id directly in the database
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("users")
       .update({ store_id: storeData.id })
-      // .update({ name: "whywhywhy" })
       .eq("email", authData.user.email)
       .select();
 
@@ -93,7 +90,6 @@ export async function signup(formData: FormData) {
       return { errorMessage: "Failed to link user to store: " + error };
     }
     console.log("response from store id update to user", data);
-    // console.log("User linked to store successfully");
     return {
       success: true,
       user: authData.user,
