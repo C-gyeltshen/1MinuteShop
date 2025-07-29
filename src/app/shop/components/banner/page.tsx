@@ -162,30 +162,130 @@ const Banner = () => {
         .btn-gradient:hover::before {
           left: 100%;
         }
+
+        /* --- Responsive Adjustments --- */
+
+        /* Extra small devices (phones, 600px and down) */
+        @media (max-width: 600px) {
+          .banner-container {
+            height: 300px; /* Smaller height for very small screens */
+          }
+          .text-shimmer {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem; /* Adjust margin */
+          }
+          .banner-subtitle {
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem; /* Adjust margin */
+          }
+          .btn-gradient {
+            padding: 12px 24px;
+            font-size: 0.9rem;
+          }
+          .floating-shape {
+            width: 40px;
+            height: 40px;
+          }
+          .sparkle-particle {
+            width: 0.8px;
+            height: 0.8px;
+          }
+          .timer-badge {
+            top: 15px;
+            right: 15px;
+            padding: 8px 12px;
+            font-size: 0.8rem;
+          }
+        }
+
+        /* Small devices (portrait tablets and large phones, 601px to 768px) */
+        @media (min-width: 601px) and (max-width: 768px) {
+          .banner-container {
+            height: 350px;
+          }
+          .text-shimmer {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+          }
+          .banner-subtitle {
+            font-size: 1rem;
+            margin-bottom: 2rem;
+          }
+          .btn-gradient {
+            padding: 14px 28px;
+            font-size: 1rem;
+          }
+          .floating-shape {
+            width: 50px;
+            height: 50px;
+          }
+          .sparkle-particle {
+            width: 1px;
+            height: 1px;
+          }
+          .timer-badge {
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            font-size: 0.9rem;
+          }
+        }
+
+        /* Medium devices (landscape tablets, 769px to 992px) */
+        @media (min-width: 769px) and (max-width: 992px) {
+          .banner-container {
+            height: 400px;
+          }
+          .text-shimmer {
+            font-size: 4rem;
+          }
+          .banner-subtitle {
+            font-size: 1.1rem;
+          }
+          .btn-gradient {
+            padding: 16px 32px;
+            font-size: 1.1rem;
+          }
+          .floating-shape {
+            width: 70px;
+            height: 70px;
+          }
+        }
+
+        /* Large devices (laptops/desktops, 993px and up) */
+        @media (min-width: 993px) {
+          .banner-container {
+            height: 450px; /* Slightly taller for larger screens */
+          }
+          .text-shimmer {
+            font-size: 5rem;
+          }
+          .banner-subtitle {
+            font-size: 1.25rem;
+          }
+          .btn-gradient {
+            padding: 18px 36px;
+            font-size: 1.2rem;
+          }
+        }
       `}</style>
 
-      <div className="relative w-full h-96 md:h-[400px] overflow-hidden bg-gradient-custom bg-overlay flex items-center justify-center font-sans">
+      <div className="relative w-full h-96 md:h-[400px] overflow-hidden bg-gradient-custom bg-overlay flex items-center justify-center font-sans banner-container">
         {/* Floating Shapes */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute w-20 h-20 bg-white bg-opacity-10 rounded-full top-1/5 left-1/10 animate-float-1"></div>
-          <div className="absolute w-30 h-30 bg-white bg-opacity-10 rounded-full top-3/5 right-[15%] animate-float-2"></div>
-          <div className="absolute w-15 h-15 bg-white bg-opacity-10 rounded-full top-[30%] right-1/4 animate-float-3"></div>
-          <div className="absolute w-25 h-25 bg-white bg-opacity-10 rounded-full bottom-1/5 left-1/5 animate-float-4"></div>
+          <div className="absolute w-20 h-20 bg-white bg-opacity-10 rounded-full top-1/5 left-1/10 animate-float-1 floating-shape"></div>
+          <div className="absolute w-30 h-30 bg-white bg-opacity-10 rounded-full top-3/5 right-[15%] animate-float-2 floating-shape"></div>
+          <div className="absolute w-15 h-15 bg-white bg-opacity-10 rounded-full top-[30%] right-1/4 animate-float-3 floating-shape"></div>
+          <div className="absolute w-25 h-25 bg-white bg-opacity-10 rounded-full bottom-1/5 left-1/5 animate-float-4 floating-shape"></div>
         </div>
 
         {/* Particles */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute w-1 h-1 bg-white bg-opacity-60 rounded-full top-1/4 left-[15%] animate-sparkle-1"></div>
-          <div className="absolute w-1 h-1 bg-white bg-opacity-60 rounded-full top-[45%] left-[85%] animate-sparkle-2"></div>
-          <div className="absolute w-1 h-1 bg-white bg-opacity-60 rounded-full top-3/4 left-1/4 animate-sparkle-3"></div>
-          <div className="absolute w-1 h-1 bg-white bg-opacity-60 rounded-full top-[15%] left-3/4 animate-sparkle-4"></div>
-          <div className="absolute w-1 h-1 bg-white bg-opacity-60 rounded-full top-[85%] left-[65%] animate-sparkle-5"></div>
-        </div>
-
-        {/* Timer Badge */}
-        <div className="absolute top-5 right-7 bg-white bg-opacity-10 backdrop-blur-md rounded-2xl px-6 py-4 text-white font-bold animate-slide-right">
-          <div className="text-sm opacity-80 mb-1">Quick Shopping</div>
-          <div className="text-2xl text-yellow-300">⚡ 1 MIN</div>
+          <div className="absolute w-1 h-1 bg-white bg-opacity-60 rounded-full top-1/4 left-[15%] animate-sparkle-1 sparkle-particle"></div>
+          <div className="absolute w-1 h-1 bg-white bg-opacity-60 rounded-full top-[45%] left-[85%] animate-sparkle-2 sparkle-particle"></div>
+          <div className="absolute w-1 h-1 bg-white bg-opacity-60 rounded-full top-3/4 left-1/4 animate-sparkle-3 sparkle-particle"></div>
+          <div className="absolute w-1 h-1 bg-white bg-opacity-60 rounded-full top-[15%] left-3/4 animate-sparkle-4 sparkle-particle"></div>
+          <div className="absolute w-1 h-1 bg-white bg-opacity-60 rounded-full top-[85%] left-[65%] animate-sparkle-5 sparkle-particle"></div>
         </div>
 
         {/* Main Content */}
@@ -193,22 +293,13 @@ const Banner = () => {
           <div className="text-5xl md:text-6xl font-bold mb-4 text-shimmer">
             1MinuteShop
           </div>
-          <div className="text-lg md:text-xl opacity-90 mb-8 animate-fade-up">
+          <div className="text-lg md:text-xl opacity-90 mb-8 animate-fade-up banner-subtitle">
             Lightning-fast shopping experience in just 60 seconds
           </div>
           <button className="relative inline-block px-8 py-4 btn-gradient text-white font-bold text-lg rounded-full transition-all duration-300 hover:-translate-y-0.5 animate-fade-up-delay overflow-hidden">
-            Start Shopping Now
+            My Cart
           </button>
         </div>
-
-        {/* Responsive adjustments for mobile */}
-        <style jsx>{`
-          @media (max-width: 768px) {
-            .text-shimmer {
-              font-size: 2.5rem;
-            }
-          }
-        `}</style>
       </div>
     </>
   );
