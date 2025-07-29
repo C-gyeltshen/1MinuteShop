@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "../../../utils/superbase/server";
-import { supabaseAdmin } from "../../../utils/superbase/admin";
+import { createClient } from "../../../../utils/superbase/server";
+import { supabaseAdmin } from "../../../../utils/superbase/admin";
 
 // import { createClient } from '@/utils/supabase/server'
 
@@ -75,7 +75,6 @@ export async function signup(formData: FormData) {
     }
 
     console.log("Store created successfully with ID:", storeData.id);
-
 
     console.log("checking payload store", storeData);
     console.log("check", authData);

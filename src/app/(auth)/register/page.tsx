@@ -20,7 +20,7 @@ import Link from "next/link";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import Left from "./components/left";
-import { signup } from "../actions";
+import { signup } from "../../shared/services/authServices";
 
 interface RegisterData {
   fullName: string;

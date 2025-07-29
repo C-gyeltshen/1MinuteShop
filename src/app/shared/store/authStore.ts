@@ -46,7 +46,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
         switch (event) {
           case 'SIGNED_IN':
             // Redirect to dashboard or home page
-            router.push('/ok')
+            router.push('/shop')
             break
           case 'SIGNED_OUT':
             // Redirect to login page
