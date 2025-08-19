@@ -287,3 +287,7 @@ ADD name TEXT NOT NULL;
 
 
 db password : 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
+
+
+
+conecting to slack 
