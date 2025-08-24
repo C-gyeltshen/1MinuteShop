@@ -1,18 +1,27 @@
-'use client'
+"use client";
 
-import React from 'react';
+import React from "react";
+import SplitText from "./SplitText";
 
 const Banner = () => {
+
+
   return (
     <>
       <style jsx>{`
         @keyframes backgroundPulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.7; }
+          0%,
+          100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.7;
+          }
         }
 
         @keyframes float {
-          0%, 100% {
+          0%,
+          100% {
             transform: translateY(0px) rotate(0deg);
           }
           33% {
@@ -24,8 +33,12 @@ const Banner = () => {
         }
 
         @keyframes shimmer {
-          0% { background-position: -200% 0; }
-          100% { background-position: 200% 0; }
+          0% {
+            background-position: -200% 0;
+          }
+          100% {
+            background-position: 200% 0;
+          }
         }
 
         @keyframes fadeInUp {
@@ -51,7 +64,8 @@ const Banner = () => {
         }
 
         @keyframes sparkle {
-          0%, 100% {
+          0%,
+          100% {
             opacity: 0;
             transform: scale(0.5);
           }
@@ -62,8 +76,12 @@ const Banner = () => {
         }
 
         @keyframes buttonShine {
-          0% { left: -100%; }
-          100% { left: 100%; }
+          0% {
+            left: -100%;
+          }
+          100% {
+            left: 100%;
+          }
         }
 
         .bg-gradient-custom {
@@ -71,15 +89,22 @@ const Banner = () => {
         }
 
         .bg-overlay::before {
-          content: '';
+          content: "";
           position: absolute;
           top: 0;
           left: 0;
           right: 0;
           bottom: 0;
-          background: 
-            radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 0%, transparent 50%),
-            radial-gradient(circle at 75% 75%, rgba(255,255,255,0.1) 0%, transparent 50%);
+          background: radial-gradient(
+              circle at 25% 25%,
+              rgba(255, 255, 255, 0.1) 0%,
+              transparent 50%
+            ),
+            radial-gradient(
+              circle at 75% 75%,
+              rgba(255, 255, 255, 0.1) 0%,
+              transparent 50%
+            );
           animation: backgroundPulse 8s ease-in-out infinite;
         }
 
@@ -90,7 +115,7 @@ const Banner = () => {
           -webkit-text-fill-color: transparent;
           background-clip: text;
           animation: shimmer 3s ease-in-out infinite;
-          text-shadow: 0 0 30px rgba(255,255,255,0.3);
+          text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
         }
 
         .animate-float-1 {
@@ -151,13 +176,18 @@ const Banner = () => {
         }
 
         .btn-gradient::before {
-          content: '';
+          content: "";
           position: absolute;
           top: 0;
           left: -100%;
           width: 100%;
           height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent
+          );
           transition: left 0.6s;
         }
 
@@ -292,9 +322,14 @@ const Banner = () => {
 
         {/* Main Content */}
         <div className="text-center z-10 relative text-white px-4">
-          <div className="text-5xl md:text-6xl font-bold mb-4 text-shimmer">
-            1MinuteShop
-          </div>
+          <SplitText
+            text="1MinuteShop"
+            className="text-5xl md:text-6xl font-bold mb-4 text-shimmer"
+            splitType="chars"
+            delay={60}
+            duration={0.7}
+            ease="power3.out"
+          />
           <div className="text-lg md:text-xl opacity-90 mb-8 animate-fade-up banner-subtitle">
             Lightning-fast shopping experience in just 60 seconds
           </div>

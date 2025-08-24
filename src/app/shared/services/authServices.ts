@@ -5,13 +5,12 @@ import { redirect } from "next/navigation";
 import { createClient } from "../../../../utils/superbase/server";
 import { supabaseAdmin } from "../../../../utils/superbase/admin";
 
+
 // import { createClient } from '@/utils/supabase/server'
 
 export async function login(formData: FormData) {
   const supabase = await createClient();
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
   const data = {
     email: formData.get("email") as string,
     password: formData.get("password") as string,
@@ -89,12 +88,9 @@ export async function signup(formData: FormData) {
       return { errorMessage: "Failed to link user to store: " + error };
     }
     console.log("response from store id update to user", data);
-    return {
-      success: true,
-      user: authData.user,
-      storeId: storeData.id,
-    };
-  } catch (error) {
+    redirect(`/shop/${storeData.id}`);
+  } catch (error: any) {
+    if (error?.digest?.startsWith("NEXT_REDIRECT")) throw error;
     console.error("Unexpected error during signup:", error);
     return { error: "An unexpected error occurred during registration" };
   }
