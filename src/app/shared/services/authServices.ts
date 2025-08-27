@@ -5,9 +5,6 @@ import { redirect } from "next/navigation";
 import { createClient } from "../../../../utils/superbase/server";
 import { supabaseAdmin } from "../../../../utils/superbase/admin";
 
-
-// import { createClient } from '@/utils/supabase/server'
-
 export async function login(formData: FormData) {
   const supabase = await createClient();
 
@@ -88,7 +85,7 @@ export async function signup(formData: FormData) {
       return { errorMessage: "Failed to link user to store: " + error };
     }
     console.log("response from store id update to user", data);
-    redirect(`/shop/${storeData.id}`);
+    redirect(`http://${encodeURIComponent(shopName)}.localhost:3000`);
   } catch (error: any) {
     if (error?.digest?.startsWith("NEXT_REDIRECT")) throw error;
     console.error("Unexpected error during signup:", error);
