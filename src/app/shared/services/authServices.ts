@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "../../../../utils/superbase/server";
 import { supabaseAdmin } from "../../../../utils/superbase/admin";
 
+
 export async function login(formData: FormData) {
   const supabase = await createClient();
 
@@ -25,6 +26,14 @@ export async function login(formData: FormData) {
 
 export async function signup(formData: FormData) {
   const supabase = await createClient();
+  function sanitizeStoreUrl(storeName: string): string {
+  return storeName.toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')           // Replace spaces with hyphens
+    .replace(/[^a-z0-9-]/g, '')     // Remove special characters except hyphens
+    .replace(/-+/g, '-')            // Replace multiple hyphens with single hyphen
+    .replace(/^-|-$/g, '');         // Remove leading/trailing hyphens
+}
 
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
@@ -59,9 +68,13 @@ export async function signup(formData: FormData) {
     console.log("User created successfully with ID:", authData.user.id);
 
     // Step 2: Create the store
+    const sanitizedShopName = sanitizeStoreUrl(shopName);
     const { data: storeData, error: storeError } = await supabase
       .from("stores")
-      .insert({ name: shopName })
+      .insert({
+        name: shopName , 
+        url: `https:${sanitizedShopName}.laso.la`
+      })
       .select("id")
       .single();
 
@@ -85,7 +98,7 @@ export async function signup(formData: FormData) {
       return { errorMessage: "Failed to link user to store: " + error };
     }
     console.log("response from store id update to user", data);
-    redirect(`http://${encodeURIComponent(shopName)}.localhost:3000`);
+    redirect(`http://${encodeURIComponent(sanitizedShopName)}.localhost:3000`);
   } catch (error: any) {
     if (error?.digest?.startsWith("NEXT_REDIRECT")) throw error;
     console.error("Unexpected error during signup:", error);
