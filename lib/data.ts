@@ -29,9 +29,9 @@ export interface Product {
 export const products: Product[] = [
   {
     id: 1,
-    name: 'Wireless AirPods Pro',
+    name: 'I love you, Sonam',
     price: 249,
-    image: 'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=500&h=500&fit=crop',
+    image: 'https://rjujjhznwbztovowyfgf.supabase.co/storage/v1/object/sign/namo/IMG_1515.PNG?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jMTNkYzUzOC03MzI3LTQyMDQtOWE4NC01MDZlMzE0YTNjMzYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJuYW1vL0lNR18xNTE1LlBORyIsImlhdCI6MTc1Nzg1ODcwMiwiZXhwIjoxNzg5Mzk0NzAyfQ.VG9lGCNehDaglyTfvczh8wu6UWXze5akDTFWUL2VTTs',
     description: 'Premium wireless earbuds with active noise cancellation',
     category: 'Audio'
   },
