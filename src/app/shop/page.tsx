@@ -1,20 +1,19 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Navbar from '../../../components/layout/navbar';
-import HeroSection from '../../../components/ui/hero-section';
-import AboutSection from '../../../components/ui/about-section';
-import ProductsSection from '../../../components/ui/products-section';
-import ContactSection from '../../../components/ui/contect-section';
-import Footer from '../../../components/layout/footer';
-
+import { useState } from "react";
+import Navbar from "../../../components/layout/navbar";
+import HeroSection from "../../../components/ui/hero-section";
+import AboutSection from "../../../components/ui/about-section";
+import ProductsSection from "../../../components/ui/products-section";
+import ContactSection from "../../../components/ui/contect-section";
+import Footer from "../../../components/layout/footer";
 
 export default function HomePage() {
-  const [cartMessage, setCartMessage] = useState<string>('');
+  const [cartMessage, setCartMessage] = useState<string>("");
 
   const showCartMessage = (productName: string) => {
     setCartMessage(`${productName} added to cart!`);
-    setTimeout(() => setCartMessage(''), 3000);
+    setTimeout(() => setCartMessage(""), 3000);
   };
 
   return (
@@ -33,7 +32,7 @@ export default function HomePage() {
       <main>
         <HeroSection />
         <AboutSection />
-        <ProductsSection onAddToCart={showCartMessage} />
+        <ProductsSection onAddToCartAction={showCartMessage} />
         <ContactSection />
       </main>
 

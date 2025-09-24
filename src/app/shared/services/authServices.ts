@@ -73,7 +73,8 @@ export async function signup(formData: FormData) {
       .from("stores")
       .insert({
         name: shopName , 
-        url: `https:${sanitizedShopName}.laso.la`
+        url: `https:${sanitizedShopName}.laso.la`,
+        domain_name: sanitizedShopName
       })
       .select("id")
       .single();
@@ -98,7 +99,7 @@ export async function signup(formData: FormData) {
       return { errorMessage: "Failed to link user to store: " + error };
     }
     console.log("response from store id update to user", data);
-    redirect(`http://${encodeURIComponent(sanitizedShopName)}.localhost:3000`);
+    redirect(`http://${encodeURIComponent(sanitizedShopName)}.localhost:3000/shop`);
   } catch (error: any) {
     if (error?.digest?.startsWith("NEXT_REDIRECT")) throw error;
     console.error("Unexpected error during signup:", error);

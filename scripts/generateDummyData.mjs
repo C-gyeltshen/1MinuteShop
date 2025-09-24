@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
 import { faker } from "@faker-js/faker";
 import { createClient } from "@supabase/supabase-js";
 
@@ -111,6 +114,7 @@ async function generateDummyData() {
         const storeData = {
           name: storeName,
           url: `https://${sanitizedName}.laso.la`,
+          domain_name: `${sanitizedName}`,
         };
 
         const { data, error } = await supabase
@@ -283,7 +287,7 @@ async function generateDummyData() {
           price: parseFloat(faker.commerce.price({ min: 10, max: 1000 })),
           quantity: faker.number.int({ min: 0, max: 100 }),
           image_url: faker.image.url({ width: 400, height: 400 }),
-          store_id: store.id,
+          store_name: store.domain_name,
         };
 
         const { data, error } = await supabase
