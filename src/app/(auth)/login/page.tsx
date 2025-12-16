@@ -9,8 +9,6 @@ import {
   Mail,
   Lock,
   Shield,
-  Zap,
-  Users,
   AlertCircle,
   CheckCircle,
 } from "lucide-react";
@@ -87,7 +85,7 @@ export default function Login() {
     }
 
     setIsSubmitting(true);
-    setAttemptCount(prev => prev + 1);
+    setAttemptCount((prev) => prev + 1);
 
     try {
       // Simulate API call
@@ -97,7 +95,7 @@ export default function Login() {
 
       // Show success state
       setShowSuccess(true);
-      
+
       // Simulate redirect after success
       setTimeout(() => {
         alert("Login successful! Redirecting to dashboard...");
@@ -118,7 +116,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-orange-50">
       {/* Header */}
       <Navbar />
 
@@ -126,7 +124,7 @@ export default function Login() {
         <div className="grid lg:grid-cols-2 gap-16 items-center min-h-[calc(100vh-200px)]">
           {/* Left Column - Features */}
           <Left />
-          
+
           {/* Right Column - Login Form */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -139,7 +137,7 @@ export default function Login() {
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
-                className="w-16 h-16 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center"
+                className="w-16 h-16 bg-gradient-to-r from-[#ff6800] to-[#101828] rounded-2xl mx-auto mb-4 flex items-center justify-center"
               >
                 <Shield className="w-8 h-8 text-white" />
               </motion.div>
@@ -159,7 +157,9 @@ export default function Login() {
                 className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center space-x-3"
               >
                 <CheckCircle className="w-5 h-5 text-green-600" />
-                <span className="text-green-800 font-medium">Login successful! Redirecting...</span>
+                <span className="text-green-800 font-medium">
+                  Login successful! Redirecting...
+                </span>
               </motion.div>
             )}
 
@@ -183,7 +183,10 @@ export default function Login() {
                 className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center space-x-3"
               >
                 <AlertCircle className="w-5 h-5 text-amber-600" />
-                <span className="text-amber-800">Multiple failed attempts detected. Please wait before trying again.</span>
+                <span className="text-amber-800">
+                  Multiple failed attempts detected. Please wait before trying
+                  again.
+                </span>
               </motion.div>
             )}
 
@@ -205,16 +208,20 @@ export default function Login() {
                     onChange={handleInputChange}
                     required
                     autoComplete="email"
-                    className={`w-full px-4 py-4 pl-12 border-2 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-slate-50/50 hover:bg-white ${
+                    className={`w-full px-4 py-4 pl-12 border-2 rounded-2xl focus:ring-2 focus:ring-[#ff6800] focus:border-[#ff6800] transition-all duration-200 bg-slate-50/50 hover:bg-white ${
                       errors.email
                         ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500"
                         : "border-slate-200 hover:border-slate-300"
                     }`}
                     placeholder="john@company.com"
                   />
-                  <Mail className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
-                    errors.email ? "text-red-400" : "text-slate-400 group-hover:text-slate-600"
-                  }`} />
+                  <Mail
+                    className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
+                      errors.email
+                        ? "text-red-400"
+                        : "text-slate-400 group-hover:text-slate-600"
+                    }`}
+                  />
                 </div>
                 {errors.email && (
                   <motion.p
@@ -245,21 +252,27 @@ export default function Login() {
                     onChange={handleInputChange}
                     required
                     autoComplete="current-password"
-                    className={`w-full px-4 py-4 pl-12 pr-12 border-2 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-slate-50/50 hover:bg-white ${
+                    className={`w-full px-4 py-4 pl-12 pr-12 border-2 rounded-2xl focus:ring-2 focus:ring-[#ff6800] focus:border-[#ff6800] transition-all duration-200 bg-slate-50/50 hover:bg-white ${
                       errors.password
                         ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500"
                         : "border-slate-200 hover:border-slate-300"
                     }`}
                     placeholder="Enter your password"
                   />
-                  <Lock className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
-                    errors.password ? "text-red-400" : "text-slate-400 group-hover:text-slate-600"
-                  }`} />
+                  <Lock
+                    className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
+                      errors.password
+                        ? "text-red-400"
+                        : "text-slate-400 group-hover:text-slate-600"
+                    }`}
+                  />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-lg hover:bg-slate-100"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                   >
                     {showPassword ? (
                       <EyeOff className="w-5 h-5" />
@@ -289,7 +302,7 @@ export default function Login() {
                     type="checkbox"
                     checked={loginData.rememberMe}
                     onChange={handleInputChange}
-                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 rounded transition-all"
+                    className="h-4 w-4 text-[#ff6800] focus:ring-[#ff6800] border-slate-300 rounded transition-all"
                   />
                   <label
                     htmlFor="rememberMe"
@@ -300,7 +313,7 @@ export default function Login() {
                 </div>
                 <Link
                   href="/forgot-password"
-                  className="text-sm text-indigo-600 hover:text-indigo-500 font-medium transition-colors hover:underline"
+                  className="text-sm text-[#ff6800] hover:text-[#ff6800]/80 font-medium transition-colors hover:underline"
                 >
                   Forgot password?
                 </Link>
@@ -312,7 +325,7 @@ export default function Login() {
                 disabled={isSubmitting || showSuccess || attemptCount >= 5}
                 whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
                 whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
-                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transform transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="w-full bg-gradient-to-r from-[#ff6800] to-[#101828] text-white px-8 py-4 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transform transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {isSubmitting ? (
                   <>
@@ -339,7 +352,7 @@ export default function Login() {
                   Don't have an account?{" "}
                   <Link
                     href="/register"
-                    className="text-indigo-600 hover:text-indigo-500 font-semibold transition-colors hover:underline"
+                    className="text-[#ff6800] hover:text-[#ff6800]/80 font-semibold transition-colors hover:underline"
                   >
                     Create one now
                   </Link>
@@ -399,7 +412,7 @@ export default function Login() {
                     fill="currentColor"
                     viewBox="0 0 24 24"
                   >
-                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
                   </svg>
                   <span className="ml-2">GitHub</span>
                 </motion.button>

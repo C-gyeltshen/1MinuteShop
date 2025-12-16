@@ -226,7 +226,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-orange-50">
       {/* Header */}
       <Navbar />
 
@@ -247,7 +247,7 @@ export default function Register() {
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
-                className="w-16 h-16 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center"
+                className="w-16 h-16 bg-gradient-to-r from-[#ff6800] to-[#101828] rounded-2xl mx-auto mb-4 flex items-center justify-center"
               >
                 <Shield className="w-8 h-8 text-white" />
               </motion.div>
@@ -304,7 +304,7 @@ export default function Register() {
                     onChange={handleInputChange}
                     required
                     autoComplete="name"
-                    className={`w-full px-4 py-4 pl-12 border-2 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-slate-50/50 hover:bg-white ${
+                    className={`w-full px-4 py-4 pl-12 border-2 rounded-2xl focus:ring-2 focus:ring-[#ff6800] focus:border-[#ff6800] transition-all duration-200 bg-slate-50/50 hover:bg-white ${
                       errors.fullName
                         ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500"
                         : "border-slate-200 hover:border-slate-300"
@@ -348,7 +348,7 @@ export default function Register() {
                     onChange={handleInputChange}
                     required
                     autoComplete="organization"
-                    className={`w-full px-4 py-4 pl-12 border-2 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-slate-50/50 hover:bg-white ${
+                    className={`w-full px-4 py-4 pl-12 border-2 rounded-2xl focus:ring-2 focus:ring-[#ff6800] focus:border-[#ff6800] transition-all duration-200 bg-slate-50/50 hover:bg-white ${
                       errors.shopName
                         ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500"
                         : "border-slate-200 hover:border-slate-300"
@@ -403,7 +403,7 @@ export default function Register() {
                     onChange={handleInputChange}
                     required
                     autoComplete="email"
-                    className={`w-full px-4 py-4 pl-12 border-2 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-slate-50/50 hover:bg-white ${
+                    className={`w-full px-4 py-4 pl-12 border-2 rounded-2xl focus:ring-2 focus:ring-[#ff6800] focus:border-[#ff6800] transition-all duration-200 bg-slate-50/50 hover:bg-white ${
                       errors.email
                         ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500"
                         : "border-slate-200 hover:border-slate-300"
@@ -447,7 +447,7 @@ export default function Register() {
                     onChange={handleInputChange}
                     required
                     autoComplete="new-password"
-                    className={`w-full px-4 py-4 pl-12 pr-12 border-2 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-slate-50/50 hover:bg-white ${
+                    className={`w-full px-4 py-4 pl-12 pr-12 border-2 rounded-2xl focus:ring-2 focus:ring-[#ff6800] focus:border-[#ff6800] transition-all duration-200 bg-slate-50/50 hover:bg-white ${
                       errors.password
                         ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500"
                         : "border-slate-200 hover:border-slate-300"
@@ -544,7 +544,7 @@ export default function Register() {
                     onChange={handleInputChange}
                     required
                     autoComplete="new-password"
-                    className={`w-full px-4 py-4 pl-12 pr-12 border-2 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-slate-50/50 hover:bg-white ${
+                    className={`w-full px-4 py-4 pl-12 pr-12 border-2 rounded-2xl focus:ring-2 focus:ring-[#ff6800] focus:border-[#ff6800] transition-all duration-200 bg-slate-50/50 hover:bg-white ${
                       errors.confirmPassword
                         ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500"
                         : registerData.confirmPassword &&
@@ -604,7 +604,7 @@ export default function Register() {
                     type="checkbox"
                     checked={registerData.agreeToTerms}
                     onChange={handleInputChange}
-                    className={`h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 rounded transition-all mt-1 ${
+                    className={`h-4 w-4 text-[#ff6800] focus:ring-[#ff6800] border-slate-300 rounded transition-all mt-1 ${
                       errors.agreeToTerms ? "border-red-500" : ""
                     }`}
                   />
@@ -615,14 +615,14 @@ export default function Register() {
                     I agree to the{" "}
                     <Link
                       href="/terms"
-                      className="text-indigo-600 hover:text-indigo-500 font-medium underline"
+                      className="text-[#ff6800] hover:text-[#ff6800]/80 font-medium underline"
                     >
                       Terms and Conditions
                     </Link>{" "}
                     and{" "}
                     <Link
                       href="/privacy"
-                      className="text-indigo-600 hover:text-indigo-500 font-medium underline"
+                      className="text-[#ff6800] hover:text-[#ff6800]/80 font-medium underline"
                     >
                       Privacy Policy
                     </Link>
@@ -647,7 +647,7 @@ export default function Register() {
                     type="checkbox"
                     checked={registerData.agreeToMarketing}
                     onChange={handleInputChange}
-                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 rounded transition-all mt-1"
+                    className="h-4 w-4 text-[#ff6800] focus:ring-[#ff6800] border-slate-300 rounded transition-all mt-1"
                   />
                   <label
                     htmlFor="agreeToMarketing"
@@ -665,7 +665,7 @@ export default function Register() {
                 disabled={isSubmitting || showSuccess}
                 whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
                 whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
-                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transform transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="w-full bg-gradient-to-r from-[#ff6800] to-[#101828] text-white px-8 py-4 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transform transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {isSubmitting ? (
                   <>
@@ -692,7 +692,7 @@ export default function Register() {
                   Already have an account?{" "}
                   <Link
                     href="/login"
-                    className="text-indigo-600 hover:text-indigo-500 font-semibold transition-colors hover:underline"
+                    className="text-[#ff6800] hover:text-[#ff6800]/80 font-semibold transition-colors hover:underline"
                   >
                     Sign in here
                   </Link>

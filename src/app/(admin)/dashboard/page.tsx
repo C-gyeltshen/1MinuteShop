@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
 import {
   Store,
   Zap,
@@ -16,9 +15,8 @@ import {
   Sparkles,
   PlayCircle,
 } from "lucide-react";
-
+import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import Navbar from "@/app/components/Navbar";
 
 const splashMessages = [
   {
@@ -111,9 +109,6 @@ const steps = [
 export default function Dashboard() {
   const [splashIndex, setSplashIndex] = useState(0);
   const [showSplash, setShowSplash] = useState(true);
-  const [activeTab, setActiveTab] = useState("features");
-
-  const router = useRouter();
 
   useEffect(() => {
     if (splashIndex < splashMessages.length - 1) {
@@ -131,7 +126,7 @@ export default function Dashboard() {
         {showSplash && (
           <motion.div
             key="splash"
-            className="fixed inset-0 z-50 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center"
+            className="fixed inset-0 z-50 bg-gradient-to-br from-[#101828] via-[#ff6800] to-[#101828] flex items-center justify-center"
             initial={{ opacity: 1 }}
             exit={{ opacity: 0, transition: { duration: 1 } }}
           >
@@ -167,52 +162,58 @@ export default function Dashboard() {
       </AnimatePresence>
 
       {!showSplash && (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50">
+        <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
           {/* Navigation */}
           <Navbar />
+
           {/* Hero Section */}
-          <section className="py-20 px-4">
+          <section className="pt-32 pb-20 px-4">
             <div className="max-w-7xl mx-auto text-center">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
               >
-                <h1 className="text-5xl md:text-6xl font-bold text-slate-900 mb-6">
-                  Build Your
-                  <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                    {" "}
-                    Dream Store{" "}
+                <div className="inline-block bg-[#ff6800]/10 border border-[#ff6800]/30 rounded-full px-6 py-2 mb-8">
+                  <span className="text-[#ff6800] font-medium">
+                    🚀 Launch Your Store in 60 Seconds
                   </span>
-                  in 60 Seconds
+                </div>
+
+                <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+                  Build Your Dream Store
+                  <span className="block bg-gradient-to-r from-[#ff6800] to-[#ff9d4d] bg-clip-text text-transparent">
+                    Without the Hassle
+                  </span>
                 </h1>
-                <p className="text-xl text-slate-600 mb-8 max-w-3xl mx-auto">
+
+                <p className="text-xl text-slate-400 mb-10 max-w-3xl mx-auto leading-relaxed">
                   No coding. No complexity. Just pure ecommerce magic. From zero
                   to selling in less time than it takes to order lunch.
                 </p>
+
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-                  <button className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-full font-semibold text-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center space-x-2"
-                  type="button"
-                  onClick={()=> router.push('/register')}>
+                  <button className="bg-[#ff6800] text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-[#e55f00] transform hover:scale-105 transition-all duration-200 flex items-center space-x-2 shadow-lg shadow-[#ff6800]/20">
                     <PlayCircle className="w-6 h-6" />
                     <span>Start Building Now</span>
                     <ArrowRight className="w-5 h-5" />
                   </button>
-                  <button className="border-2 border-slate-300 text-slate-700 px-8 py-4 rounded-full font-semibold text-lg hover:border-indigo-600 hover:text-indigo-600 transition-all duration-200">
+                  <button className="border-2 border-slate-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:border-[#ff6800] hover:bg-[#ff6800]/10 transition-all duration-200">
                     Watch Demo
                   </button>
                 </div>
-                <div className="flex justify-center items-center space-x-8 text-sm text-slate-500">
-                  <div className="flex items-center space-x-1">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
+
+                <div className="flex flex-wrap justify-center items-center gap-8 text-sm text-slate-400">
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="w-5 h-5 text-[#ff6800]" />
                     <span>Free forever plan</span>
                   </div>
-                  <div className="flex items-center space-x-1">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="w-5 h-5 text-[#ff6800]" />
                     <span>No credit card needed</span>
                   </div>
-                  <div className="flex items-center space-x-1">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="w-5 h-5 text-[#ff6800]" />
                     <span>Launch instantly</span>
                   </div>
                 </div>
@@ -221,13 +222,13 @@ export default function Dashboard() {
           </section>
 
           {/* How It Works */}
-          <section className="py-20 bg-white">
+          <section className="py-20 bg-slate-800/50" id="features">
             <div className="max-w-7xl mx-auto px-4">
               <div className="text-center mb-16">
-                <h2 className="text-4xl font-bold text-slate-900 mb-4">
+                <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
                   How It Works
                 </h2>
-                <p className="text-xl text-slate-600">
+                <p className="text-xl text-slate-400">
                   Three simple steps to ecommerce success
                 </p>
               </div>
@@ -238,15 +239,18 @@ export default function Dashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: index * 0.2 }}
-                    className="text-center group"
+                    className="text-center group relative"
                   >
-                    <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-2xl font-bold w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
-                      {step.number}
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#ff6800]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="relative bg-slate-700/50 backdrop-blur-sm border border-slate-600/50 rounded-2xl p-8 hover:border-[#ff6800]/50 transition-all duration-300">
+                      <div className="bg-gradient-to-r from-[#ff6800] to-[#ff9d4d] text-white text-2xl font-bold w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-[#ff6800]/30">
+                        {step.number}
+                      </div>
+                      <h3 className="text-2xl font-bold text-white mb-3">
+                        {step.title}
+                      </h3>
+                      <p className="text-slate-400">{step.description}</p>
                     </div>
-                    <h3 className="text-2xl font-bold text-slate-900 mb-3">
-                      {step.title}
-                    </h3>
-                    <p className="text-slate-600">{step.description}</p>
                   </motion.div>
                 ))}
               </div>
@@ -254,32 +258,32 @@ export default function Dashboard() {
           </section>
 
           {/* Features Section */}
-          <section className="py-20 bg-gradient-to-br from-slate-50 to-indigo-50">
+          <section className="py-20">
             <div className="max-w-7xl mx-auto px-4">
               <div className="text-center mb-16">
-                <h2 className="text-4xl font-bold text-slate-900 mb-4">
+                <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
                   Everything You Need to Succeed
                 </h2>
-                <p className="text-xl text-slate-600">
+                <p className="text-xl text-slate-400">
                   Powerful features that grow with your business
                 </p>
               </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {features.map((feature, index) => (
                   <motion.div
                     key={feature.title}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: index * 0.1 }}
-                    className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-200 border border-slate-100 group hover:border-indigo-200"
+                    className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 p-8 rounded-2xl hover:border-[#ff6800]/50 transition-all duration-300 group"
                   >
-                    <div className="text-indigo-600 mb-4 group-hover:scale-110 transition-transform duration-200">
+                    <div className="text-[#ff6800] mb-4 group-hover:scale-110 transition-transform duration-200">
                       {feature.icon}
                     </div>
-                    <h3 className="text-xl font-bold text-slate-900 mb-3">
+                    <h3 className="text-xl font-bold text-white mb-3">
                       {feature.title}
                     </h3>
-                    <p className="text-slate-600">{feature.description}</p>
+                    <p className="text-slate-400">{feature.description}</p>
                   </motion.div>
                 ))}
               </div>
@@ -287,13 +291,13 @@ export default function Dashboard() {
           </section>
 
           {/* Social Proof */}
-          <section className="py-20 bg-white">
+          <section className="py-20 bg-slate-800/50" id="testimonials">
             <div className="max-w-7xl mx-auto px-4">
               <div className="text-center mb-16">
-                <h2 className="text-4xl font-bold text-slate-900 mb-4">
+                <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
                   Join Thousands of Successful Sellers
                 </h2>
-                <p className="text-xl text-slate-600">
+                <p className="text-xl text-slate-400">
                   Real stories from real entrepreneurs
                 </p>
               </div>
@@ -304,19 +308,19 @@ export default function Dashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: index * 0.2 }}
-                    className="bg-gradient-to-br from-indigo-50 to-purple-50 p-8 rounded-2xl border border-indigo-100"
+                    className="bg-slate-700/50 backdrop-blur-sm border border-slate-600/50 p-8 rounded-2xl hover:border-[#ff6800]/50 transition-all duration-300"
                   >
-                    <div className="text-2xl font-bold text-indigo-600 mb-2">
+                    <div className="text-3xl font-bold text-[#ff6800] mb-4">
                       {testimonial.revenue}
                     </div>
-                    <p className="text-slate-700 mb-4 italic">
+                    <p className="text-slate-300 mb-6 italic text-lg">
                       "{testimonial.quote}"
                     </p>
-                    <div>
-                      <div className="font-semibold text-slate-900">
+                    <div className="border-t border-slate-600/50 pt-4">
+                      <div className="font-semibold text-white text-lg">
                         {testimonial.name}
                       </div>
-                      <div className="text-slate-600 text-sm">
+                      <div className="text-slate-400 text-sm">
                         {testimonial.business}
                       </div>
                     </div>
@@ -327,8 +331,9 @@ export default function Dashboard() {
           </section>
 
           {/* CTA Section */}
-          <section className="py-20 bg-gradient-to-r from-indigo-600 to-purple-600">
-            <div className="max-w-4xl mx-auto text-center px-4">
+          <section className="py-20 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-[#ff6800]/20 to-[#ff9d4d]/20 blur-3xl"></div>
+            <div className="max-w-4xl mx-auto text-center px-4 relative z-10">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -337,16 +342,16 @@ export default function Dashboard() {
                 <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
                   Ready to Build Your Empire?
                 </h2>
-                <p className="text-xl text-indigo-100 mb-8">
+                <p className="text-xl text-slate-300 mb-8">
                   Join over 50,000 entrepreneurs who chose 1MinuteShop to launch
                   their dreams
                 </p>
-                <button className="bg-white text-indigo-600 px-8 py-4 rounded-full font-bold text-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 inline-flex items-center space-x-2">
+                <button className="bg-[#ff6800] text-white px-10 py-5 rounded-xl font-bold text-lg hover:bg-[#e55f00] transform hover:scale-105 transition-all duration-200 inline-flex items-center space-x-3 shadow-xl shadow-[#ff6800]/30">
                   <Zap className="w-6 h-6" />
                   <span>Start Your Free Store Now</span>
                   <ArrowRight className="w-5 h-5" />
                 </button>
-                <p className="text-indigo-200 text-sm mt-4">
+                <p className="text-slate-400 text-sm mt-6">
                   No credit card required • Free forever plan available
                 </p>
               </motion.div>
