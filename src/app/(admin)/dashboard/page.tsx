@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
+import { useRouter } from "next/navigation";
 
 const splashMessages = [
   {
@@ -107,6 +108,7 @@ const steps = [
 ];
 
 export default function Dashboard() {
+  const router = useRouter();
   const [splashIndex, setSplashIndex] = useState(0);
   const [showSplash, setShowSplash] = useState(true);
 
@@ -193,7 +195,10 @@ export default function Dashboard() {
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-                  <button className="bg-[#ff6800] text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-[#e55f00] transform hover:scale-105 transition-all duration-200 flex items-center space-x-2 shadow-lg shadow-[#ff6800]/20">
+                  <button
+                    onClick={() => router.push("/register")}
+                    className="bg-[#ff6800] text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-[#e55f00] transform hover:scale-105 transition-all duration-200 flex items-center space-x-2 shadow-lg shadow-[#ff6800]/20"
+                  >
                     <PlayCircle className="w-6 h-6" />
                     <span>Start Building Now</span>
                     <ArrowRight className="w-5 h-5" />
