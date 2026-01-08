@@ -8,7 +8,6 @@ import {
   LogIn,
   Mail,
   Lock,
-  Shield,
   AlertCircle,
   CheckCircle,
 } from "lucide-react";

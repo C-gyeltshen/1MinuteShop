@@ -7,7 +7,6 @@ import {
   EyeOff,
   Mail,
   Lock,
-  Shield,
   User,
   Store,
   AlertCircle,
@@ -26,8 +25,6 @@ interface RegisterData {
   email: string;
   password: string;
   confirmPassword: string;
-  agreeToTerms: boolean;
-  agreeToMarketing: boolean;
 }
 
 interface RegisterErrors {
@@ -46,9 +43,7 @@ export default function Register() {
     shopName: "",
     email: "",
     password: "",
-    confirmPassword: "",
-    agreeToTerms: false,
-    agreeToMarketing: false,
+    confirmPassword: ""
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -170,10 +165,6 @@ export default function Register() {
       newErrors.confirmPassword = "Passwords do not match";
     }
 
-    // Terms agreement validation
-    if (!registerData.agreeToTerms) {
-      newErrors.agreeToTerms = "You must agree to the terms and conditions";
-    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -210,9 +201,7 @@ export default function Register() {
         shopName: "",
         email: "",
         password: "",
-        confirmPassword: "",
-        agreeToTerms: false,
-        agreeToMarketing: false,
+        confirmPassword: ""
       });
       setPasswordStrength({ score: 0, feedback: [], color: "bg-gray-200" });
     } catch (error) {
@@ -624,7 +613,6 @@ export default function Register() {
           </motion.div>
         </div>
       </div>
-
       {/* Footer */}
       <Footer />
     </div>
