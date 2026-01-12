@@ -1,56 +1,85 @@
 "use client"
 
-import React, { useState } from 'react';
-import { Plus, Edit2, Trash2, Search, Store, Package, DollarSign, X, Upload } from 'lucide-react';
+import React, { useState } from "react";
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  Search,
+  Store,
+  Package,
+  DollarSign,
+  X,
+  Upload,
+} from "lucide-react";
 
-const ShopDashboard = () => {
-  const [products, setProducts] = useState([
+type Product = {
+  id: number | null;
+  name: string;
+  description: string;
+  price: number | string;
+  quantity: number | string;
+  image: string;
+};
+
+export default function ShopDashboard() {
+  const [products, setProducts] = useState<Product[]>([
     {
       id: 1,
-      name: 'Wireless Headphones',
-      description: 'Premium noise-canceling headphones with 30-hour battery life',
+      name: "Wireless Headphones",
+      description:
+        "Premium noise-canceling headphones with 30-hour battery life",
       price: 299.99,
       quantity: 45,
-      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200',
+      image:
+        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200",
     },
     {
       id: 2,
-      name: 'Smart Watch',
-      description: 'Fitness tracker with heart rate monitor and GPS',
+      name: "Smart Watch",
+      description: "Fitness tracker with heart rate monitor and GPS",
       price: 199.99,
       quantity: 32,
-      image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200',
+      image:
+        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200",
     },
     {
       id: 3,
-      name: 'Laptop Backpack',
-      description: 'Water-resistant backpack with laptop compartment',
+      name: "Laptop Backpack",
+      description: "Water-resistant backpack with laptop compartment",
       price: 79.99,
       quantity: 15,
-      image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=200',
+      image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=200",
     },
   ]);
 
   const [openDialog, setOpenDialog] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [currentProduct, setCurrentProduct] = useState({
+  const [currentProduct, setCurrentProduct] = useState<Product>({
     id: null,
-    name: '',
-    description: '',
-    price: '',
-    quantity: '',
-    image: '',
+    name: "",
+    description: "",
+    price: "",
+    quantity: "",
+    image: "",
   });
-  const [searchQuery, setSearchQuery] = useState('');
-  const [imagePreview, setImagePreview] = useState('');
-  const [notification, setNotification] = useState({ show: false, message: '', type: '' });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [imagePreview, setImagePreview] = useState("");
+  const [notification, setNotification] = useState({
+    show: false,
+    message: "",
+    type: "",
+  });
 
-  const showNotification = (message, type = 'success') => {
+  const showNotification = (message: string, type: string = "success") => {
     setNotification({ show: true, message, type });
-    setTimeout(() => setNotification({ show: false, message: '', type: '' }), 3000);
+    setTimeout(
+      () => setNotification({ show: false, message: "", type: "" }),
+      3000
+    );
   };
 
-  const handleOpenDialog = (product = null) => {
+  const handleOpenDialog = (product: Product | null = null) => {
     if (product) {
       setEditMode(true);
       setCurrentProduct(product);
@@ -59,13 +88,13 @@ const ShopDashboard = () => {
       setEditMode(false);
       setCurrentProduct({
         id: null,
-        name: '',
-        description: '',
-        price: '',
-        quantity: '',
-        image: '',
+        name: "",
+        description: "",
+        price: "",
+        quantity: "",
+        image: "",
       });
-      setImagePreview('');
+      setImagePreview("");
     }
     setOpenDialog(true);
   };
@@ -74,66 +103,81 @@ const ShopDashboard = () => {
     setOpenDialog(false);
     setCurrentProduct({
       id: null,
-      name: '',
-      description: '',
-      price: '',
-      quantity: '',
-      image: '',
+      name: "",
+      description: "",
+      price: "",
+      quantity: "",
+      image: "",
     });
-    setImagePreview('');
+    setImagePreview("");
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setCurrentProduct({ ...currentProduct, [name]: value });
   };
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files && e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result);
-        setCurrentProduct({ ...currentProduct, image: reader.result });
+        setImagePreview(reader.result as string);
+        setCurrentProduct({ ...currentProduct, image: reader.result as string });
       };
       reader.readAsDataURL(file);
     }
   };
 
   const handleSaveProduct = () => {
-    if (!currentProduct.name || !currentProduct.price || !currentProduct.quantity) {
-      showNotification('Please fill in all required fields', 'error');
+    if (
+      !currentProduct.name ||
+      !currentProduct.price ||
+      !currentProduct.quantity
+    ) {
+      showNotification("Please fill in all required fields", "error");
       return;
     }
 
     if (editMode) {
-      setProducts(products.map((p) => (p.id === currentProduct.id ? currentProduct : p)));
-      showNotification('Product updated successfully!');
+      setProducts(
+        products.map((p) => (p.id === currentProduct.id ? currentProduct : p))
+      );
+      showNotification("Product updated successfully!");
     } else {
       const newProduct = {
         ...currentProduct,
-        id: Math.max(...products.map((p) => p.id), 0) + 1,
-        price: parseFloat(currentProduct.price),
-        quantity: parseInt(currentProduct.quantity),
+        id: Math.max(...products.map((p) => p.id || 0), 0) + 1,
+        price: parseFloat(currentProduct.price as string),
+        quantity: parseInt(currentProduct.quantity as string),
       };
       setProducts([...products, newProduct]);
-      showNotification('Product added successfully!');
+      showNotification("Product added successfully!");
     }
     handleCloseDialog();
   };
 
-  const handleDeleteProduct = (id) => {
+  const handleDeleteProduct = (id: number | null) => {
     setProducts(products.filter((p) => p.id !== id));
-    showNotification('Product deleted successfully!', 'info');
+    showNotification("Product deleted successfully!", "info");
   };
 
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.description.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredProducts = products.filter(
+    (product) =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const totalValue = products.reduce((sum, p) => sum + p.price * p.quantity, 0);
-  const totalQuantity = products.reduce((sum, p) => sum + p.quantity, 0);
+  const totalValue = products.reduce(
+    (sum, p) => sum + parseFloat(p.price as any) * parseInt(p.quantity as any),
+    0
+  );
+  const totalQuantity = products.reduce(
+    (sum, p) => sum + parseInt(p.quantity as any),
+    0
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4 md:p-8">
@@ -141,11 +185,11 @@ const ShopDashboard = () => {
         <div className="fixed top-4 right-4 z-50 animate-slide-in">
           <div
             className={`rounded-lg shadow-lg px-6 py-4 flex items-center space-x-3 ${
-              notification.type === 'error'
-                ? 'bg-red-500 text-white'
-                : notification.type === 'info'
-                ? 'bg-blue-500 text-white'
-                : 'bg-green-500 text-white'
+              notification.type === "error"
+                ? "bg-red-500 text-white"
+                : notification.type === "info"
+                ? "bg-blue-500 text-white"
+                : "bg-green-500 text-white"
             }`}
           >
             <span className="font-medium">{notification.message}</span>
@@ -158,7 +202,9 @@ const ShopDashboard = () => {
           <Store className="w-10 h-10 text-[#ff6800]" />
           <h1 className="text-4xl font-bold text-white">Shop Dashboard</h1>
         </div>
-        <p className="text-slate-400 text-lg">Manage your products and inventory</p>
+        <p className="text-slate-400 text-lg">
+          Manage your products and inventory
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -166,7 +212,9 @@ const ShopDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-slate-400 text-sm mb-1">Total Products</p>
-              <p className="text-4xl font-bold text-[#ff6800]">{products.length}</p>
+              <p className="text-4xl font-bold text-[#ff6800]">
+                {products.length}
+              </p>
             </div>
             <Package className="w-12 h-12 text-[#ff6800] opacity-50" />
           </div>
@@ -176,7 +224,9 @@ const ShopDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-slate-400 text-sm mb-1">Total Inventory</p>
-              <p className="text-4xl font-bold text-green-500">{totalQuantity}</p>
+              <p className="text-4xl font-bold text-green-500">
+                {totalQuantity}
+              </p>
             </div>
             <Store className="w-12 h-12 text-green-500 opacity-50" />
           </div>
@@ -186,7 +236,9 @@ const ShopDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-slate-400 text-sm mb-1">Total Value</p>
-              <p className="text-4xl font-bold text-blue-500">Nu.  {totalValue.toFixed(2)}</p>
+              <p className="text-4xl font-bold text-blue-500">
+                Nu. {totalValue.toFixed(2)}
+              </p>
             </div>
             <DollarSign className="w-12 h-12 text-blue-500 opacity-50" />
           </div>
@@ -218,17 +270,30 @@ const ShopDashboard = () => {
           <table className="w-full">
             <thead className="bg-slate-900/50">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Product</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Description</th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-slate-300">Price</th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-slate-300">Quantity</th>
-                <th className="px-6 py-4 text-center text-sm font-semibold text-slate-300">Actions</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+                  Product
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+                  Description
+                </th>
+                <th className="px-6 py-4 text-right text-sm font-semibold text-slate-300">
+                  Price
+                </th>
+                <th className="px-6 py-4 text-right text-sm font-semibold text-slate-300">
+                  Quantity
+                </th>
+                <th className="px-6 py-4 text-center text-sm font-semibold text-slate-300">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
               {filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="px-6 py-12 text-center text-slate-400">
+                  <td
+                    colSpan={5}
+                    className="px-6 py-12 text-center text-slate-400"
+                  >
                     No products found
                   </td>
                 </tr>
@@ -242,30 +307,51 @@ const ShopDashboard = () => {
                       <div className="flex items-center space-x-3">
                         <div className="w-14 h-14 rounded-lg bg-slate-700 flex items-center justify-center overflow-hidden">
                           {product.image ? (
-                            <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                            <img
+                              src={product.image}
+                              alt={product.name}
+                              className="w-full h-full object-cover"
+                            />
                           ) : (
-                            <svg className="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" strokeWidth="2"/>
-                              <circle cx="8.5" cy="8.5" r="1.5"/>
-                              <polyline points="21 15 16 10 5 21"/>
+                            <svg
+                              className="w-6 h-6 text-slate-500"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <rect
+                                x="3"
+                                y="3"
+                                width="18"
+                                height="18"
+                                rx="2"
+                                ry="2"
+                                strokeWidth="2"
+                              />
+                              <circle cx="8.5" cy="8.5" r="1.5" />
+                              <polyline points="21 15 16 10 5 21" />
                             </svg>
                           )}
                         </div>
-                        <span className="text-white font-medium">{product.name}</span>
+                        <span className="text-white font-medium">
+                          {product.name}
+                        </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-slate-400 max-w-xs truncate">{product.description}</td>
+                    <td className="px-6 py-4 text-slate-400 max-w-xs truncate">
+                      {product.description}
+                    </td>
                     <td className="px-6 py-4 text-right">
                       <span className="inline-block bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm font-semibold">
-                        Nu. {product.price.toFixed(2)}
+                        Nu. {parseFloat(product.price as any).toFixed(2)}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
                       <span
                         className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                          product.quantity < 20
-                            ? 'bg-red-500/20 text-red-400'
-                            : 'bg-blue-500/20 text-blue-400'
+                          parseInt(product.quantity as any) < 20
+                            ? "bg-red-500/20 text-red-400"
+                            : "bg-blue-500/20 text-blue-400"
                         }`}
                       >
                         {product.quantity}
@@ -300,7 +386,7 @@ const ShopDashboard = () => {
           <div className="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-6 border-b border-slate-700">
               <h2 className="text-2xl font-bold text-white">
-                {editMode ? 'Edit Product' : 'Add New Product'}
+                {editMode ? "Edit Product" : "Add New Product"}
               </h2>
               <button
                 onClick={handleCloseDialog}
@@ -312,7 +398,9 @@ const ShopDashboard = () => {
 
             <div className="p-6 space-y-6">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Product Image</label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Product Image
+                </label>
                 <div className="border-2 border-dashed border-slate-600 rounded-xl p-6 text-center hover:border-[#ff6800] transition-colors">
                   <input
                     type="file"
@@ -329,12 +417,16 @@ const ShopDashboard = () => {
                           alt="Preview"
                           className="w-32 h-32 object-cover rounded-lg mx-auto"
                         />
-                        <p className="text-sm text-slate-400">Click to change image</p>
+                        <p className="text-sm text-slate-400">
+                          Click to change image
+                        </p>
                       </div>
                     ) : (
                       <div className="space-y-3">
                         <Upload className="w-12 h-12 text-slate-400 mx-auto" />
-                        <p className="text-slate-400">Click to upload product image</p>
+                        <p className="text-slate-400">
+                          Click to upload product image
+                        </p>
                       </div>
                     )}
                   </label>
@@ -356,12 +448,14 @@ const ShopDashboard = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Description</label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Description
+                </label>
                 <textarea
                   name="description"
                   value={currentProduct.description}
                   onChange={handleInputChange}
-                  rows="3"
+                  rows={3}
                   className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-[#ff6800] transition-colors resize-none"
                   placeholder="Enter product description"
                 />
@@ -373,7 +467,7 @@ const ShopDashboard = () => {
                     Price <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></span>
+                    <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" />
                     <input
                       type="number"
                       name="price"
@@ -415,7 +509,7 @@ const ShopDashboard = () => {
                 onClick={handleSaveProduct}
                 className="px-6 py-3 bg-[#ff6800] text-white rounded-xl font-semibold hover:bg-[#e55f00] transition-colors"
               >
-                {editMode ? 'Update' : 'Add'} Product
+                {editMode ? "Update" : "Add"} Product
               </button>
             </div>
           </div>
@@ -423,6 +517,4 @@ const ShopDashboard = () => {
       )}
     </div>
   );
-};
-
-export default ShopDashboard;
+}
