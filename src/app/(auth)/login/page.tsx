@@ -1,6 +1,6 @@
-"use client";
+'use client'
 
-import React, { useState } from "react";
+import React, { useState } from 'react'
 import {
   ArrowRight,
   Eye,
@@ -10,108 +10,114 @@ import {
   Lock,
   AlertCircle,
   CheckCircle,
-} from "lucide-react";
-import { motion } from "framer-motion";
-import Link from "next/link";
-import Navbar from "@/app/components/Navbar";
-import Footer from "@/app/components/Footer";
+} from 'lucide-react'
+import { motion } from 'framer-motion'
+import Link from 'next/link'
+import Navbar from '@/app/components/Navbar'
+import Footer from '@/app/components/Footer'
+import { login } from '@/app/shared/services/authServices'
 
 interface LoginData {
-  email: string;
-  password: string;
-  rememberMe: boolean;
+  email: string
+  password: string
+  rememberMe: boolean
 }
 
 interface LoginErrors {
-  [key: string]: string;
+  [key: string]: string
 }
 
 export default function Login() {
   const [loginData, setLoginData] = useState<LoginData>({
-    email: "",
-    password: "",
+    email: '',
+    password: '',
     rememberMe: false,
-  });
-  const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<LoginErrors>({});
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [attemptCount, setAttemptCount] = useState(0);
+  })
+  const [showPassword, setShowPassword] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errors, setErrors] = useState<LoginErrors>({})
+  const [showSuccess, setShowSuccess] = useState(false)
+  const [attemptCount, setAttemptCount] = useState(0)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    const newValue = type === "checkbox" ? checked : value;
+    const { name, value, type, checked } = e.target
+    const newValue = type === 'checkbox' ? checked : value
 
     setLoginData((prev) => ({
       ...prev,
       [name]: newValue,
-    }));
+    }))
 
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
-        [name]: "",
-      }));
+        [name]: '',
+      }))
     }
-  };
+  }
 
   const validateForm = (): boolean => {
-    const newErrors: LoginErrors = {};
+    const newErrors: LoginErrors = {}
 
     if (!loginData.email.trim()) {
-      newErrors.email = "Email is required";
+      newErrors.email = 'Email is required'
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginData.email)) {
-      newErrors.email = "Please enter a valid email address";
+      newErrors.email = 'Please enter a valid email address'
     }
 
     if (!loginData.password) {
-      newErrors.password = "Password is required";
+      newErrors.password = 'Password is required'
     } else if (loginData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+      newErrors.password = 'Password must be at least 6 characters'
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!validateForm()) {
-      return;
+      return
     }
 
-    setIsSubmitting(true);
-    setAttemptCount((prev) => prev + 1);
+    setIsSubmitting(true)
+    setAttemptCount((prev) => prev + 1)
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Create FormData object for the server action
+      const formData = new FormData()
+      formData.append('email', loginData.email)
+      formData.append('password', loginData.password)
 
-      console.log("Login submitted:", loginData);
+      // Call the login server action
+      const result = await login(formData)
 
-      // Show success state
-      setShowSuccess(true);
-
-      // Simulate redirect after success
-      setTimeout(() => {
-        alert("Login successful! Redirecting to dashboard...");
-      }, 1500);
-
-      // Reset form
-      setLoginData({
-        email: "",
-        password: "",
-        rememberMe: false,
-      });
+      // If result has an error, display it
+      if (result?.error) {
+        setErrors({ general: result.error })
+        setShowSuccess(false)
+      } else {
+        // Show success state
+        setShowSuccess(true)
+        // Reset form
+        setLoginData({
+          email: '',
+          password: '',
+          rememberMe: false,
+        })
+        // The server action will handle the redirect
+      }
     } catch (error) {
-      console.error("Login error:", error);
-      setErrors({ general: "Invalid credentials. Please try again." });
+      console.error('Login error:', error)
+      setErrors({ general: 'An unexpected error occurred. Please try again.' })
+      setShowSuccess(false)
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
@@ -127,7 +133,6 @@ export default function Login() {
             className="bg-slate-800/50 backdrop-blur-sm rounded-3xl shadow-2xl border border-slate-700/50 p-8 lg:p-10 hover:border-[#ff6800]/50 transition-all duration-300"
           >
             <div className="text-center mb-8">
-              
               <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent mb-2">
                 Welcome Back
               </h2>
@@ -197,16 +202,16 @@ export default function Login() {
                     autoComplete="email"
                     className={`w-full px-4 py-4 pl-12 border-2 rounded-2xl focus:ring-2 focus:ring-[#ff6800] focus:border-[#ff6800] transition-all duration-200 bg-slate-700/50 hover:bg-slate-700 text-white placeholder-slate-400 ${
                       errors.email
-                        ? "border-red-500/50 bg-red-500/10 focus:border-red-500 focus:ring-red-500"
-                        : "border-slate-600 hover:border-slate-500"
+                        ? 'border-red-500/50 bg-red-500/10 focus:border-red-500 focus:ring-red-500'
+                        : 'border-slate-600 hover:border-slate-500'
                     }`}
                     placeholder="john@company.com"
                   />
                   <Mail
                     className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
                       errors.email
-                        ? "text-red-400"
-                        : "text-slate-400 group-hover:text-[#ff6800]"
+                        ? 'text-red-400'
+                        : 'text-slate-400 group-hover:text-[#ff6800]'
                     }`}
                   />
                 </div>
@@ -232,7 +237,7 @@ export default function Login() {
                 </label>
                 <div className="relative group">
                   <input
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     id="password"
                     name="password"
                     value={loginData.password}
@@ -241,16 +246,16 @@ export default function Login() {
                     autoComplete="current-password"
                     className={`w-full px-4 py-4 pl-12 pr-12 border-2 rounded-2xl focus:ring-2 focus:ring-[#ff6800] focus:border-[#ff6800] transition-all duration-200 bg-slate-700/50 hover:bg-slate-700 text-white placeholder-slate-400 ${
                       errors.password
-                        ? "border-red-500/50 bg-red-500/10 focus:border-red-500 focus:ring-red-500"
-                        : "border-slate-600 hover:border-slate-500"
+                        ? 'border-red-500/50 bg-red-500/10 focus:border-red-500 focus:ring-red-500'
+                        : 'border-slate-600 hover:border-slate-500'
                     }`}
                     placeholder="Enter your password"
                   />
                   <Lock
                     className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
                       errors.password
-                        ? "text-red-400"
-                        : "text-slate-400 group-hover:text-[#ff6800]"
+                        ? 'text-red-400'
+                        : 'text-slate-400 group-hover:text-[#ff6800]'
                     }`}
                   />
                   <button
@@ -258,7 +263,7 @@ export default function Login() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-[#ff6800] transition-colors p-1 rounded-lg hover:bg-slate-700"
                     aria-label={
-                      showPassword ? "Hide password" : "Show password"
+                      showPassword ? 'Hide password' : 'Show password'
                     }
                   >
                     {showPassword ? (
@@ -352,5 +357,5 @@ export default function Login() {
       {/* Footer */}
       <Footer />
     </div>
-  );
+  )
 }
