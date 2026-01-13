@@ -12,6 +12,7 @@ import {
   X,
   Upload,
 } from "lucide-react";
+import AuthProvider from "@/app/shared/store/authStore";
 
 type Product = {
   id: number | null;
@@ -180,6 +181,7 @@ export default function ShopDashboard() {
   );
 
   return (
+    // <AuthProvider>
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4 md:p-8">
       {notification.show && (
         <div className="fixed top-4 right-4 z-50 animate-slide-in">
@@ -516,5 +518,6 @@ export default function ShopDashboard() {
         </div>
       )}
     </div>
+    // </AuthProvider>
   );
 }

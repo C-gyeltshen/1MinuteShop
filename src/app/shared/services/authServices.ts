@@ -100,15 +100,12 @@ export async function signup(formData: FormData) {
       "http://localhost:8080/api/store-owners/register",
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
           password,
-          ownerName: ownerName,
-          storeName: storeName,
+          ownerName,
+          storeName,
         }),
       }
     );
@@ -116,54 +113,50 @@ export async function signup(formData: FormData) {
     const signupData: SignupResponse = await signupResponse.json();
 
     if (!signupResponse.ok) {
-      console.error("Signup error:", signupData);
-      return {
-        error: signupData.error || signupData.message || "Signup failed",
-      };
+      return { error: signupData.error || "Signup failed" };
     }
 
-    console.log("User and store created successfully:", signupData);
-
-    // Step 2: Auto-login the user after successful signup
-    try {
-      const loginResponse = await fetch(
-        "http://localhost:8080/api/store-owners/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            email,
-            password,
-          }),
-        }
-      );
-
-      const loginData: LoginResponse = await loginResponse.json();
-
-      if (!loginResponse.ok) {
-        console.error("Auto-login error:", loginData);
-        // Don't return error, user can login manually
-        // Just redirect to login page
-        redirect("/login");
+    // Step 2: Auto-login the user
+    const loginResponse = await fetch(
+      "http://localhost:8080/api/store-owners/login",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       }
+    );
 
-      console.log("Auto-login successful:", loginData);
-
-      // Step 3: Revalidate cache and redirect to dashboard
-      revalidatePath("/", "layout");
-      redirect("/shop/dashboard");
-    } catch (loginError: any) {
-      if (loginError?.digest?.startsWith("NEXT_REDIRECT")) throw loginError;
-      console.error("Auto-login failed:", loginError);
-      // If auto-login fails, redirect to login page
+    if (!loginResponse.ok) {
+      // If auto-login fails, send them to manual login
       redirect("/login");
     }
+
+    // Step 3: Extract and forward cookies (Access & Refresh Tokens)
+    const setCookieHeaders = loginResponse.headers.getSetCookie();
+    const cookieStore = await cookies();
+
+    if (setCookieHeaders.length > 0) {
+      setCookieHeaders.forEach((cookieString) => {
+        const [fullCookie] = cookieString.split(";");
+        const [name, value] = fullCookie.split("=");
+
+        cookieStore.set(name.trim(), value, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          path: "/",
+        });
+      });
+    }
+
+    // Step 4: Finalize session
+    revalidatePath("/", "layout");
+    redirect("/shop/dashboard");
   } catch (error: any) {
+    // Crucial: Let Next.js handle its own redirect "errors"
     if (error?.digest?.startsWith("NEXT_REDIRECT")) throw error;
+
     console.error("Unexpected error during signup:", error);
-    return { error: "An unexpected error occurred during registration" };
+    return { error: "An unexpected error occurred" };
   }
 }
