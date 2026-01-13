@@ -20,8 +20,8 @@ import Footer from "@/app/components/Footer";
 import { signup } from "../../shared/services/authServices";
 
 interface RegisterData {
-  fullName: string;
-  shopName: string;
+  ownerName: string;
+  storeName: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -39,8 +39,8 @@ interface PasswordStrength {
 
 export default function Register() {
   const [registerData, setRegisterData] = useState<RegisterData>({
-    fullName: "",
-    shopName: "",
+    ownerName: "",
+    storeName: "",
     email: "",
     password: "",
     confirmPassword: ""
@@ -125,23 +125,23 @@ export default function Register() {
     const newErrors: RegisterErrors = {};
 
     // Full name validation
-    if (!registerData.fullName.trim()) {
-      newErrors.fullName = "Full name is required";
-    } else if (registerData.fullName.trim().length < 2) {
-      newErrors.fullName = "Full name must be at least 2 characters";
-    } else if (!/^[a-zA-Z\s]+$/.test(registerData.fullName.trim())) {
-      newErrors.fullName = "Full name can only contain letters and spaces";
+    if (!registerData.ownerName.trim()) {
+      newErrors.ownerName = "Full name is required";
+    } else if (registerData.ownerName.trim().length < 2) {
+      newErrors.ownerName = "Full name must be at least 2 characters";
+    } else if (!/^[a-zA-Z\s]+$/.test(registerData.ownerName.trim())) {
+      newErrors.ownerName = "Full name can only contain letters and spaces";
     }
 
     // Shop name validation
-    if (!registerData.shopName.trim()) {
-      newErrors.shopName = "Shop name is required";
-    } else if (registerData.shopName.trim().length < 2) {
-      newErrors.shopName = "Shop name must be at least 2 characters";
-    } else if (registerData.shopName.trim().length > 50) {
-      newErrors.shopName = "Shop name must be less than 50 characters";
-    } else if (!/^[a-zA-Z0-9\s\-'&.]+$/.test(registerData.shopName.trim())) {
-      newErrors.shopName = "Shop name contains invalid characters";
+    if (!registerData.storeName.trim()) {
+      newErrors.storeName = "Shop name is required";
+    } else if (registerData.storeName.trim().length < 2) {
+      newErrors.storeName = "Shop name must be at least 2 characters";
+    } else if (registerData.storeName.trim().length > 50) {
+      newErrors.storeName = "Shop name must be less than 50 characters";
+    } else if (!/^[a-zA-Z0-9\s\-'&.]+$/.test(registerData.storeName.trim())) {
+      newErrors.storeName = "Shop name contains invalid characters";
     }
 
     // Email validation
@@ -185,8 +185,8 @@ export default function Register() {
       formData.append("email", registerData.email);
       formData.append("password", registerData.password);
       // We could also add other fields like name, though the current server action doesn't use them
-      formData.append("name", registerData.fullName);
-      formData.append("shopName", registerData.shopName);
+      formData.append("name", registerData.ownerName);
+      formData.append("storeName", registerData.storeName);
 
       // Call the server action
       await signup(formData);
@@ -197,8 +197,8 @@ export default function Register() {
 
       // Reset form
       setRegisterData({
-        fullName: "",
-        shopName: "",
+        ownerName: "",
+        storeName: "",
         email: "",
         password: "",
         confirmPassword: ""
@@ -265,7 +265,7 @@ export default function Register() {
               {/* Full Name Field */}
               <div>
                 <label
-                  htmlFor="fullName"
+                  htmlFor="ownerName"
                   className="block text-sm font-semibold text-slate-300 mb-3"
                 >
                   Full Name <span className="text-[#ff6800]">*</span>
@@ -273,14 +273,14 @@ export default function Register() {
                 <div className="relative group">
                   <input
                     type="text"
-                    id="fullName"
-                    name="fullName"
-                    value={registerData.fullName}
+                    id="ownerName"
+                    name="ownerName"
+                    value={registerData.ownerName}
                     onChange={handleInputChange}
                     required
                     autoComplete="name"
                     className={`w-full px-4 py-4 pl-12 border-2 rounded-2xl focus:ring-2 focus:ring-[#ff6800] focus:border-[#ff6800] transition-all duration-200 bg-slate-700/50 hover:bg-slate-700 text-white placeholder-slate-400 ${
-                      errors.fullName
+                      errors.ownerName
                         ? "border-red-500/50 bg-red-500/10 focus:border-red-500 focus:ring-red-500"
                         : "border-slate-600 hover:border-slate-500"
                     }`}
@@ -288,20 +288,20 @@ export default function Register() {
                   />
                   <User
                     className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
-                      errors.fullName
+                      errors.ownerName
                         ? "text-red-400"
                         : "text-slate-400 group-hover:text-[#ff6800]"
                     }`}
                   />
                 </div>
-                {errors.fullName && (
+                {errors.ownerName && (
                   <motion.p
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     className="mt-2 text-sm text-red-400 flex items-center"
                   >
                     <span className="w-1 h-1 bg-red-400 rounded-full mr-2"></span>
-                    {errors.fullName}
+                    {errors.ownerName}
                   </motion.p>
                 )}
               </div>
@@ -309,7 +309,7 @@ export default function Register() {
               {/* Shop Name Field */}
               <div>
                 <label
-                  htmlFor="shopName"
+                  htmlFor="storeName"
                   className="block text-sm font-semibold text-slate-300 mb-3"
                 >
                   Shop Name <span className="text-[#ff6800]">*</span>
@@ -317,14 +317,14 @@ export default function Register() {
                 <div className="relative group">
                   <input
                     type="text"
-                    id="shopName"
-                    name="shopName"
-                    value={registerData.shopName}
+                    id="storeName"
+                    name="storeName"
+                    value={registerData.storeName}
                     onChange={handleInputChange}
                     required
                     autoComplete="organization"
                     className={`w-full px-4 py-4 pl-12 border-2 rounded-2xl focus:ring-2 focus:ring-[#ff6800] focus:border-[#ff6800] transition-all duration-200 bg-slate-700/50 hover:bg-slate-700 text-white placeholder-slate-400 ${
-                      errors.shopName
+                      errors.storeName
                         ? "border-red-500/50 bg-red-500/10 focus:border-red-500 focus:ring-red-500"
                         : "border-slate-600 hover:border-slate-500"
                     }`}
@@ -332,16 +332,16 @@ export default function Register() {
                   />
                   <Store
                     className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
-                      errors.shopName
+                      errors.storeName
                         ? "text-red-400"
                         : "text-slate-400 group-hover:text-[#ff6800]"
                     }`}
                   />
                 </div>
-                {registerData.shopName && (
+                {registerData.storeName && (
                   <p className="mt-1 text-xs text-slate-400">
                     Your store URL will be:{" "}
-                    {registerData.shopName
+                    {registerData.storeName
                       .toLowerCase()
                       .replace(/[^a-z0-9]/g, "-")
                       .replace(/-+/g, "-")
@@ -349,14 +349,14 @@ export default function Register() {
                     .1minuteshop.com
                   </p>
                 )}
-                {errors.shopName && (
+                {errors.storeName && (
                   <motion.p
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     className="mt-2 text-sm text-red-400 flex items-center"
                   >
                     <span className="w-1 h-1 bg-red-400 rounded-full mr-2"></span>
-                    {errors.shopName}
+                    {errors.storeName}
                   </motion.p>
                 )}
               </div>

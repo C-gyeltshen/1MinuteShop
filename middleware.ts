@@ -1,15 +1,36 @@
-import { type NextRequest } from 'next/server'
-import { updateSession } from './utils/superbase/middleware'
+// middleware.ts (at root of your project)
+import { NextRequest, NextResponse } from "next/server";
 
+export function middleware(request: NextRequest) {
+  const hostname = request.headers.get("host") || "";
 
-export async function middleware(request: NextRequest) {
+  // Extract subdomain
+  const parts = hostname.split(".");
+  const isSubdomain =
+    parts.length > 2 || (parts.length === 2 && parts[0] !== "www");
+  console.log("is subdomain", isSubdomain);
 
+  if (isSubdomain && parts[0] !== "www") {
+    const subdomain = parts[0];
 
-  return await updateSession(request);
+    // Rewrite to a dynamic store page while keeping the subdomain in the URL
+    const url = request.nextUrl.clone();
+    url.pathname = `/store/${subdomain}${url.pathname}`;
+    return NextResponse.rewrite(url);
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
-}
+};
