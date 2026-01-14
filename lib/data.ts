@@ -23,7 +23,6 @@ export interface Product {
   price: number;
   image_url: string; // From database
   description: string;
-  category?: string; // Optional since it's not in database
   quantity: number;
   store_name: string; // From database
   created_at?: string;
@@ -37,7 +36,6 @@ export interface LegacyProduct {
   price: number;
   image: string;
   description: string;
-  category: string;
   quantity: number;
 }
 
@@ -50,7 +48,6 @@ export const products: LegacyProduct[] = [
     image:
       "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=500&h=500&fit=crop",
     description: "Premium wireless earbuds with active noise cancellation",
-    category: "Audio",
     quantity: 23,
   },
   {
@@ -60,7 +57,6 @@ export const products: LegacyProduct[] = [
     image:
       "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&h=500&fit=crop",
     description: "Advanced fitness tracking and smart notifications",
-    category: "Wearables",
     quantity: 23,
   },
   {
@@ -70,7 +66,6 @@ export const products: LegacyProduct[] = [
     image:
       "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=500&h=500&fit=crop",
     description: "Ultra-thin protection with premium materials",
-    category: "Accessories",
     quantity: 23,
   },
   {
@@ -80,7 +75,6 @@ export const products: LegacyProduct[] = [
     image:
       "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=500&h=500&fit=crop",
     description: "Fast wireless charging for all compatible devices",
-    category: "Accessories",
     quantity: 23,
   },
   {
@@ -90,7 +84,6 @@ export const products: LegacyProduct[] = [
     image:
       "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=500&h=500&fit=crop",
     description: "Portable speaker with exceptional sound quality",
-    category: "Audio",
     quantity: 23,
   },
   {
@@ -100,7 +93,6 @@ export const products: LegacyProduct[] = [
     image:
       "https://images.unsplash.com/photo-1625842268584-8f3296236761?w=500&h=500&fit=crop",
     description: "Multi-port hub for ultimate connectivity",
-    category: "Accessories",
     quantity: 23,
   },
   {
@@ -110,7 +102,6 @@ export const products: LegacyProduct[] = [
     image:
       "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=500&h=500&fit=crop",
     description: "Comfortable design for all-day productivity",
-    category: "Peripherals",
     quantity: 23,
   },
   {
@@ -120,7 +111,6 @@ export const products: LegacyProduct[] = [
     image:
       "https://images.unsplash.com/photo-1541140532154-b024d705b90a?w=500&h=500&fit=crop",
     description: "Premium switches for the perfect typing experience",
-    category: "Peripherals",
     quantity: 23,
   },
 ];

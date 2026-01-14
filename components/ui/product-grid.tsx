@@ -71,7 +71,7 @@ export default function ProductGrid({
     error,
     isLoading,
   } = useSWR<Product[]>(
-    subdomain ? `/api/stores/${subdomain}/products` : null,
+    subdomain ? `http://localhost:8080/api/products/subdomain/${subdomain}` : null,
     fetcher,
     {
       revalidateOnFocus: false,
