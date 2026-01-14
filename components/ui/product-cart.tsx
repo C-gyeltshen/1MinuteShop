@@ -17,8 +17,7 @@ export default function ProductCard({
   const imageUrl = product.image_url || "/placeholder-product.svg";
 
   // Extract category from name if available, otherwise use a default
-  const category =
-    product.category || product.name.split(" - ")[0] || "Product";
+const category = product.name.split(" - ")[0] || "Product";
 
   return (
     <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group">
