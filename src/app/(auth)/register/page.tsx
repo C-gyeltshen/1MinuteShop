@@ -25,6 +25,7 @@ interface RegisterData {
   email: string;
   password: string;
   confirmPassword: string;
+  status: string;
 }
 
 interface RegisterErrors {
@@ -43,7 +44,8 @@ export default function Register() {
     storeName: "",
     email: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
+    status: ""
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -187,6 +189,7 @@ export default function Register() {
       // We could also add other fields like name, though the current server action doesn't use them
       formData.append("ownerName", registerData.ownerName);
       formData.append("storeName", registerData.storeName);
+      formData.append("status", "active")
 
       // Call the server action
       await signup(formData);
@@ -201,7 +204,8 @@ export default function Register() {
         storeName: "",
         email: "",
         password: "",
-        confirmPassword: ""
+        confirmPassword: "",
+        status: ""
       });
       setPasswordStrength({ score: 0, feedback: [], color: "bg-gray-200" });
     } catch (error) {
