@@ -26,6 +26,8 @@ interface LoginResponse {
   error?: string;
 }
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export async function login(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
@@ -35,14 +37,11 @@ export async function login(formData: FormData) {
   }
 
   try {
-    const response = await fetch(
-      "http://localhost:8080/api/store-owners/login",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      }
-    );
+    const response = await fetch(`${BACKEND_URL}/store-owners/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
     const data: LoginResponse = await response.json();
 
@@ -87,7 +86,7 @@ export async function login(formData: FormData) {
 export async function signup(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-  const ownerName = formData.get("name") as string;
+  const ownerName = formData.get("ownerName") as string;
   const storeName = formData.get("storeName") as string;
 
   if (!email || !password || !ownerName || !storeName) {
@@ -96,35 +95,36 @@ export async function signup(formData: FormData) {
 
   try {
     // Step 1: Register the user
-    const signupResponse = await fetch(
-      "http://localhost:8080/api/store-owners/register",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          password,
-          ownerName,
-          storeName,
-        }),
-      }
-    );
+    const signupResponse = await fetch(`${BACKEND_URL}/store-owners/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        password,
+        ownerName,
+        storeName,
+      }),
+    });
 
-    const signupData: SignupResponse = await signupResponse.json();
+    const text = await signupResponse.text();
+    let signupData: SignupResponse;
+    try {
+      signupData = JSON.parse(text);
+    } catch (e) {
+      // Log or handle the unexpected response
+      return { error: "Unexpected server response: " + text };
+    }
 
     if (!signupResponse.ok) {
       return { error: signupData.error || "Signup failed" };
     }
 
     // Step 2: Auto-login the user
-    const loginResponse = await fetch(
-      "http://localhost:8080/api/store-owners/login",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      }
-    );
+    const loginResponse = await fetch(`${BACKEND_URL}/store-owners/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
     if (!loginResponse.ok) {
       // If auto-login fails, send them to manual login
