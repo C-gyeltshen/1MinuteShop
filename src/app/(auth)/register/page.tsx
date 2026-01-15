@@ -185,7 +185,7 @@ export default function Register() {
       formData.append("email", registerData.email);
       formData.append("password", registerData.password);
       // We could also add other fields like name, though the current server action doesn't use them
-      formData.append("name", registerData.ownerName);
+      formData.append("ownerName", registerData.ownerName);
       formData.append("storeName", registerData.storeName);
 
       // Call the server action
