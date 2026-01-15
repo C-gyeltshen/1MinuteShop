@@ -9,6 +9,8 @@ interface ProductGridProps {
   onAddToCartAction: (productName: string) => void;
 }
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
+
 const fetcher = (url: string) =>
   fetch(url)
     .then((res) => res.json())
@@ -71,7 +73,7 @@ export default function ProductGrid({
     error,
     isLoading,
   } = useSWR<Product[]>(
-    subdomain ? `http://localhost:8080/api/products/subdomain/${subdomain}` : null,
+    subdomain ? `${BACKEND_URL}/products/subdomain/${subdomain}` : null,
     fetcher,
     {
       revalidateOnFocus: false,
