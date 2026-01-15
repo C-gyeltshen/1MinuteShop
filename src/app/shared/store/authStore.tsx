@@ -60,6 +60,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         if (res.ok) {
           const data = await res.json();
           setUser(data.data);
+          router.push('/store/dashboard')
+
         } else {
           setUser(null);
           router.push('/login')

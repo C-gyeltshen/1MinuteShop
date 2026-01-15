@@ -75,7 +75,7 @@ export async function login(formData: FormData) {
     console.log("Login successful. Cookies forwarded to browser.");
 
     revalidatePath("/", "layout");
-    redirect("/shop/dashboard");
+    redirect("/store/dashboard");
   } catch (error: any) {
     if (error?.digest?.startsWith("NEXT_REDIRECT")) throw error;
     console.error("Unexpected error during login:", error);
@@ -88,6 +88,7 @@ export async function signup(formData: FormData) {
   const password = formData.get("password") as string;
   const ownerName = formData.get("ownerName") as string;
   const storeName = formData.get("storeName") as string;
+  const status = formData.get("status") as string;
 
   if (!email || !password || !ownerName || !storeName) {
     return { error: "All fields are required" };
@@ -103,6 +104,7 @@ export async function signup(formData: FormData) {
         password,
         ownerName,
         storeName,
+        status
       }),
     });
 
@@ -151,7 +153,7 @@ export async function signup(formData: FormData) {
 
     // Step 4: Finalize session
     revalidatePath("/", "layout");
-    redirect("/shop/dashboard");
+    redirect("/store/dashboard");
   } catch (error: any) {
     // Crucial: Let Next.js handle its own redirect "errors"
     if (error?.digest?.startsWith("NEXT_REDIRECT")) throw error;
