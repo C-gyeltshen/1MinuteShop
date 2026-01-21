@@ -4,7 +4,11 @@ import { useState } from "react";
 import { Menu, X, ShoppingCart, Search, Heart } from "lucide-react";
 import { useParams } from "next/navigation";
 
-export default function Navbar({ storeName }) {
+interface NavbarProps {
+  storeName: string;
+}
+
+export default function Navbar({ storeName }: NavbarProps)  {
   const params = useParams();
   const subdomain = params?.subdomain as string;
   const [isOpen, setIsOpen] = useState(false);
