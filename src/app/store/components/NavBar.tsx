@@ -10,21 +10,20 @@ interface NavbarProps {
 
 export default function Navbar({ storeName }: NavbarProps)  {
   const params = useParams();
-  const subdomain = params?.subdomain as string;
   const [isOpen, setIsOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleAboutClick = () => {
-    window.location.href = "/aboutUs";
+    globalThis.location.href = "/aboutUs";
   };
 
   const handleContactClick = () => {
-    window.location.href = "/contactUs";
+    globalThis.location.href = "/contactUs";
   };
 
   const handleShopClick = () => {
-    window.location.href = "/";
+    globalThis.location.href = "/";
   };
 
   const closeMenu = () => {
@@ -36,10 +35,10 @@ export default function Navbar({ storeName }: NavbarProps)  {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <button
               onClick={handleShopClick}
-              className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
+              className="text-xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
             >
               {storeName}
             </button>
