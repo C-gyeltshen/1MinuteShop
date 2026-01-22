@@ -15,7 +15,7 @@ export async function middleware(request: NextRequest) {
 
     try {
       // 2. Call your backend to check if the store exists
-      const response = await fetch(`${BackendUrl}/api/stores/check-subdomain`, {
+      const response = await fetch(`${BackendUrl}/stores/check-subdomain`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -27,6 +27,7 @@ export async function middleware(request: NextRequest) {
       if (response.ok) {
         const url = request.nextUrl.clone();
         url.pathname = `/store/${subdomain}${pathname}`;
+        console.log(`store exist with subDomain ${subdomain}`)
         return NextResponse.rewrite(url);
       }
       
@@ -43,6 +44,14 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|manifest.json|robots.txt).*)",
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - .well-known (Chrome devtools / system requests) <--- ADD THIS
+     */
+    "/((?!api|_next/static|_next/image|favicon.ico|.well-known|manifest.json|robots.txt).*)",
   ],
 };
