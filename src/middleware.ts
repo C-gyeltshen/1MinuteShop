@@ -1,35 +1,43 @@
-// middleware.ts - with detailed logging
 import { NextRequest, NextResponse } from "next/server";
 
-export function middleware(request: NextRequest) {
+const BackendUrl = process.env.NEXT_PUBLIC_API_URL
+
+export async function middleware(request: NextRequest) {
   const hostname = request.headers.get("host") || "";
   const pathname = request.nextUrl.pathname;
 
-  console.log("=== MIDDLEWARE TRIGGERED ===");
-  console.log("Full URL:", request.nextUrl.toString());
-  console.log("Hostname:", hostname);
-  console.log("Pathname:", pathname);
-
-  // Extract subdomain
+  // 1. Extract subdomain
   const parts = hostname.split(".");
-  console.log("Hostname parts:", parts);
-
-  const isSubdomain =
-    parts.length > 2 || (parts.length === 2 && parts[0] !== "www");
-  console.log("Is subdomain:", isSubdomain);
+  const isSubdomain = parts.length > 2 || (parts.length === 2 && parts[0] !== "www");
 
   if (isSubdomain && parts[0] !== "www") {
     const subdomain = parts[0];
-    console.log("Detected subdomain:", subdomain);
 
-    // Rewrite to a dynamic store page while keeping the subdomain in the URL
-    const url = request.nextUrl.clone();
-    url.pathname = `/store/${subdomain}${pathname}`;
-    console.log("Rewriting to:", url.pathname);
-    return NextResponse.rewrite(url);
+    try {
+      // 2. Call your backend to check if the store exists
+      const response = await fetch(`${BackendUrl}/api/stores/check-subdomain`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ subDomain: subdomain }),
+      });
+
+      // 3. If store exists, rewrite the URL
+      if (response.ok) {
+        const url = request.nextUrl.clone();
+        url.pathname = `/store/${subdomain}${pathname}`;
+        return NextResponse.rewrite(url);
+      }
+      
+      // 4. If store doesn't exist, we just fall through 
+      // (This will show your main website or a 404)
+      console.log(`Store ${subdomain} does not exist.`);
+    } catch (error) {
+      console.error("Error checking subdomain:", error);
+    }
   }
 
-  console.log("No subdomain detected, continuing...");
   return NextResponse.next();
 }
 
