@@ -56,7 +56,7 @@ const handleChange = (
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar storeName="TechHub Store" />
+      <Navbar />
 
       <section className="bg-gradient-to-br from-blue-50 to-purple-50 py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
