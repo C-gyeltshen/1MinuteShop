@@ -259,7 +259,7 @@ function ProductsSection() {
 export default function LiveStore() {
   return (
     <div className="min-h-screen bg-white">
-      <Navbar storeName="TechHub Store" />
+      <Navbar/>
       <Hero />
       <TrustBadges />
       <ProductsSection />
