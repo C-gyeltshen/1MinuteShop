@@ -1,523 +1,529 @@
 "use client"
 
-import React, { useState } from "react";
-import {
-  Plus,
-  Edit2,
-  Trash2,
-  Search,
-  Store,
-  Package,
-  DollarSign,
-  X,
-  Upload,
-} from "lucide-react";
-import AuthProvider from "@/app/shared/store/authStore";
+import React, { useState } from 'react';
+import { Menu, X, Package, ShoppingCart, BarChart3, Settings, Search, Plus, Edit, Trash2, Eye, ChevronDown, ChevronUp} from 'lucide-react';
+import AddProductModal, { ProductFormData } from '../components/ui/AddProductButton';
 
-type Product = {
-  id: number | null;
-  name: string;
-  description: string;
-  price: number | string;
-  quantity: number | string;
-  image: string;
+
+type NavItemProps = {
+  icon: React.ElementType;
+  label: string;
+  tab: string;
 };
 
-export default function ShopDashboard() {
+type StatusBadgeProps = {
+  status: string;
+  type?: 'order' | 'payment';
+};
+
+type Product = {
+  id: string;
+  productName: string;
+  price: number;
+  stockQuantity: number;
+  description: string;
+  productImageUrl: string;
+  createdAt: string;
+};
+
+type ProductCardProps = {
+  product: Product;
+  isExpanded: boolean;
+  onToggle: () => void;
+};
+
+type Order = typeof mockOrders[number];
+type OrderCardProps = {
+  order: Order;
+  isExpanded: boolean;
+  onToggle: () => void;
+};
+
+// Mock data
+const mockOrders = [
+  { id: '1', orderNumber: 'ORD-001', customerName: 'John Doe', totalAmount: 159.98, orderStatus: 'DELIVERED', paymentStatus: 'PAID', createdAt: '2024-01-20', items: 2 },
+  { id: '2', orderNumber: 'ORD-002', customerName: 'Jane Smith', totalAmount: 79.99, orderStatus: 'SHIPPED', paymentStatus: 'PAID', createdAt: '2024-01-21', items: 1 },
+  { id: '3', orderNumber: 'ORD-003', customerName: 'Bob Johnson', totalAmount: 234.97, orderStatus: 'PROCESSING', paymentStatus: 'PAID', createdAt: '2024-01-22', items: 3 },
+  { id: '4', orderNumber: 'ORD-004', customerName: 'Alice Brown', totalAmount: 49.99, orderStatus: 'PENDING', paymentStatus: 'PENDING', createdAt: '2024-01-23', items: 1 },
+];
+
+const StoreOwnerPortal = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('products');
+  const [expandedRow, setExpandedRow] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([
-    {
-      id: 1,
-      name: "Wireless Headphones",
-      description:
-        "Premium noise-canceling headphones with 30-hour battery life",
-      price: 299.99,
-      quantity: 45,
-      image:
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200",
-    },
-    {
-      id: 2,
-      name: "Smart Watch",
-      description: "Fitness tracker with heart rate monitor and GPS",
-      price: 199.99,
-      quantity: 32,
-      image:
-        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200",
-    },
-    {
-      id: 3,
-      name: "Laptop Backpack",
-      description: "Water-resistant backpack with laptop compartment",
-      price: 79.99,
-      quantity: 15,
-      image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=200",
-    },
+    { id: '1', productName: 'Wireless Headphones', price: 79.99, stockQuantity: 45, description: 'Premium noise-canceling headphones', productImageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&h=100&fit=crop', createdAt: '2024-01-15' },
+    { id: '2', productName: 'Smart Watch', price: 199.99, stockQuantity: 12, description: 'Fitness tracker with heart rate monitor', productImageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&h=100&fit=crop', createdAt: '2024-01-14' },
+    { id: '3', productName: 'Laptop Stand', price: 34.99, stockQuantity: 0, description: 'Ergonomic aluminum laptop stand', productImageUrl: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=100&h=100&fit=crop', createdAt: '2024-01-10' },
+    { id: '4', productName: 'USB-C Hub', price: 49.99, stockQuantity: 67, description: '7-in-1 multiport adapter', productImageUrl: 'https://images.unsplash.com/photo-1625948515291-69613efd103f?w=100&h=100&fit=crop', createdAt: '2024-01-08' },
   ]);
 
-  const [openDialog, setOpenDialog] = useState(false);
-  const [editMode, setEditMode] = useState(false);
-  const [currentProduct, setCurrentProduct] = useState<Product>({
-    id: null,
-    name: "",
-    description: "",
-    price: "",
-    quantity: "",
-    image: "",
-  });
-  const [searchQuery, setSearchQuery] = useState("");
-  const [imagePreview, setImagePreview] = useState("");
-  const [notification, setNotification] = useState({
-    show: false,
-    message: "",
-    type: "",
-  });
+  const NavItem: React.FC<NavItemProps> = ({ icon: Icon, label, tab }) => (
+    <button
+      onClick={() => {
+        setActiveTab(tab);
+        setIsMobileMenuOpen(false);
+      }}
+      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+        activeTab === tab
+          ? 'bg-blue-600 text-white'
+          : 'text-gray-700 hover:bg-gray-100'
+      }`}
+    >
+      <Icon size={20} />
+      <span className="font-medium">{label}</span>
+    </button>
+  );
 
-  const showNotification = (message: string, type: string = "success") => {
-    setNotification({ show: true, message, type });
-    setTimeout(
-      () => setNotification({ show: false, message: "", type: "" }),
-      3000
+  const StatusBadge: React.FC<StatusBadgeProps> = ({ status, type = 'order' }) => {
+    const getStatusColor = () => {
+      if (type === 'order') {
+        switch (status) {
+          case 'DELIVERED': return 'bg-green-100 text-green-800';
+          case 'SHIPPED': return 'bg-blue-100 text-blue-800';
+          case 'PROCESSING': return 'bg-yellow-100 text-yellow-800';
+          case 'PENDING': return 'bg-orange-100 text-orange-800';
+          case 'CANCELLED': return 'bg-red-100 text-red-800';
+          default: return 'bg-gray-100 text-gray-800';
+        }
+      } else {
+        switch (status) {
+          case 'PAID': return 'bg-green-100 text-green-800';
+          case 'PENDING': return 'bg-yellow-100 text-yellow-800';
+          default: return 'bg-gray-100 text-gray-800';
+        }
+      }
+    };
+
+    return (
+      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor()}`}>
+        {status}
+      </span>
     );
   };
 
-  const handleOpenDialog = (product: Product | null = null) => {
-    if (product) {
-      setEditMode(true);
-      setCurrentProduct(product);
-      setImagePreview(product.image);
-    } else {
-      setEditMode(false);
-      setCurrentProduct({
-        id: null,
-        name: "",
-        description: "",
-        price: "",
-        quantity: "",
-        image: "",
-      });
-      setImagePreview("");
-    }
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setCurrentProduct({
-      id: null,
-      name: "",
-      description: "",
-      price: "",
-      quantity: "",
-      image: "",
-    });
-    setImagePreview("");
-  };
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setCurrentProduct({ ...currentProduct, [name]: value });
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files && e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-        setCurrentProduct({ ...currentProduct, image: reader.result as string });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSaveProduct = () => {
-    if (
-      !currentProduct.name ||
-      !currentProduct.price ||
-      !currentProduct.quantity
-    ) {
-      showNotification("Please fill in all required fields", "error");
-      return;
-    }
-
-    if (editMode) {
-      setProducts(
-        products.map((p) => (p.id === currentProduct.id ? currentProduct : p))
-      );
-      showNotification("Product updated successfully!");
-    } else {
-      const newProduct = {
-        ...currentProduct,
-        id: Math.max(...products.map((p) => p.id || 0), 0) + 1,
-        price: parseFloat(currentProduct.price as string),
-        quantity: parseInt(currentProduct.quantity as string),
-      };
-      setProducts([...products, newProduct]);
-      showNotification("Product added successfully!");
-    }
-    handleCloseDialog();
-  };
-
-  const handleDeleteProduct = (id: number | null) => {
-    setProducts(products.filter((p) => p.id !== id));
-    showNotification("Product deleted successfully!", "info");
-  };
-
-  const filteredProducts = products.filter(
-    (product) =>
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const totalValue = products.reduce(
-    (sum, p) => sum + parseFloat(p.price as any) * parseInt(p.quantity as any),
-    0
-  );
-  const totalQuantity = products.reduce(
-    (sum, p) => sum + parseInt(p.quantity as any),
-    0
-  );
-
-  return (
-    // <AuthProvider>
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4 md:p-8">
-      {notification.show && (
-        <div className="fixed top-4 right-4 z-50 animate-slide-in">
-          <div
-            className={`rounded-lg shadow-lg px-6 py-4 flex items-center space-x-3 ${
-              notification.type === "error"
-                ? "bg-red-500 text-white"
-                : notification.type === "info"
-                ? "bg-blue-500 text-white"
-                : "bg-green-500 text-white"
-            }`}
-          >
-            <span className="font-medium">{notification.message}</span>
-          </div>
-        </div>
-      )}
-
-      <div className="mb-8">
-        <div className="flex items-center space-x-3 mb-2">
-          <Store className="w-10 h-10 text-[#ff6800]" />
-          <h1 className="text-4xl font-bold text-white">Shop Dashboard</h1>
-        </div>
-        <p className="text-slate-400 text-lg">
-          Manage your products and inventory
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 hover:border-[#ff6800]/50 transition-all duration-300">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-slate-400 text-sm mb-1">Total Products</p>
-              <p className="text-4xl font-bold text-[#ff6800]">
-                {products.length}
-              </p>
-            </div>
-            <Package className="w-12 h-12 text-[#ff6800] opacity-50" />
-          </div>
-        </div>
-
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 hover:border-green-500/50 transition-all duration-300">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-slate-400 text-sm mb-1">Total Inventory</p>
-              <p className="text-4xl font-bold text-green-500">
-                {totalQuantity}
-              </p>
-            </div>
-            <Store className="w-12 h-12 text-green-500 opacity-50" />
-          </div>
-        </div>
-
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 hover:border-blue-500/50 transition-all duration-300">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-slate-400 text-sm mb-1">Total Value</p>
-              <p className="text-4xl font-bold text-blue-500">
-                Nu. {totalValue.toFixed(2)}
-              </p>
-            </div>
-            <DollarSign className="w-12 h-12 text-blue-500 opacity-50" />
-          </div>
-        </div>
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-[#ff6800] transition-colors"
+  const ProductCard: React.FC<ProductCardProps> = ({ product, isExpanded, onToggle }) => (
+    <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+      <div className="p-4 flex items-center justify-between cursor-pointer" onClick={onToggle}>
+        <div className="flex items-center gap-3 flex-1">
+          <img
+            src={product.productImageUrl}
+            alt={product.productName}
+            className="w-12 h-12 object-cover rounded"
           />
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-gray-900 truncate">{product.productName}</h3>
+            <p className="text-sm text-gray-600">${product.price}</p>
+          </div>
         </div>
-        <button
-          onClick={() => handleOpenDialog()}
-          className="bg-[#ff6800] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#e55f00] transition-colors flex items-center justify-center space-x-2 whitespace-nowrap"
-        >
-          <Plus className="w-5 h-5" />
-          <span>Add New Product</span>
-        </button>
+        {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
       </div>
-
-      <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-slate-900/50">
-              <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
-                  Product
-                </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
-                  Description
-                </th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-slate-300">
-                  Price
-                </th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-slate-300">
-                  Quantity
-                </th>
-                <th className="px-6 py-4 text-center text-sm font-semibold text-slate-300">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredProducts.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="px-6 py-12 text-center text-slate-400"
-                  >
-                    No products found
-                  </td>
-                </tr>
-              ) : (
-                filteredProducts.map((product) => (
-                  <tr
-                    key={product.id}
-                    className="border-t border-slate-700/50 hover:bg-slate-700/30 transition-colors"
-                  >
-                    <td className="px-6 py-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-14 h-14 rounded-lg bg-slate-700 flex items-center justify-center overflow-hidden">
-                          {product.image ? (
-                            <img
-                              src={product.image}
-                              alt={product.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <svg
-                              className="w-6 h-6 text-slate-500"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <rect
-                                x="3"
-                                y="3"
-                                width="18"
-                                height="18"
-                                rx="2"
-                                ry="2"
-                                strokeWidth="2"
-                              />
-                              <circle cx="8.5" cy="8.5" r="1.5" />
-                              <polyline points="21 15 16 10 5 21" />
-                            </svg>
-                          )}
-                        </div>
-                        <span className="text-white font-medium">
-                          {product.name}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-slate-400 max-w-xs truncate">
-                      {product.description}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <span className="inline-block bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm font-semibold">
-                        Nu. {parseFloat(product.price as any).toFixed(2)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <span
-                        className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                          parseInt(product.quantity as any) < 20
-                            ? "bg-red-500/20 text-red-400"
-                            : "bg-blue-500/20 text-blue-400"
-                        }`}
-                      >
-                        {product.quantity}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-center space-x-2">
-                        <button
-                          onClick={() => handleOpenDialog(product)}
-                          className="p-2 rounded-lg text-blue-400 hover:bg-blue-500/20 transition-colors"
-                        >
-                          <Edit2 className="w-5 h-5" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteProduct(product.id)}
-                          className="p-2 rounded-lg text-red-400 hover:bg-red-500/20 transition-colors"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {openDialog && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-slate-700">
-              <h2 className="text-2xl font-bold text-white">
-                {editMode ? "Edit Product" : "Add New Product"}
-              </h2>
-              <button
-                onClick={handleCloseDialog}
-                className="p-2 rounded-lg text-slate-400 hover:bg-slate-700 transition-colors"
-              >
-                <X className="w-6 h-6" />
-              </button>
+      
+      {isExpanded && (
+        <div className="px-4 pb-4 space-y-3 border-t border-gray-100 pt-3">
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <span className="text-gray-600">Stock:</span>
+              <p className={`font-semibold ${product.stockQuantity === 0 ? 'text-red-600' : 'text-gray-900'}`}>
+                {product.stockQuantity} units
+              </p>
             </div>
-
-            <div className="p-6 space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Product Image
-                </label>
-                <div className="border-2 border-dashed border-slate-600 rounded-xl p-6 text-center hover:border-[#ff6800] transition-colors">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                    id="image-upload"
-                  />
-                  <label htmlFor="image-upload" className="cursor-pointer">
-                    {imagePreview ? (
-                      <div className="space-y-3">
-                        <img
-                          src={imagePreview}
-                          alt="Preview"
-                          className="w-32 h-32 object-cover rounded-lg mx-auto"
-                        />
-                        <p className="text-sm text-slate-400">
-                          Click to change image
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        <Upload className="w-12 h-12 text-slate-400 mx-auto" />
-                        <p className="text-slate-400">
-                          Click to upload product image
-                        </p>
-                      </div>
-                    )}
-                  </label>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Product Name <span className="text-red-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={currentProduct.name}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-[#ff6800] transition-colors"
-                  placeholder="Enter product name"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  value={currentProduct.description}
-                  onChange={handleInputChange}
-                  rows={3}
-                  className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-[#ff6800] transition-colors resize-none"
-                  placeholder="Enter product description"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Price <span className="text-red-400">*</span>
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="number"
-                      name="price"
-                      value={currentProduct.price}
-                      onChange={handleInputChange}
-                      step="0.01"
-                      min="0"
-                      className="w-full pl-8 pr-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-[#ff6800] transition-colors"
-                      placeholder="0.00"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Quantity <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    name="quantity"
-                    value={currentProduct.quantity}
-                    onChange={handleInputChange}
-                    min="0"
-                    className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-[#ff6800] transition-colors"
-                    placeholder="0"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end space-x-3 p-6 border-t border-slate-700">
-              <button
-                onClick={handleCloseDialog}
-                className="px-6 py-3 rounded-xl text-slate-300 hover:bg-slate-700 transition-colors font-medium"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveProduct}
-                className="px-6 py-3 bg-[#ff6800] text-white rounded-xl font-semibold hover:bg-[#e55f00] transition-colors"
-              >
-                {editMode ? "Update" : "Add"} Product
-              </button>
-            </div>
+          </div>
+          <div>
+            <span className="text-gray-600 text-sm">Description:</span>
+            <p className="text-sm text-gray-900 mt-1">{product.description}</p>
+          </div>
+          <div className="flex gap-2 pt-2">
+            <button className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center justify-center gap-2">
+              <Edit size={16} /> Edit
+            </button>
+            <button className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200">
+              <Trash2 size={16} />
+            </button>
           </div>
         </div>
       )}
     </div>
-    // </AuthProvider>
   );
-}
+
+  const OrderCard: React.FC<OrderCardProps> = ({ order, isExpanded, onToggle }) => (
+    <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+      <div className="p-4 flex items-center justify-between cursor-pointer" onClick={onToggle}>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-gray-900">{order.orderNumber}</h3>
+          <p className="text-sm text-gray-600">{order.customerName}</p>
+        </div>
+        <div className="text-right mr-2">
+          <p className="font-semibold text-gray-900">${order.totalAmount}</p>
+        </div>
+        {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+      </div>
+      
+      {isExpanded && (
+        <div className="px-4 pb-4 space-y-3 border-t border-gray-100 pt-3">
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <span className="text-gray-600">Order Status:</span>
+              <div className="mt-1">
+                <StatusBadge status={order.orderStatus} type="order" />
+              </div>
+            </div>
+            <div>
+              <span className="text-gray-600">Payment:</span>
+              <div className="mt-1">
+                <StatusBadge status={order.paymentStatus} type="payment" />
+              </div>
+            </div>
+            <div>
+              <span className="text-gray-600">Items:</span>
+              <p className="font-semibold text-gray-900">{order.items}</p>
+            </div>
+            <div>
+              <span className="text-gray-600">Date:</span>
+              <p className="font-semibold text-gray-900">{new Date(order.createdAt).toLocaleDateString()}</p>
+            </div>
+          </div>
+          <div className="flex gap-2 pt-2">
+            <button className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center justify-center gap-2">
+              <Eye size={16} /> View Details
+            </button>
+            <button className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200">
+              <Edit size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const ProductsView = () => {
+    const filteredProducts = products.filter(p => 
+      p.productName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    if (filteredProducts.length === 0 && searchQuery === '') {
+      return (
+        <div className="flex flex-col items-center justify-center py-16">
+          <div className="p-4 bg-gray-100 rounded-full mb-4">
+            <Package className="text-gray-400" size={48} />
+          </div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">No Products Yet</h3>
+          <p className="text-gray-600 mb-6 text-center max-w-sm">Start building your product catalog by adding your first product</p>
+          <button
+            onClick={() => setIsAddProductModalOpen(true)}
+            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          >
+            <Plus size={20} />
+            Add Your First Product
+          </button>
+        </div>
+      );
+    }
+
+    if (filteredProducts.length === 0 && searchQuery !== '') {
+      return (
+        <div className="flex flex-col items-center justify-center py-16">
+          <div className="p-4 bg-gray-100 rounded-full mb-4">
+            <Search className="text-gray-400" size={48} />
+          </div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">No Products Found</h3>
+          <p className="text-gray-600">No products match your search "{searchQuery}"</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-4">
+        {/* Desktop Table */}
+        <div className="hidden md:block bg-white rounded-lg shadow overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Product</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Price</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Stock</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {filteredProducts.map(product => (
+                <tr key={product.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <img src={product.productImageUrl} alt={product.productName} className="w-10 h-10 rounded object-cover" />
+                      <div>
+                        <div className="font-semibold text-gray-900">{product.productName}</div>
+                        <div className="text-sm text-gray-500">{product.description}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 font-semibold text-gray-900">${product.price}</td>
+                  <td className="px-6 py-4">
+                    <span className={`font-semibold ${product.stockQuantity === 0 ? 'text-red-600' : 'text-gray-900'}`}>
+                      {product.stockQuantity}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex gap-2">
+                      <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                        <Edit size={18} />
+                      </button>
+                      <button className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Mobile Cards */}
+        <div className="md:hidden space-y-3">
+          {filteredProducts.map(product => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              isExpanded={expandedRow === product.id}
+              onToggle={() => setExpandedRow(expandedRow === product.id ? null : product.id)}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const OrdersView = () => {
+    const filteredOrders = mockOrders.filter(o => 
+      o.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      o.customerName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    return (
+      <div className="space-y-4">
+        {/* Desktop Table */}
+        <div className="hidden md:block bg-white rounded-lg shadow overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Order #</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Customer</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Amount</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Order Status</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Payment</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Date</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {filteredOrders.map(order => (
+                <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4 font-semibold text-gray-900">{order.orderNumber}</td>
+                  <td className="px-6 py-4 text-gray-900">{order.customerName}</td>
+                  <td className="px-6 py-4 font-semibold text-gray-900">${order.totalAmount}</td>
+                  <td className="px-6 py-4">
+                    <StatusBadge status={order.orderStatus} type="order" />
+                  </td>
+                  <td className="px-6 py-4">
+                    <StatusBadge status={order.paymentStatus} type="payment" />
+                  </td>
+                  <td className="px-6 py-4 text-gray-600">{new Date(order.createdAt).toLocaleDateString()}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex gap-2">
+                      <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                        <Eye size={18} />
+                      </button>
+                      <button className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
+                        <Edit size={18} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Mobile Cards */}
+        <div className="md:hidden space-y-3">
+          {filteredOrders.map(order => (
+            <OrderCard
+              key={order.id}
+              order={order}
+              isExpanded={expandedRow === order.id}
+              onToggle={() => setExpandedRow(expandedRow === order.id ? null : order.id)}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const handleAddProduct = (formData: ProductFormData) => {
+    const newProduct: Product = {
+      id: String(products.length + 1),
+      productName: formData.productName,
+      price: parseFloat(formData.price),
+      stockQuantity: parseInt(formData.stockQuantity),
+      description: formData.description,
+      productImageUrl: formData.productImageUrl,
+      createdAt: new Date().toISOString().split('T')[0],
+    };
+    setProducts([newProduct, ...products]);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+        <div className="px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="md:hidden p-2 rounded-lg hover:bg-gray-100"
+              >
+                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">My Store Portal</h1>
+            </div>
+            <div className="flex items-center gap-3">
+              <button className="p-2 rounded-lg hover:bg-gray-100">
+                <Settings size={20} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex">
+        {/* Sidebar - Desktop */}
+        <aside className="hidden md:block w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-73px)] p-4">
+          <nav className="space-y-2">
+            <NavItem icon={BarChart3} label="Dashboard" tab="dashboard" />
+            <NavItem icon={Package} label="Products" tab="products" />
+            <NavItem icon={ShoppingCart} label="Orders" tab="orders" />
+          </nav>
+        </aside>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden fixed inset-0 top-[73px] bg-white z-30 p-4">
+            <nav className="space-y-2">
+              <NavItem icon={BarChart3} label="Dashboard" tab="dashboard" />
+              <NavItem icon={Package} label="Products" tab="products" />
+              <NavItem icon={ShoppingCart} label="Orders" tab="orders" />
+            </nav>
+          </div>
+        )}
+
+        {/* Main Content */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="bg-white p-6 rounded-lg shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Total Products</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">{products.length}</p>
+                </div>
+                <div className="p-3 bg-blue-100 rounded-lg">
+                  <Package className="text-blue-600" size={24} />
+                </div>
+              </div>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Total Orders</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">156</p>
+                </div>
+                <div className="p-3 bg-green-100 rounded-lg">
+                  <ShoppingCart className="text-green-600" size={24} />
+                </div>
+              </div>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Revenue</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">$12,450</p>
+                </div>
+                <div className="p-3 bg-purple-100 rounded-lg">
+                  <BarChart3 className="text-purple-600" size={24} />
+                </div>
+              </div>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Pending Orders</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">8</p>
+                </div>
+                <div className="p-3 bg-orange-100 rounded-lg">
+                  <ShoppingCart className="text-orange-600" size={24} />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Content Section */}
+          <div className="bg-white rounded-lg shadow">
+            <div className="p-4 sm:p-6 border-b border-gray-200">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <h2 className="text-xl font-bold text-gray-900">
+                  {activeTab === 'products' ? 'Products' : activeTab === 'orders' ? 'Orders' : 'Dashboard'}
+                </h2>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="relative flex-1 sm:flex-initial">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                    <input
+                      type="text"
+                      placeholder="Search..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full sm:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  {activeTab === 'products' && (
+                    <button 
+                      onClick={() => setIsAddProductModalOpen(true)}
+                      className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                    >
+                      <Plus size={20} />
+                      <span>Add Product</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 sm:p-6">
+              {activeTab === 'products' && <ProductsView />}
+              {activeTab === 'orders' && <OrdersView />}
+              {activeTab === 'dashboard' && (
+                <div className="text-center py-12">
+                  <BarChart3 size={48} className="mx-auto text-gray-400 mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Dashboard Coming Soon</h3>
+                  <p className="text-gray-600">Analytics and insights will be displayed here</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </main>
+      </div>
+
+      {/* Import and use the AddProductModal component */}
+      <AddProductModal
+        isOpen={isAddProductModalOpen}
+        onClose={() => setIsAddProductModalOpen(false)}
+        onSubmit={handleAddProduct}
+      />
+    </div>
+  );
+};
+
+export default StoreOwnerPortal;
