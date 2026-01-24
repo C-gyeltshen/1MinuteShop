@@ -54,7 +54,10 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       try {
         const res = await fetch(`${API_URL}/store-owners/me`, {
           method: "GET",
-          credentials: "include", // Include httpOnly cookies
+          credentials: "include", 
+          headers: {
+            "Content-Type": "application/json",
+        },
         });
 
         if (res.ok) {
@@ -177,3 +180,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
+function getCookie(arg0: string) {
+  throw new Error("Function not implemented.");
+}
+
