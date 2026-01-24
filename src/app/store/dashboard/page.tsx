@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Menu, X, Package, ShoppingCart, BarChart3, Settings, Search, Plus, Edit, Trash2, Eye, ChevronDown, ChevronUp} from 'lucide-react';
 import AddProductModal, { ProductFormData } from '../components/ui/AddProductButton';
+import AuthProvider from '@/app/shared/store/authStore';
 
 
 type NavItemProps = {
@@ -235,6 +236,7 @@ const StoreOwnerPortal = () => {
     }
 
     return (
+      <AuthProvider>
       <div className="space-y-4">
         {/* Desktop Table */}
         <div className="hidden md:block bg-white rounded-lg shadow overflow-hidden">
@@ -293,6 +295,8 @@ const StoreOwnerPortal = () => {
           ))}
         </div>
       </div>
+      </ AuthProvider>
+
     );
   };
 
