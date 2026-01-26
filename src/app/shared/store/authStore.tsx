@@ -54,20 +54,22 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       try {
         const res = await fetch(`${API_URL}/store-owners/me`, {
           method: "GET",
-          credentials: "include", 
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
-        },
+          },
         });
+        console.log("response", res)
 
         if (res.ok) {
           const data = await res.json();
           setUser(data.data);
-          router.push('/store/dashboard')
-
+          console.log(data.data);
+          router.push("/store/dashboard");
         } else {
           setUser(null);
-          router.push('/login')
+          console.log("catch")
+          router.push("/login");
         }
       } catch (err) {
         console.error("Auth check failed:", err);
