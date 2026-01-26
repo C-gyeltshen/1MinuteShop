@@ -48,29 +48,62 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
+  // Store tokens in memory (or localStorage for persistence)
+  const getStoredTokens = () => {
+    if (typeof window === "undefined") return { accessToken: null, refreshToken: null };
+    
+    const accessToken = localStorage.getItem("accessToken");
+    const refreshToken = localStorage.getItem("refreshToken");
+    return { accessToken, refreshToken };
+  };
+
+  const storeTokens = (accessToken: string, refreshToken: string) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+    }
+  };
+
+  const clearTokens = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+    }
+  };
+
   // Check if user is authenticated on mount
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        const { accessToken } = getStoredTokens();
+
+        if (!accessToken) {
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+
         const res = await fetch(`${API_URL}/store-owners/me`, {
           method: "GET",
-          credentials: "include", 
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
-        },
+            "Authorization": `Bearer ${accessToken}`,
+          },
         });
 
         if (res.ok) {
           const data = await res.json();
           setUser(data.data);
-          router.push('/store/dashboard')
-
+          router.push("/store/dashboard");
         } else {
+          clearTokens();
           setUser(null);
-          router.push('/login')
+          router.push("/login");
         }
       } catch (err) {
         console.error("Auth check failed:", err);
+        clearTokens();
         setUser(null);
       } finally {
         setLoading(false);
@@ -78,7 +111,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     };
 
     checkAuth();
-  }, []);
+  }, [router]);
 
   const register = async (email: string, password: string, name: string) => {
     try {
@@ -96,7 +129,12 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       }
 
       const data = await res.json();
-      setUser(data.data);
+      
+      // Store tokens from response
+      if (data.data) {
+        setUser(data.data);
+      }
+      
       router.push("/shop");
     } catch (err) {
       const message =
@@ -122,6 +160,13 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       }
 
       const data = await res.json();
+      
+      // Extract tokens from response if they're returned
+      // Otherwise they'll be in cookies from the backend
+      if (data.accessToken && data.refreshToken) {
+        storeTokens(data.accessToken, data.refreshToken);
+      }
+      
       setUser(data.data);
       router.push("/shop");
     } catch (err) {
@@ -134,11 +179,17 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const logout = async () => {
     try {
       setError(null);
+      const { accessToken } = getStoredTokens();
+
       await fetch(`${API_URL}/store-owners/logout`, {
         method: "POST",
         credentials: "include",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+        },
       });
 
+      clearTokens();
       setUser(null);
       router.push("/login");
     } catch (err) {
@@ -150,20 +201,39 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
   const refreshAuth = async () => {
     try {
+      const { refreshToken } = getStoredTokens();
+
+      if (!refreshToken) {
+        setUser(null);
+        return;
+      }
+
       const res = await fetch(`${API_URL}/store-owners/refresh`, {
         method: "POST",
         credentials: "include",
+        headers: {
+          "Authorization": `Bearer ${refreshToken}`,
+        },
       });
 
       if (!res.ok) {
+        clearTokens();
         setUser(null);
         return;
       }
 
       const data = await res.json();
+      
+      // Update access token if returned
+      if (data.accessToken) {
+        const { refreshToken: rt } = getStoredTokens();
+        storeTokens(data.accessToken, rt || "");
+      }
+      
       setUser(data.data);
     } catch (err) {
       console.error("Token refresh failed:", err);
+      clearTokens();
       setUser(null);
     }
   };
@@ -180,7 +250,3 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
-function getCookie(arg0: string) {
-  throw new Error("Function not implemented.");
-}
-
