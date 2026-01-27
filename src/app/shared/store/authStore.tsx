@@ -1,154 +1,244 @@
 "use client";
 
 import React, {
-  useEffect,
-  useState,
   createContext,
-  useContext,
+  useState,
+  useCallback,
+  useEffect,
   ReactNode,
 } from "react";
+
 import { useRouter } from "next/navigation";
 
-interface StoreOwner {
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
+export interface User {
   id: string;
-  email: string;
   name: string;
+  phoneNumber: string;
+  storeId?: string | null;
+  isActive: boolean;
   createdAt: string;
 }
 
-interface AuthContextType {
-  user: StoreOwner | null;
-  loading: boolean;
+export interface AuthContextType {
+  user: User | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
   error: string | null;
+  register: (
+    name: string,
+    phoneNumber: string,
+    password: string,
+  ) => Promise<void>;
+  login: (phoneNumber: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  refreshAuth: () => Promise<void>;
+  checkAuth: () => Promise<void>;
+  clearError: () => void;
 }
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined,
+);
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within AuthProvider");
-  }
-  return context;
-};
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-export default function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<StoreOwner | null>(null);
-  const [loading, setLoading] = useState(true);
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const router = useRouter();
 
-  // Check if user is authenticated on mount
+  // Check authentication on app launch
   useEffect(() => {
-    const checkAuth = async () => {
-      // 1. EXIT EARLY: If we already have a user, don't fetch again
-      if (user) {
-        setLoading(false);
-        return;
-      }
+    checkAuth();
+  }, []);
+
+  // Check if user is authenticated
+  const checkAuth = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
 
       const accessToken = localStorage.getItem("accessToken");
+      console.log("access token from Auth Provider", accessToken);
 
-      // 2. EXIT EARLY: If there is no token, don't even bother calling the API
-      if (!accessToken) {
-        setLoading(false);
-        return;
-      }
+      let response = await fetch(`${API_BASE_URL}/store-owners/me`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
-      try {
-        const res = await fetch(`${API_URL}/store-owners/me`, {
-          method: "GET",
+      if (response.status === 401) {
+        // Try to refresh access token using refresh token
+        const refreshRes = await fetch(`${API_BASE_URL}/store-owners/refresh`, {
+          method: "POST",
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
           },
         });
 
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.data);
-          // Only redirect if they are currently on the login page
-          if (window.location.pathname === "/login") {
-            router.push("/store/dashboard");
-          }
-        } else {
-          // If the token is invalid/expired, clear it
-          localStorage.removeItem("accessToken");
-          setUser(null);
+        if (refreshRes.ok) {
+          // Retry /me after refresh
+          response = await fetch(`${API_BASE_URL}/store-owners/me`, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
         }
-      } catch (err) {
-        console.error("Auth check failed:", err);
-      } finally {
-        setLoading(false);
       }
-    };
 
-    checkAuth();
-  }, [user, router]); // Dependency array includes 'user' to handle state changes safely
-
-  const logout = async () => {
-    try {
-      setError(null);
-      const accessToken = localStorage.getItem("accessToken");
-
-      await fetch(`${API_URL}/store-owners/logout`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-        },
-      });
-
-      // Clear token from localstorage
-      localStorage.removeItem("accessToken");
-      setUser(null);
-      router.push("/login");
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Logout failed";
-      setError(message);
-      throw err;
-    }
-  };
-
-  const refreshAuth = async () => {
-    try {
-      const res = await fetch(`${API_URL}/store-owners/refresh`, {
-        method: "POST",
-        credentials: "include",
-      });
-
-      if (!res.ok) {
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user);
+        console.log("User authenticated:");
+        router.push("/store/dashboard");
+      } else {
         setUser(null);
-        return;
+        console.log("User not authenticated, redirecting to dashboard");
+        router.push("/dashboard");
+      }
+    } catch (err) {
+      console.error("Auth check failed:", err);
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Register new user
+  const register = useCallback(
+    async (name: string, phoneNumber: string, password: string) => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const response = await fetch(`${API_BASE_URL}/store-owners/register`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            name,
+            phoneNumber,
+            password,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Registration failed");
+        }
+
+        console.log("Registration successful");
+
+        // Auto-login after registration
+        await login(phoneNumber, password);
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Registration failed";
+        setError(errorMessage);
+        console.error("Registration error:", errorMessage);
+        throw err;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [],
+  );
+
+  // Login user
+  const login = useCallback(async (phoneNumber: string, password: string) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetch(`${API_BASE_URL}/store-owners/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // Critical: Include cookies for HttpOnly
+        body: JSON.stringify({
+          phoneNumber,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Login failed");
       }
 
-      const data = await res.json();
-      setUser(data.data);
+      setUser(data.user);
+      console.log("Login successful:", data.user.email);
+
+      // HttpOnly cookies are automatically stored by browser/app
+      // No manual token handling needed!
     } catch (err) {
-      console.error("Token refresh failed:", err);
+      const errorMessage = err instanceof Error ? err.message : "Login failed";
+      setError(errorMessage);
       setUser(null);
+      console.error("Login error:", errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, []);
+
+  // Logout user
+  const logout = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetch(`${API_BASE_URL}/store-owners/logout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Logout failed");
+      }
+
+      setUser(null);
+      console.log("Logout successful");
+
+      // Browser/app automatically deletes HttpOnly cookies
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Logout failed";
+      setError(errorMessage);
+      console.error("Logout error:", errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Clear error messages
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
 
   const value: AuthContextType = {
     user,
-    loading,
+    isLoading,
+    isAuthenticated: !!user,
     error,
-
+    register,
+    login,
     logout,
-    refreshAuth,
+    checkAuth,
+    clearError,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-function getCookie(arg0: string) {
-  throw new Error("Function not implemented.");
-}
+};
