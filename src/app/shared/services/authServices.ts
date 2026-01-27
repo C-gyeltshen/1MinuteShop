@@ -1,7 +1,3 @@
-"use server";
-
-import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 interface SignupResponse {
@@ -43,38 +39,19 @@ export async function login(formData: FormData) {
       body: JSON.stringify({ email, password }),
     });
 
-    const data: LoginResponse = await response.json();
-
-    if (!response.ok) {
-      console.error("Login error:", data);
+    if (response.ok) {
+      const data = await response.json();
+      const token = data.data?.accessToken;
+      if (token) {
+        localStorage.setItem("accessToken", token);
+        globalThis.location.href = "/store/dashboard"; // redirect() doesn't work the same here
+      }else{
+        console.error("Login error:", data);
       return { error: data.error || data.message || "Login failed" };
+      }
     }
+    console.log("Login successful. JWT token stored in local Storage");
 
-    // 1. Get ALL cookies sent by Hono (AccessToken & RefreshToken)
-    const setCookieHeaders = response.headers.getSetCookie();
-    const cookieStore = await cookies();
-
-    if (setCookieHeaders.length > 0) {
-      setCookieHeaders.forEach((cookieString) => {
-        // Parse the individual cookie string (e.g., "accessToken=xyz; HttpOnly; Path=/")
-        const [fullCookie] = cookieString.split(";");
-        const [name, value] = fullCookie.split("=");
-
-        // 2. Set each cookie into the Next.js cookie store
-        cookieStore.set(name.trim(), value, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
-          path: "/",
-          // Note: If your Hono backend sets specific Max-Age,
-          // you'd need a parser like 'cookie' to extract it perfectly.
-        });
-      });
-    }
-
-    console.log("Login successful. Cookies forwarded to browser.");
-
-    revalidatePath("/", "layout");
     redirect("/store/dashboard");
   } catch (error: any) {
     if (error?.digest?.startsWith("NEXT_REDIRECT")) throw error;
@@ -104,7 +81,7 @@ export async function signup(formData: FormData) {
         password,
         ownerName,
         storeName,
-        status
+        status,
       }),
     });
 
@@ -113,7 +90,8 @@ export async function signup(formData: FormData) {
     try {
       signupData = JSON.parse(text);
     } catch (e) {
-      // Log or handle the unexpected response
+      // FIX S2486: Handle the logic and log the actual error object
+      console.error("Failed to parse signup response JSON:", e);
       return { error: "Unexpected server response: " + text };
     }
 
@@ -128,31 +106,19 @@ export async function signup(formData: FormData) {
       body: JSON.stringify({ email, password }),
     });
 
-    if (!loginResponse.ok) {
-      // If auto-login fails, send them to manual login
-      redirect("/login");
+    if (loginResponse.ok) {
+      const data = await loginResponse.json();
+      const token = data.data?.accessToken;
+      if (token) {
+        localStorage.setItem("accessToken", token);
+        globalThis.location.href = "/store/dashboard"; // redirect() doesn't work the same here
+      }else{
+        console.error("Login error:", data);
+        redirect("/login");
+      return { error: data.error || data.message || "Login failed" };
+      }
     }
 
-    // Step 3: Extract and forward cookies (Access & Refresh Tokens)
-    const setCookieHeaders = loginResponse.headers.getSetCookie();
-    const cookieStore = await cookies();
-
-    if (setCookieHeaders.length > 0) {
-      setCookieHeaders.forEach((cookieString) => {
-        const [fullCookie] = cookieString.split(";");
-        const [name, value] = fullCookie.split("=");
-
-        cookieStore.set(name.trim(), value, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
-          path: "/",
-        });
-      });
-    }
-
-    // Step 4: Finalize session
-    revalidatePath("/", "layout");
     redirect("/store/dashboard");
   } catch (error: any) {
     // Crucial: Let Next.js handle its own redirect "errors"

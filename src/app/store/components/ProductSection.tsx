@@ -127,11 +127,7 @@ export default function ProductsSection() {
                 <button className="absolute top-2 left-2 sm:top-3 sm:left-3 p-1.5 sm:p-2 bg-white rounded-full shadow-md hover:bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity text-lg">
                   <Heart className="w-5 h-5 text-gray-700" />
                 </button>
-                <button className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 p-2 bg-gradient-to-br from-gray-100 to-gray-200 text-gray-700 rounded-lg hover:bg-blue-700 transition-colors">
-                  <ShoppingCart className="w-5 h-5" />
-                </button>
               </div>
-
               <div className="p-3 sm:p-4 flex flex-col flex-grow">
                 <h3 className="font-semibold text-xs sm:text-sm md:text-base text-gray-900 mb-1 sm:mb-1.5 line-clamp-2">
                   {product.productName}

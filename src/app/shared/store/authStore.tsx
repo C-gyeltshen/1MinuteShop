@@ -20,8 +20,6 @@ interface AuthContextType {
   user: StoreOwner | null;
   loading: boolean;
   error: string | null;
-  register: (email: string, password: string, name: string) => Promise<void>;
-  login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshAuth: () => Promise<void>;
 }
@@ -51,96 +49,66 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   // Check if user is authenticated on mount
   useEffect(() => {
     const checkAuth = async () => {
+      // 1. EXIT EARLY: If we already have a user, don't fetch again
+      if (user) {
+        setLoading(false);
+        return;
+      }
+
+      const accessToken = localStorage.getItem("accessToken");
+
+      // 2. EXIT EARLY: If there is no token, don't even bother calling the API
+      if (!accessToken) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const res = await fetch(`${API_URL}/store-owners/me`, {
           method: "GET",
-          credentials: "include",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
           },
         });
-        console.log("response", res)
 
         if (res.ok) {
           const data = await res.json();
           setUser(data.data);
-          console.log(data.data);
-          router.push("/store/dashboard");
+          // Only redirect if they are currently on the login page
+          if (window.location.pathname === "/login") {
+            router.push("/store/dashboard");
+          }
         } else {
+          // If the token is invalid/expired, clear it
+          localStorage.removeItem("accessToken");
           setUser(null);
-          console.log("catch")
-          router.push("/login");
         }
       } catch (err) {
         console.error("Auth check failed:", err);
-        setUser(null);
       } finally {
         setLoading(false);
       }
     };
 
     checkAuth();
-  }, []);
-
-  const register = async (email: string, password: string, name: string) => {
-    try {
-      setError(null);
-      const res = await fetch(`${API_URL}/store-owners/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email, password, name }),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Registration failed");
-      }
-
-      const data = await res.json();
-      setUser(data.data);
-      router.push("/shop");
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Registration failed";
-      setError(message);
-      throw err;
-    }
-  };
-
-  const login = async (email: string, password: string) => {
-    try {
-      setError(null);
-      const res = await fetch(`${API_URL}/store-owners/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Login failed");
-      }
-
-      const data = await res.json();
-      setUser(data.data);
-      router.push("/shop");
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Login failed";
-      setError(message);
-      throw err;
-    }
-  };
+  }, [user, router]); // Dependency array includes 'user' to handle state changes safely
 
   const logout = async () => {
     try {
       setError(null);
+      const accessToken = localStorage.getItem("accessToken");
+
       await fetch(`${API_URL}/store-owners/logout`, {
         method: "POST",
         credentials: "include",
+        headers: {
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        },
       });
 
+      // Clear token from localstorage
+      localStorage.removeItem("accessToken");
       setUser(null);
       router.push("/login");
     } catch (err) {
@@ -174,8 +142,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     user,
     loading,
     error,
-    register,
-    login,
+
     logout,
     refreshAuth,
   };
