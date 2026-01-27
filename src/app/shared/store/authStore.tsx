@@ -94,6 +94,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         const data = await response.json();
         setUser(data.user);
         console.log("User authenticated:");
+        router.push("/store/dashboard");
       } else {
         setUser(null);
         console.log("User not authenticated, redirecting to dashboard");
