@@ -1,5 +1,3 @@
-"use client";
-
 import React, {
   createContext,
   useState,
@@ -7,17 +5,18 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-
 import { useRouter } from "next/navigation";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
+// FIX: Updated User interface to match your API response
 export interface User {
   id: string;
-  name: string;
-  phoneNumber: string;
-  storeId?: string | null;
-  isActive: boolean;
+  ownerName: string; // Changed from name
+  email: string;     // Changed from phoneNumber
+  storeName?: string;
+  storeSubdomain?: string;
+  storeUrl?: string;
   createdAt: string;
 }
 
@@ -36,6 +35,7 @@ export interface AuthContextType {
   checkAuth: () => Promise<void>;
   clearError: () => void;
 }
+
 export const AuthContext = createContext<AuthContextType | undefined>(
   undefined,
 );
@@ -49,55 +49,68 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   const router = useRouter();
 
-  // Check authentication on app launch
   useEffect(() => {
     checkAuth();
   }, []);
 
-  // Check if user is authenticated
   const checkAuth = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
 
-      const accessToken = localStorage.getItem("accessToken");
-      console.log("access token from Auth Provider", accessToken);
+      let accessToken = localStorage.getItem("accessToken");
+
+      if (!accessToken) {
+        setUser(null);
+        setIsLoading(false);
+        return;
+      }
 
       let response = await fetch(`${API_BASE_URL}/store-owners/me`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
         },
       });
 
       if (response.status === 401) {
-        // Try to refresh access token using refresh token
         const refreshRes = await fetch(`${API_BASE_URL}/store-owners/refresh`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
           },
         });
 
         if (refreshRes.ok) {
-          // Retry /me after refresh
+          const refreshData = await refreshRes.json();
+          // Adjust this if your refresh endpoint structure is different
+          if (refreshData.accessToken) {
+            localStorage.setItem("accessToken", refreshData.accessToken);
+            accessToken = refreshData.accessToken;
+          }
+
           response = await fetch(`${API_BASE_URL}/store-owners/me`, {
             method: "GET",
             headers: {
               Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
             },
           });
         }
       }
 
       if (response.ok) {
-        const data = await response.json();
-        setUser(data.user);
+        const resData = await response.json();
+        // FIX: Access user data from resData.data instead of resData.user
+        const userData = resData.data || resData.user; 
+        
+        setUser(userData);
         console.log("User authenticated:");
-        router.push("/store/dashboard");
       } else {
+        localStorage.removeItem("accessToken");
         setUser(null);
-        console.log("User not authenticated, redirecting to dashboard");
         router.push("/dashboard");
       }
     } catch (err) {
@@ -106,9 +119,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [router]);
 
-  // Register new user
   const register = useCallback(
     async (name: string, phoneNumber: string, password: string) => {
       try {
@@ -120,7 +132,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include",
           body: JSON.stringify({
             name,
             phoneNumber,
@@ -134,15 +145,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
           throw new Error(data.error || "Registration failed");
         }
 
-        console.log("Registration successful");
-
-        // Auto-login after registration
         await login(phoneNumber, password);
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "Registration failed";
         setError(errorMessage);
-        console.error("Registration error:", errorMessage);
         throw err;
       } finally {
         setIsLoading(false);
@@ -151,7 +158,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     [],
   );
 
-  // Login user
   const login = useCallback(async (phoneNumber: string, password: string) => {
     try {
       setIsLoading(true);
@@ -162,68 +168,67 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // Critical: Include cookies for HttpOnly
         body: JSON.stringify({
           phoneNumber,
           password,
         }),
       });
 
-      const data = await response.json();
+      const resData = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Login failed");
+        throw new Error(resData.error || "Login failed");
       }
 
-      setUser(data.user);
-      console.log("Login successful:", data.user.email);
+      // Store Access Token
+      if (resData.accessToken) {
+        localStorage.setItem("accessToken", resData.accessToken);
+      } else if (resData.data?.accessToken) {
+         // handle case where token is inside data object
+         localStorage.setItem("accessToken", resData.data.accessToken);
+      }
 
-      // HttpOnly cookies are automatically stored by browser/app
-      // No manual token handling needed!
+      // FIX: Access user data correctly
+      const userData = resData.data || resData.user;
+      setUser(userData);
+      
+      console.log("Login successful:", userData?.email || userData?.ownerName);
+      router.push("/store/dashboard");
+
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Login failed";
       setError(errorMessage);
       setUser(null);
-      console.error("Login error:", errorMessage);
       throw err;
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [router]);
 
-  // Logout user
   const logout = useCallback(async () => {
     try {
       setIsLoading(true);
-      setError(null);
+      const accessToken = localStorage.getItem("accessToken");
+      localStorage.removeItem("accessToken");
 
-      const response = await fetch(`${API_BASE_URL}/store-owners/logout`, {
+      await fetch(`${API_BASE_URL}/store-owners/logout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
         },
-        credentials: "include",
       });
 
-      if (!response.ok) {
-        throw new Error("Logout failed");
-      }
-
       setUser(null);
-      console.log("Logout successful");
-
-      // Browser/app automatically deletes HttpOnly cookies
+      router.push("/dashboard");
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Logout failed";
-      setError(errorMessage);
-      console.error("Logout error:", errorMessage);
-      throw err;
+      setUser(null); 
+      router.push("/dashboard");
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [router]);
 
-  // Clear error messages
   const clearError = useCallback(() => {
     setError(null);
   }, []);
