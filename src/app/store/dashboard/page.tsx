@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AuthContext, AuthProvider } from "@/app/shared/store/authStore";
 import {
   BarChart3,
@@ -295,11 +295,10 @@ const OrderCard: React.FC<OrderCardProps> = ({
 );
 
 const DashboardContent = () => {
-
   const auth = useContext(AuthContext);
   const isLoading = auth?.isLoading;
   const user = auth?.user;
-  
+
   if (user) {
     console.log("Current Auth User:", user.id);
   }
@@ -309,55 +308,93 @@ const DashboardContent = () => {
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const [products, setProducts] = useState<Product[]>([
-    {
-      id: "1",
-      productName: "Wireless Headphones",
-      price: 79.99,
-      stockQuantity: 45,
-      description: "Premium noise-canceling headphones",
-      productImageUrl:
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&h=100&fit=crop",
-      createdAt: "2024-01-15",
-    },
-    {
-      id: "2",
-      productName: "Smart Watch",
-      price: 199.99,
-      stockQuantity: 12,
-      description: "Fitness tracker with heart rate monitor",
-      productImageUrl:
-        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&h=100&fit=crop",
-      createdAt: "2024-01-14",
-    },
-    {
-      id: "3",
-      productName: "Laptop Stand",
-      price: 34.99,
-      stockQuantity: 0,
-      description: "Ergonomic aluminum laptop stand",
-      productImageUrl:
-        "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=100&h=100&fit=crop",
-      createdAt: "2024-01-10",
-    },
-    {
-      id: "4",
-      productName: "USB-C Hub",
-      price: 49.99,
-      stockQuantity: 67,
-      description: "7-in-1 multiport adapter",
-      productImageUrl:
-        "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=100&h=100&fit=crop",
-      createdAt: "2024-01-08",
-    },
-  ]);
+  // Initialize products as empty array
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    const fetchStoreProducts = async () => {
+      try {
+        // 1. Extract token from local storage
+        const token = localStorage.getItem("accessToken");
+
+        if (!token) {
+          throw new Error("No authentication token found in local storage.");
+        }
+
+        // 2. Make the HTTP GET request
+        const response = await fetch(
+          "https://oneminuteshop-be.onrender.com/api/products/store",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error(`Request failed with status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        setData(result);
+        
+        // Set the products from the API response
+        if (result && Array.isArray(result)) {
+          setProducts(result);
+        } else if (result && result.products && Array.isArray(result.products)) {
+          setProducts(result.products);
+        } else if (result && result.data && Array.isArray(result.data)) {
+          setProducts(result.data);
+        }
+      } catch (err: any) {
+        setError(err.message || "An error occurred");
+        console.error("Fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStoreProducts();
+  }, []);
 
   // View Components defined inside to access state
   const ProductsView = () => {
     const filteredProducts = products.filter((p) =>
       p.productName.toLowerCase().includes(searchQuery.toLowerCase()),
     );
+
+    // Show loading state while fetching products
+    if (loading) {
+      return (
+        <div className="flex flex-col items-center justify-center py-16">
+          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-gray-600 font-medium">Loading products...</p>
+        </div>
+      );
+    }
+
+    // Show error state if there was an error fetching products
+    if (error) {
+      return (
+        <div className="flex flex-col items-center justify-center py-16">
+          <div className="p-4 bg-red-100 rounded-full mb-4">
+            <Package className="text-red-600" size={48} />
+          </div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            Error Loading Products
+          </h3>
+          <p className="text-gray-600 mb-6 text-center max-w-sm">
+            {error}
+          </p>
+        </div>
+      );
+    }
 
     if (filteredProducts.length === 0 && searchQuery === "") {
       return (
@@ -576,54 +613,85 @@ const DashboardContent = () => {
     setProducts([newProduct, ...products]);
   };
 
-    // Show loading state while auth is being checked
-    if (isLoading) {
-      return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-50">
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-gray-500 font-medium">Loading...</p>
-          </div>
-        </div>
-      );
-    }
-    
+  // Show loading state while auth is being checked
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
-          <div className="px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="md:hidden p-2 rounded-lg hover:bg-gray-100"
-                >
-                  <Menu size={20} />
-                </button>
-                <div className="flex flex-col">
-                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-                    {user?.storeName || "My Store Portal"}
-                  </h1>
-                  {user && (
-                    <span className="text-xs text-gray-500 font-normal">
-                      Welcome, {user.ownerName || user.email}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <button className="p-2 rounded-lg hover:bg-gray-100">
-                  <Settings size={20} />
-                </button>
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-gray-500 font-medium">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+        <div className="px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="md:hidden p-2 rounded-lg hover:bg-gray-100"
+              >
+                <Menu size={20} />
+              </button>
+              <div className="flex flex-col">
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+                  {user?.storeName || "My Store Portal"}
+                </h1>
+                {user && (
+                  <span className="text-xs text-gray-500 font-normal">
+                    Welcome, {user.ownerName || user.email}
+                  </span>
+                )}
               </div>
             </div>
+            <div className="flex items-center gap-3">
+              <button className="p-2 rounded-lg hover:bg-gray-100">
+                <Settings size={20} />
+              </button>
+            </div>
           </div>
-        </header>
+        </div>
+      </header>
 
-        <div className="flex">
-          {/* Sidebar - Desktop */}
-          <aside className="hidden md:block w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-73px)] p-4">
+      <div className="flex">
+        {/* Sidebar - Desktop */}
+        <aside className="hidden md:block w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-73px)] p-4">
+          <nav className="space-y-2">
+            <NavItem
+              icon={BarChart3}
+              label="Dashboard"
+              tab="dashboard"
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              setIsMobileMenuOpen={setIsMobileMenuOpen}
+            />
+            <NavItem
+              icon={Package}
+              label="Products"
+              tab="products"
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              setIsMobileMenuOpen={setIsMobileMenuOpen}
+            />
+            <NavItem
+              icon={ShoppingCart}
+              label="Orders"
+              tab="orders"
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              setIsMobileMenuOpen={setIsMobileMenuOpen}
+            />
+          </nav>
+        </aside>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden fixed inset-0 top-[73px] bg-white z-30 p-4 shadow-lg">
             <nav className="space-y-2">
               <NavItem
                 icon={BarChart3}
@@ -650,141 +718,108 @@ const DashboardContent = () => {
                 setIsMobileMenuOpen={setIsMobileMenuOpen}
               />
             </nav>
-          </aside>
+          </div>
+        )}
 
-          {/* Mobile Menu */}
-          {isMobileMenuOpen && (
-            <div className="md:hidden fixed inset-0 top-[73px] bg-white z-30 p-4 shadow-lg">
-              <nav className="space-y-2">
-                <NavItem
-                  icon={BarChart3}
-                  label="Dashboard"
-                  tab="dashboard"
-                  activeTab={activeTab}
-                  setActiveTab={setActiveTab}
-                  setIsMobileMenuOpen={setIsMobileMenuOpen}
-                />
-                <NavItem
-                  icon={Package}
-                  label="Products"
-                  tab="products"
-                  activeTab={activeTab}
-                  setActiveTab={setActiveTab}
-                  setIsMobileMenuOpen={setIsMobileMenuOpen}
-                />
-                <NavItem
-                  icon={ShoppingCart}
-                  label="Orders"
-                  tab="orders"
-                  activeTab={activeTab}
-                  setActiveTab={setActiveTab}
-                  setIsMobileMenuOpen={setIsMobileMenuOpen}
-                />
-              </nav>
+        {/* Main Content */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="bg-white p-6 rounded-lg shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-500">
+                    Total Sales
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900">$12,456</p>
+                </div>
+                <div className="p-3 bg-blue-50 rounded-full">
+                  <BarChart3 className="text-blue-600" size={24} />
+                </div>
+              </div>
             </div>
-          )}
+            <div className="bg-white p-6 rounded-lg shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Orders</p>
+                  <p className="text-2xl font-bold text-gray-900">456</p>
+                </div>
+                <div className="p-3 bg-green-50 rounded-full">
+                  <ShoppingCart className="text-green-600" size={24} />
+                </div>
+              </div>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Products</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {products.length}
+                  </p>
+                </div>
+                <div className="p-3 bg-purple-50 rounded-full">
+                  <Package className="text-purple-600" size={24} />
+                </div>
+              </div>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Low Stock</p>
+                  <p className="text-2xl font-bold text-orange-600">
+                    {products.filter(p => p.stockQuantity < 20).length}
+                  </p>
+                </div>
+                <div className="p-3 bg-orange-50 rounded-full">
+                  <BarChart3 className="text-orange-600" size={24} />
+                </div>
+              </div>
+            </div>
+          </div>
 
-          {/* Main Content */}
-          <main className="flex-1 p-4 sm:p-6 lg:p-8">
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              <div className="bg-white p-6 rounded-lg shadow">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">
-                      Total Sales
-                    </p>
-                    <p className="text-2xl font-bold text-gray-900">$12,456</p>
-                  </div>
-                  <div className="p-3 bg-blue-50 rounded-full">
-                    <BarChart3 className="text-blue-600" size={24} />
-                  </div>
-                </div>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Orders</p>
-                    <p className="text-2xl font-bold text-gray-900">456</p>
-                  </div>
-                  <div className="p-3 bg-green-50 rounded-full">
-                    <ShoppingCart className="text-green-600" size={24} />
-                  </div>
-                </div>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">
-                      Products
-                    </p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {products.length}
-                    </p>
-                  </div>
-                  <div className="p-3 bg-purple-50 rounded-full">
-                    <Package className="text-purple-600" size={24} />
-                  </div>
-                </div>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">
-                      Low Stock
-                    </p>
-                    <p className="text-2xl font-bold text-orange-600">3</p>
-                  </div>
-                  <div className="p-3 bg-orange-50 rounded-full">
-                    <BarChart3 className="text-orange-600" size={24} />
-                  </div>
+          {/* Content Section */}
+          <div className="bg-white rounded-lg shadow">
+            <div className="p-4 sm:p-6 border-b border-gray-200">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                </h2>
+                <div className="relative">
+                  <Search
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                    size={20}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Search..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
                 </div>
               </div>
             </div>
 
-            {/* Content Section */}
-            <div className="bg-white rounded-lg shadow">
-              <div className="p-4 sm:p-6 border-b border-gray-200">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-                  </h2>
-                  <div className="relative">
-                    <Search
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                      size={20}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Search..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
+            <div className="p-4 sm:p-6">
+              {activeTab === "products" && <ProductsView />}
+              {activeTab === "orders" && <OrdersView />}
+              {activeTab === "dashboard" && (
+                <div className="text-center py-20 text-gray-500">
+                  Dashboard charts and analytics coming soon...
                 </div>
-              </div>
-
-              <div className="p-4 sm:p-6">
-                {activeTab === "products" && <ProductsView />}
-                {activeTab === "orders" && <OrdersView />}
-                {activeTab === "dashboard" && (
-                  <div className="text-center py-20 text-gray-500">
-                    Dashboard charts and analytics coming soon...
-                  </div>
-                )}
-              </div>
+              )}
             </div>
-          </main>
-        </div>
-
-        <AddProductModal
-          isOpen={isAddProductModalOpen}
-          onClose={() => setIsAddProductModalOpen(false)}
-          onSubmit={handleAddProduct}
-        />
+          </div>
+        </main>
       </div>
-    );
+
+      <AddProductModal
+        isOpen={isAddProductModalOpen}
+        onClose={() => setIsAddProductModalOpen(false)}
+        onSubmit={handleAddProduct}
+      />
+    </div>
+  );
 };
 
 // 2. Main component exported as wrapper
