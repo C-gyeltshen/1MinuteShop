@@ -43,6 +43,10 @@ export async function login(formData: FormData) {
       const data = await response.json();
       const token = data.data?.accessToken;
       if (token) {
+        let accessToken = localStorage.getItem('accessToken');
+        console.log("old access token", accessToken)
+        localStorage.removeItem("accessToken");
+        console.log("deleted old token")
         localStorage.setItem("accessToken", token);
         globalThis.location.href = "/store/dashboard"; // redirect() doesn't work the same here
       }else{
