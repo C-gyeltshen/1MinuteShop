@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import Navbar from "../../components/NavBar";
-import Footer from "../../components/Footer";
+import Navbar from "../components/NavBar";
+import Footer from "../components/Footer";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -13,12 +13,12 @@ export default function ContactPage() {
   });
   const [submitted, setSubmitted] = useState(false);
 
-const handleChange = (
-  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-) => {
-  const { name, value } = e.target;
-  setFormData((prev) => ({ ...prev, [name]: value }));
-};
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = () => {
     if (
