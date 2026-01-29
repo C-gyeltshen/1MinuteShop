@@ -145,7 +145,7 @@ export default function ProductsSection() {
 
                 <div className="mt-auto flex items-center justify-between gap-2 pt-3 sm:pt-4 border-t border-gray-200">
                   <span className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
-                    ${product.price}
+                    Nu.{product.price}
                   </span>
                   <button className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                     <ShoppingCart className="w-5 h-5" />

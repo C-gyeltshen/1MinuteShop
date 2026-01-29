@@ -30,7 +30,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <h3 className="font-semibold text-gray-900 truncate">
             {product.productName}
           </h3>
-          <p className="text-sm text-gray-600">${product.price}</p>
+          <p className="text-sm text-gray-600">Nu.{product.price}</p>
         </div>
       </div>
       {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
