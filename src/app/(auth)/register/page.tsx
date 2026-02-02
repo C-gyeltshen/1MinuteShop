@@ -193,9 +193,6 @@ export default function Register() {
 
       // Call the server action
       await signup(formData);
-
-      // If we reach here, it means the redirect didn't happen
-      // This could be because we're in development mode
       setShowSuccess(true);
 
       // Reset form
