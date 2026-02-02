@@ -115,7 +115,7 @@ export async function signup(formData: FormData) {
       const token = data.data?.accessToken;
       if (token) {
         localStorage.setItem("accessToken", token);
-        globalThis.location.href = "/store/dashboard"; // redirect() doesn't work the same here
+        globalThis.location.href = "/store/success"; // redirect() doesn't work the same here
       }else{
         console.error("Login error:", data);
         redirect("/login");
