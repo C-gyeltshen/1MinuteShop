@@ -83,7 +83,7 @@ export default function Footer() {
             &copy; 2024 All rights reserved. Built with ❤️ by{" "}
             <a
               href="https://laso.la"
-              className="font-bold bg-gradient-to-r from-blue-600 via-purple-500 to-blue-600 bg-[length:200%_auto] bg-clip-text text-transparent animate-gradient-x hover:scale-110 transition-transform inline-block"
+              className="font-bold bg-linear-to-r from-blue-600 via-purple-500 to-blue-600 bg-size-[200%_auto] bg-clip-text text-transparent animate-gradient-x hover:scale-110 transition-transform inline-block"
             >
               1MinuteShop
             </a>
