@@ -31,7 +31,8 @@ export default function CartDrawer() {
 
   const handleCheckout = () => {
     closeCart();
-    router.push("/checkout");
+    // Use window.location for subdomain routing
+    window.location.href = "/checkout";
   };
 
   if (!isCartOpen) return null;

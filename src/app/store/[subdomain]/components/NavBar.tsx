@@ -49,10 +49,10 @@ export default function Navbar() {
     fetchStoreData();
   }, [subdomain]);
 
-  // Navigation handlers using router.push for better SPA performance
-  const handleAboutClick = () => router.push("/aboutUs");
-  const handleContactClick = () => router.push("/contactUs");
-  const handleShopClick = () => router.push("/");
+  // Navigation handlers using window.location for subdomain routing
+  const handleAboutClick = () => window.location.href = "/aboutUs";
+  const handleContactClick = () => window.location.href = "/contactUs";
+  const handleShopClick = () => window.location.href = "/";
 
   const closeMenu = () => setIsOpen(false);
 
