@@ -1,5 +1,6 @@
 import { Heart, ShoppingCart } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useCart } from "../context/Cartcontext ";
 
 interface Product {
   id: string | number;
@@ -16,6 +17,7 @@ export default function ProductsSection() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -28,22 +30,25 @@ export default function ProductsSection() {
           `${BACKEND_URL}/products/subdomain/${subdomain}`
         );
 
+        console.log(response);
+
         if (!response.ok) {
           throw new Error(`Failed to fetch products: ${response.statusText}`);
         }
 
         const responseData = await response.json();
-        
+
         // Extract products from { success, data, total } response
         const productList = responseData.data || [];
-        
+
         if (!Array.isArray(productList)) {
           throw new TypeError("Invalid product data format");
         }
-        
+
         setProducts(productList);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "An error occurred";
+        const errorMessage =
+          err instanceof Error ? err.message : "An error occurred";
         setError(errorMessage);
         console.error("Error fetching products:", err);
       } finally {
@@ -53,6 +58,16 @@ export default function ProductsSection() {
 
     fetchProducts();
   }, []);
+
+  const handleAddToCart = (product: Product) => {
+    addToCart({
+      id: product.id.toString(),
+      productName: product.productName,
+      price: product.price,
+      productImageUrl: product.productImageUrl,
+      stockQuantity: product.stockQuantity,
+    });
+  };
 
   if (loading) {
     return (
@@ -147,7 +162,11 @@ export default function ProductsSection() {
                   <span className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
                     Nu.{product.price}
                   </span>
-                  <button className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                  <button
+                    onClick={() => handleAddToCart(product)}
+                    disabled={product.stockQuantity === 0}
+                    className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  >
                     <ShoppingCart className="w-5 h-5" />
                   </button>
                 </div>

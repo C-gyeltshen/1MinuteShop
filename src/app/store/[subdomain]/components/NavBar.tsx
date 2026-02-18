@@ -3,19 +3,20 @@
 import { useState, useEffect } from "react";
 import { Menu, X, ShoppingCart, Search, Heart } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
+import { useCart } from "../context/Cartcontext ";
 
-const BackendUrl = process.env.NEXT_PUBLIC_API_URL
+const BackendUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export default function Navbar() {
   const params = useParams();
   const router = useRouter();
-  
+  const { cartCount, toggleCart } = useCart();
+
   // 'subdomain' is extracted from your dynamic route [subdomain]
   const subdomain = params.subdomain as string;
 
   const [storeName, setStoreName] = useState<string>("Loading...");
   const [isOpen, setIsOpen] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch store data from your backend
@@ -48,10 +49,10 @@ export default function Navbar() {
     fetchStoreData();
   }, [subdomain]);
 
-  // Navigation handlers using router.push for better SPA performance
-  const handleAboutClick = () => router.push("/aboutUs");
-  const handleContactClick = () => router.push("/contactUs");
-  const handleShopClick = () => router.push("/");
+  // Navigation handlers using window.location for subdomain routing
+  const handleAboutClick = () => window.location.href = "/aboutUs";
+  const handleContactClick = () => window.location.href = "/contactUs";
+  const handleShopClick = () => window.location.href = "/";
 
   const closeMenu = () => setIsOpen(false);
 
@@ -85,13 +86,22 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
-            <button onClick={handleShopClick} className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
+            <button
+              onClick={handleShopClick}
+              className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
+            >
               Shop
             </button>
-            <button onClick={handleAboutClick} className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
+            <button
+              onClick={handleAboutClick}
+              className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
+            >
               About
             </button>
-            <button onClick={handleContactClick} className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
+            <button
+              onClick={handleContactClick}
+              className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
+            >
               Contact
             </button>
           </div>
@@ -101,10 +111,13 @@ export default function Navbar() {
             <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
               <Heart className="w-5 h-5 text-gray-700" />
             </button>
-            <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative">
+            <button
+              onClick={toggleCart}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative"
+            >
               <ShoppingCart className="w-5 h-5 text-gray-700" />
               {cartCount > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                <span className="absolute top-1 right-1 min-w-[1rem] h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center px-1 font-semibold">
                   {cartCount}
                 </span>
               )}
@@ -113,7 +126,11 @@ export default function Navbar() {
               onClick={() => setIsOpen(!isOpen)}
               className="md:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {isOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
             </button>
           </div>
         </div>
@@ -134,19 +151,28 @@ export default function Navbar() {
         {isOpen && (
           <div className="md:hidden pb-4 space-y-2 border-t pt-2">
             <button
-              onClick={() => { handleShopClick(); closeMenu(); }}
+              onClick={() => {
+                handleShopClick();
+                closeMenu();
+              }}
               className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 rounded"
             >
               Shop
             </button>
             <button
-              onClick={() => { handleAboutClick(); closeMenu(); }}
+              onClick={() => {
+                handleAboutClick();
+                closeMenu();
+              }}
               className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 rounded"
             >
               About
             </button>
             <button
-              onClick={() => { handleContactClick(); closeMenu(); }}
+              onClick={() => {
+                handleContactClick();
+                closeMenu();
+              }}
               className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 rounded"
             >
               Contact
