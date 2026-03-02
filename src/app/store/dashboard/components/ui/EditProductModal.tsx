@@ -1,30 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
-
-export interface EditProductFormData {
-  productName: string;
-  price: string;
-  stockQuantity: string;
-  description: string;
-  productImageUrl: string;
-}
-
-export interface Product {
-  id: string;
-  productName: string;
-  price: number;
-  stockQuantity: number;
-  description: string;
-  productImageUrl: string;
-  createdAt: string;
-}
-
-interface EditProductModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (productId: string, formData: EditProductFormData) => void;
-  product: Product | null;
-}
+import { EditProductFormData, EditProductModalProps } from "../Types";
 
 const EditProductModal: React.FC<EditProductModalProps> = ({
   isOpen,

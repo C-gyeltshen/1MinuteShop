@@ -1,9 +1,7 @@
 import React from "react";
+import { StatusBadgeProps } from "./Types";
 
-interface StatusBadgeProps {
-  status: string;
-  type?: "order" | "payment";
-}
+
 
 const StatusBadge: React.FC<StatusBadgeProps> = ({
   status,

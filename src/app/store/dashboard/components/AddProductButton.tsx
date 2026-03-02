@@ -1,20 +1,7 @@
 import React, { useState } from "react";
 import { X, Image, DollarSign, Package, FileText, Loader2 } from "lucide-react";
 import { useCurrentUser } from "@/app/shared/store/authStore";
-
-export type ProductFormData = {
-  productName: string;
-  price: string;
-  stockQuantity: string;
-  description: string;
-  productImageUrl: string;
-};
-
-export type AddProductModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (product: ProductFormData) => void;
-};
+import { AddProductModalProps, ProductFormData } from "./Types";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
 

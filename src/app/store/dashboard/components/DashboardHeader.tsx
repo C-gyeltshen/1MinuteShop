@@ -1,13 +1,6 @@
 import React from "react";
 import { Menu, Settings } from "lucide-react";
-
-interface DashboardHeaderProps {
-  storeName?: string;
-  ownerName?: string;
-  email?: string;
-  isMobileMenuOpen: boolean;
-  onToggleMobileMenu: () => void;
-}
+import { DashboardHeaderProps } from "./Types";
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   storeName,

@@ -2,7 +2,6 @@
 
 import { X, Plus, Minus, Trash2, ShoppingBag } from "lucide-react";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useCart } from "../context/Cartcontext ";
 
 export default function CartDrawer() {
@@ -15,7 +14,6 @@ export default function CartDrawer() {
     getTotalPrice,
   } = useCart();
 
-  const router = useRouter();
 
   // Prevent body scroll when cart is open
   useEffect(() => {
@@ -32,7 +30,7 @@ export default function CartDrawer() {
   const handleCheckout = () => {
     closeCart();
     // Use window.location for subdomain routing
-    window.location.href = "/checkout";
+    globalThis.location.href = "/checkout";
   };
 
   if (!isCartOpen) return null;
@@ -89,7 +87,7 @@ export default function CartDrawer() {
                   className="flex gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200"
                 >
                   {/* Product Image */}
-                  <div className="w-20 h-20 flex-shrink-0 bg-white rounded-lg overflow-hidden border border-gray-200">
+                  <div className="w-20 h-20 shrink-0 bg-white rounded-lg overflow-hidden border border-gray-200">
                     <img
                       src={item.productImageUrl}
                       alt={item.productName}
@@ -118,7 +116,7 @@ export default function CartDrawer() {
                         >
                           <Minus className="w-4 h-4 text-gray-600" />
                         </button>
-                        <span className="px-3 py-1 text-sm font-semibold text-gray-900 min-w-[2rem] text-center">
+                        <span className="px-3 py-1 text-sm font-semibold text-gray-900 min-w-8 text-center">
                           {item.quantity}
                         </span>
                         <button
@@ -151,7 +149,7 @@ export default function CartDrawer() {
                   {/* Item Total */}
                   <div className="text-right">
                     <p className="text-sm font-bold text-gray-900">
-                      Nu.{(parseFloat(item.price) * item.quantity).toFixed(2)}
+                      Nu.{(Number.parseFloat(item.price) * item.quantity).toFixed(2)}
                     </p>
                   </div>
                 </div>
@@ -182,7 +180,7 @@ export default function CartDrawer() {
             {/* Checkout Button */}
             <button
               onClick={handleCheckout}
-              className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
+              className="w-full py-3 bg-linear-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
             >
               Proceed to Checkout
             </button>

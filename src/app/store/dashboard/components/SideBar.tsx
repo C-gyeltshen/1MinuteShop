@@ -1,14 +1,6 @@
 import React from "react";
 import { BarChart3, Package, ShoppingCart } from "lucide-react";
-
-interface NavItemProps {
-  icon: React.ElementType;
-  label: string;
-  tab: string;
-  activeTab: string;
-  setActiveTab: (t: string) => void;
-  setIsMobileMenuOpen?: (o: boolean) => void;
-}
+import { NavItemProps } from "./Types";
 
 const NavItem: React.FC<NavItemProps> = ({
   icon: Icon,

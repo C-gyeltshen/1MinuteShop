@@ -11,7 +11,6 @@ import StatsCards from "./components/StatusCards";
 import Sidebar from "./components/SideBar";
 import { useProducts } from "./hooks/UseProducts";
 import { Product } from "./components/Types";
-import { mockOrders } from "./data/MockData";
 
 const DashboardContent = () => {
   const auth = useContext(AuthContext);
@@ -106,7 +105,6 @@ const DashboardContent = () => {
             )}
             {activeTab === "orders" && (
               <OrdersView
-                orders={mockOrders}
                 searchQuery={searchQuery}
                 expandedRow={expandedRow}
                 setExpandedRow={setExpandedRow}

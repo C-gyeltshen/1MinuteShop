@@ -2,14 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { Menu, X, ShoppingCart, Search, Heart } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useCart } from "../context/Cartcontext ";
 
 const BackendUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export default function Navbar() {
   const params = useParams();
-  const router = useRouter();
   const { cartCount, toggleCart } = useCart();
 
   // 'subdomain' is extracted from your dynamic route [subdomain]
@@ -50,9 +49,9 @@ export default function Navbar() {
   }, [subdomain]);
 
   // Navigation handlers using window.location for subdomain routing
-  const handleAboutClick = () => window.location.href = "/aboutUs";
-  const handleContactClick = () => window.location.href = "/contactUs";
-  const handleShopClick = () => window.location.href = "/";
+  const handleAboutClick = () => globalThis.location.href = "/aboutUs";
+  const handleContactClick = () => globalThis.location.href = "/contactUs";
+  const handleShopClick = () => globalThis.location.href = "/";
 
   const closeMenu = () => setIsOpen(false);
 
@@ -64,7 +63,7 @@ export default function Navbar() {
           <div className="shrink-0">
             <button
               onClick={handleShopClick}
-              className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
+              className="text-xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
             >
               {storeName}
             </button>
@@ -117,7 +116,7 @@ export default function Navbar() {
             >
               <ShoppingCart className="w-5 h-5 text-gray-700" />
               {cartCount > 0 && (
-                <span className="absolute top-1 right-1 min-w-[1rem] h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center px-1 font-semibold">
+                <span className="absolute top-1 right-1 min-w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center px-1 font-semibold">
                   {cartCount}
                 </span>
               )}
