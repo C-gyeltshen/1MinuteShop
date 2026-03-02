@@ -2,18 +2,9 @@ import React from "react";
 import { Edit, Trash2, Package, Search, Plus } from "lucide-react";
 
 import ProductCard from "./ProductCard";
-import { Product } from "./Types";
+import { ProductsViewProps } from "./Types";
 
-interface ProductsViewProps {
-  products: Product[];
-  searchQuery: string;
-  loading: boolean;
-  error: string | null;
-  expandedRow: string | null;
-  setExpandedRow: (id: string | null) => void;
-  onEdit: (product: Product) => void;
-  onAddProduct: () => void;
-}
+
 
 const ProductsView: React.FC<ProductsViewProps> = ({
   products,

@@ -1,13 +1,6 @@
 import React from "react";
 import { Search, Plus } from "lucide-react";
-
-interface ContentSectionProps {
-  activeTab: string;
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  onAddProduct: () => void;
-  children: React.ReactNode;
-}
+import { ContentSectionProps } from "./Types";
 
 const ContentSection: React.FC<ContentSectionProps> = ({
   activeTab,

@@ -10,6 +10,7 @@ import CustomerInfoStep from "../components/Customerinfostep";
 import ShippingInfoStep from "../components/Shippinginfostep";
 import PaymentStep from "../components/Paymentstep";
 import OrderSummary from "../components/Ordersummary";
+import { getStoreOwnerId } from "../helper/storeHelper";
 
 export interface CustomerInfo {
   customerName: string;
@@ -32,6 +33,7 @@ export interface PaymentInfo {
 }
 
 export default function CheckoutPage() {
+
   const router = useRouter();
   const { cartItems, getTotalPrice, clearCart } = useCart();
 
@@ -63,7 +65,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (cartItems.length === 0) {
       console.log("Cart is empty, redirecting to home");
-      window.location.href = "/";
+      globalThis.location.href = "/";
     }
   }, [cartItems]);
 
@@ -84,9 +86,12 @@ export default function CheckoutPage() {
 
     try {
       // Get subdomain
-      const hostname = window.location.hostname;
+      const hostname = globalThis.location.hostname;
       const parts = hostname.split(".");
       const subdomain = parts[0];
+
+      const storeOwnerId = await getStoreOwnerId(subdomain);
+      console.log(subdomain)
 
       // 1. Create or get customer
       const customerResponse = await fetch(
@@ -139,6 +144,7 @@ export default function CheckoutPage() {
 
       // 3. Create order with the correct endpoint
       const orderData = {
+        storeOwnerId: storeOwnerId,
         storeSubdomain: subdomain,
         customerId: customerId,
         totalAmount: getTotalPrice(),
@@ -152,7 +158,7 @@ export default function CheckoutPage() {
         items: cartItems.map((item) => ({
           productId: item.id,
           quantity: item.quantity,
-          unitPrice: parseFloat(item.price),
+          unitPrice: Number.parseFloat(item.price),
         })),
       };
 
@@ -177,7 +183,7 @@ export default function CheckoutPage() {
 
       // 4. Clear cart and redirect to success page
       clearCart();
-      window.location.href = `/success?orderId=${orderResult.data.id}`;
+      globalThis.location.href = `/success?orderId=${orderResult.data.id}`;
     } catch (error) {
       console.error("Order submission failed:", error);
       alert(
@@ -199,7 +205,7 @@ export default function CheckoutPage() {
         {/* Header */}
         <div className="mb-8">
           <button
-            onClick={() => (window.location.href = "/")}
+            onClick={() => (globalThis.location.href = "/")}
             className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
           >
             <ArrowLeft className="w-5 h-5" />

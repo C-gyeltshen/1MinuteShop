@@ -1,13 +1,8 @@
 import React from "react";
 import { ChevronUp, ChevronDown, Edit, Trash2 } from "lucide-react";
-import { Product } from "./Types";
+import { ProductCardProps } from "./Types";
 
-interface ProductCardProps {
-  product: Product;
-  isExpanded: boolean;
-  onToggle: () => void;
-  onEdit: (product: Product) => void;
-}
+
 
 const ProductCard: React.FC<ProductCardProps> = ({
   product,

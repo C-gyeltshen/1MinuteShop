@@ -1,13 +1,7 @@
 import React from "react";
 import { ChevronUp, ChevronDown, Edit, Eye } from "lucide-react";
 import StatusBadge from "./StatusBadge";
-import { Order } from "./Types";
-
-interface OrderCardProps {
-  order: Order;
-  isExpanded: boolean;
-  onToggle: () => void;
-}
+import { OrderCardProps } from "./Types";
 
 const OrderCard: React.FC<OrderCardProps> = ({
   order,
@@ -21,7 +15,7 @@ const OrderCard: React.FC<OrderCardProps> = ({
     >
       <div className="flex-1 min-w-0">
         <h3 className="font-semibold text-gray-900">{order.orderNumber}</h3>
-        <p className="text-sm text-gray-600">{order.customerName}</p>
+        <p className="text-sm text-gray-600">{order.customer?.customerName}</p>
       </div>
       <div className="text-right mr-2">
         <p className="font-semibold text-gray-900">${order.totalAmount}</p>
@@ -46,12 +40,12 @@ const OrderCard: React.FC<OrderCardProps> = ({
           </div>
           <div>
             <span className="text-gray-600">Items:</span>
-            <p className="font-semibold text-gray-900">{order.items}</p>
+            <p className="font-semibold text-gray-900">{order.orderItems.length}</p>
           </div>
           <div>
             <span className="text-gray-600">Date:</span>
             <p className="font-semibold text-gray-900">
-              {new Date(order.createdAt).toLocaleDateString()}
+              {new Date(order.createdAt || "").toLocaleDateString()}
             </p>
           </div>
         </div>

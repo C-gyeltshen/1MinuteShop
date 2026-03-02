@@ -1,10 +1,8 @@
 import React from "react";
 import { BarChart3, Package, ShoppingCart } from "lucide-react";
-import { Product } from "./Types";
+import { StatsCardsProps } from "./Types";
 
-interface StatsCardsProps {
-  products: Product[];
-}
+
 
 const StatsCards: React.FC<StatsCardsProps> = ({ products }) => {
   const lowStockCount = products.filter((p) => p.stockQuantity < 20).length;
