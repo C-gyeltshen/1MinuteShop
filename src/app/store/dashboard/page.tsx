@@ -7,7 +7,7 @@ import DashboardHeader from "./components/DashboardHeader";
 import ContentSection from "./components/ContentSection";
 import OrdersView from "./components/OrdersView";
 import ProductsView from "./components/ProductsView";
-import StatsCards from "./components/StatusCards";
+// import StatsCards from "./components/StatusCards";
 import Sidebar from "./components/SideBar";
 import { useProducts } from "./hooks/UseProducts";
 import { Product } from "./components/Types";
@@ -82,7 +82,7 @@ const DashboardContent = () => {
         {/* Main Content */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
           {/* Stats Cards */}
-          <StatsCards products={products} />
+          {/* <StatsCards products={products} /> */}
 
           {/* Content Section */}
           <ContentSection
@@ -145,7 +145,7 @@ const StoreOwnerPortal = () => {
     <AuthProvider>
       <DashboardContent />
     </AuthProvider>
-  );
+  ); 
 };
 
 export default StoreOwnerPortal;
