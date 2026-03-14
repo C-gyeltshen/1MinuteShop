@@ -83,6 +83,8 @@ export interface DashboardHeaderProps {
   ownerName?: string;
   email?: string;
   isMobileMenuOpen: boolean;
+  storeUrl?: string;
+
   onToggleMobileMenu: () => void;
 }
 
