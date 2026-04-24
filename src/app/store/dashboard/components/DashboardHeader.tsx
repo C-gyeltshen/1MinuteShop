@@ -13,7 +13,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   const [copied, setCopied] = useState(false);
   const [urlExpanded, setUrlExpanded] = useState(false);
 
-  const displayUrl = storeUrl || `https://mystore.com/${(storeName || "my-store").toLowerCase().replace(/\s+/g, "-")}`;
+  const displayUrl = storeUrl || `https://${(storeName || "my-store").toLowerCase().replace(/\s+/g, "-")}.laso.la`;
 
   const handleCopy = async () => {
     try {
@@ -41,7 +41,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <div className="flex items-center gap-3 min-w-0">
             <button
               onClick={onToggleMobileMenu}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100 flex-shrink-0"
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 shrink-0"
               aria-label="Toggle mobile menu"
             >
               <Menu size={20} />
@@ -59,14 +59,14 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           </div>
 
           {/* Center / Right: Store URL pill */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             {/* Compact URL pill — hidden on very small screens, visible md+ */}
             <div className="hidden sm:flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 max-w-xs lg:max-w-sm xl:max-w-md group transition-all">
-              <Store size={13} className="text-gray-400 flex-shrink-0" />
+              <Store size={13} className="text-gray-400 shrink-0" />
               <span className="text-xs text-gray-600 font-mono truncate select-all" title={displayUrl}>
                 {displayUrl}
               </span>
-              <div className="flex items-center gap-1 ml-1 flex-shrink-0">
+              <div className="flex items-center gap-1 ml-1 shrink-0">
                 <button
                   onClick={handleCopy}
                   className="p-1 rounded hover:bg-gray-200 transition-colors"

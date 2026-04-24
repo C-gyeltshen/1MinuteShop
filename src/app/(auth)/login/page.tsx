@@ -1,195 +1,187 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
+import React, { useState } from "react";
 import {
   ArrowRight,
   Eye,
   EyeOff,
-  LogIn,
   Mail,
   Lock,
   AlertCircle,
   CheckCircle,
-} from 'lucide-react'
-import { motion } from 'framer-motion'
-import Link from 'next/link'
-import Navbar from '@/app/components/Navbar'
-import Footer from '@/app/components/Footer'
-import { login } from '@/app/shared/services/authServices'
+  LogIn,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import Link from "next/link";
+import Navbar from "@/app/(auth)/components/Navbar";
+import Footer from "@/app/(auth)/components/Footer";
+import { login } from "@/app/shared/services/authServices";
 
 interface LoginData {
-  email: string
-  password: string
-  rememberMe: boolean
+  email: string;
+  password: string;
+  rememberMe: boolean;
 }
 
 interface LoginErrors {
-  [key: string]: string
+  [key: string]: string;
 }
 
 export default function Login() {
   const [loginData, setLoginData] = useState<LoginData>({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
     rememberMe: false,
-  })
-  const [showPassword, setShowPassword] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [errors, setErrors] = useState<LoginErrors>({})
-  const [showSuccess, setShowSuccess] = useState(false)
-  const [attemptCount, setAttemptCount] = useState(0)
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<LoginErrors>({});
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [attemptCount, setAttemptCount] = useState(0);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target
-    const newValue = type === 'checkbox' ? checked : value
-
-    setLoginData((prev) => ({
-      ...prev,
-      [name]: newValue,
-    }))
-
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: '',
-      }))
-    }
-  }
+    const { name, value, type, checked } = e.target;
+    setLoginData((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
 
   const validateForm = (): boolean => {
-    const newErrors: LoginErrors = {}
-
-    if (!loginData.email.trim()) {
-      newErrors.email = 'Email is required'
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginData.email)) {
-      newErrors.email = 'Please enter a valid email address'
-    }
-
-    if (!loginData.password) {
-      newErrors.password = 'Password is required'
-    } else if (loginData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    const newErrors: LoginErrors = {};
+    if (!loginData.email.trim()) newErrors.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginData.email))
+      newErrors.email = "Please enter a valid email address";
+    if (!loginData.password) newErrors.password = "Password is required";
+    else if (loginData.password.length < 6)
+      newErrors.password = "Password must be at least 6 characters";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!validateForm()) {
-      return
-    }
-
-    setIsSubmitting(true)
-    setAttemptCount((prev) => prev + 1)
-
+    e.preventDefault();
+    if (!validateForm()) return;
+    setIsSubmitting(true);
+    setAttemptCount((prev) => prev + 1);
     try {
-      // Create FormData object for the server action
-      const formData = new FormData()
-      formData.append('email', loginData.email)
-      formData.append('password', loginData.password)
-
-      // Call the login server action
-      const result = await login(formData)
-
-      // If result has an error, display it
+      const formData = new FormData();
+      formData.append("email", loginData.email);
+      formData.append("password", loginData.password);
+      const result = await login(formData);
       if (result?.error) {
-        setErrors({ general: result.error })
-        setShowSuccess(false)
+        setErrors({ general: result.error });
       } else {
-        // Show success state
-        setShowSuccess(true)
-        // Reset form
-        setLoginData({
-          email: '',
-          password: '',
-          rememberMe: false,
-        })
-        // The server action will handle the redirect
+        setShowSuccess(true);
+        setLoginData({ email: "", password: "", rememberMe: false });
       }
-    } catch (error) {
-      console.error('Login error:', error)
-      setErrors({ general: 'An unexpected error occurred. Please try again.' })
-      setShowSuccess(false)
+    } catch {
+      setErrors({ general: "An unexpected error occurred. Please try again." });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
-      {/* Header */}
+    <div
+      className="min-h-screen bg-[#080808] text-[#f0ede8] overflow-x-hidden"
+      style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+    >
+      {/* Ambient background glow */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-[rgba(224,115,40,0.05)] blur-[120px]" />
+        <div className="absolute bottom-0 right-1/4 w-[400px] h-[300px] rounded-full bg-[rgba(224,115,40,0.03)] blur-[100px]" />
+        {/* Dot grid overlay */}
+        <svg className="absolute inset-0 w-full h-full opacity-[0.07]" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="dots-login" x="0" y="0" width="36" height="36" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="1" fill="rgba(255,255,255,0.8)" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#dots-login)" />
+        </svg>
+      </div>
+
       <Navbar />
 
-      <div className="flex items-center pt-24 justify-center px-4 sm:px-6 lg:px-8 py-8 min-h-[calc(100vh-200px)]">
-        <div className="w-full max-w-md">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="bg-slate-800/50 backdrop-blur-sm rounded-3xl shadow-2xl border border-slate-700/50 p-8 lg:p-10 hover:border-[#ff6800]/50 transition-all duration-300"
-          >
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent mb-2">
-                Welcome Back
-              </h2>
-              <p className="text-slate-400">
-                Sign in to access your dashboard and continue your journey
-              </p>
-            </div>
+      {/* Main Content */}
+      <div className="relative z-10 flex min-h-screen items-center justify-center px-4 sm:px-6 pt-[68px]">
+        <div className="w-full max-w-[440px] py-12">
 
-            {/* Success Message */}
+          {/* Header text above card */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-8"
+          >
+            <div className="inline-flex items-center gap-2 bg-[rgba(224,115,40,0.12)] border border-[rgba(224,115,40,0.25)] rounded-full px-4 py-1.5 mb-5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E07328] animate-pulse" />
+              <span className="text-[11px] font-bold text-[#E07328] uppercase tracking-widest">
+                Seller Portal
+              </span>
+            </div>
+            <h1 className="text-[32px] sm:text-[38px] font-bold tracking-tight text-[#f0ede8] leading-tight">
+              Welcome back
+            </h1>
+            <p className="mt-2 text-[14px] text-[rgba(240,237,232,0.45)] leading-relaxed">
+              Sign in to manage your store and orders
+            </p>
+          </motion.div>
+
+          {/* Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, delay: 0.1 }}
+            className="bg-[rgba(255,255,255,0.03)] backdrop-blur-[24px] border border-[rgba(255,255,255,0.07)] rounded-[20px] p-7 sm:p-9 shadow-[0_24px_80px_rgba(0,0,0,0.5)] hover:border-[rgba(224,115,40,0.2)] transition-colors duration-500"
+          >
+            {/* Success */}
             {showSuccess && (
               <motion.div
-                initial={{ opacity: 0, y: -10 }}
+                initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-xl flex items-center space-x-3"
+                className="mb-6 flex items-center gap-3 p-4 bg-[rgba(39,201,63,0.08)] border border-[rgba(39,201,63,0.2)] rounded-[12px]"
               >
-                <CheckCircle className="w-5 h-5 text-green-400" />
-                <span className="text-green-300 font-medium">
-                  Login successful! Redirecting...
+                <CheckCircle className="w-4 h-4 text-[#27c93f] shrink-0" />
+                <span className="text-[13px] font-medium text-[#27c93f]">
+                  Login successful — redirecting…
                 </span>
               </motion.div>
             )}
 
-            {/* General Error Message */}
+            {/* General Error */}
             {errors.general && (
               <motion.div
-                initial={{ opacity: 0, y: -10 }}
+                initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center space-x-3"
+                className="mb-6 flex items-center gap-3 p-4 bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.2)] rounded-[12px]"
               >
-                <AlertCircle className="w-5 h-5 text-red-400" />
-                <span className="text-red-300">{errors.general}</span>
+                <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                <span className="text-[13px] text-red-300">{errors.general}</span>
               </motion.div>
             )}
 
-            {/* Rate Limiting Warning */}
+            {/* Attempt warning */}
             {attemptCount >= 3 && (
               <motion.div
-                initial={{ opacity: 0, y: -10 }}
+                initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-6 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center space-x-3"
+                className="mb-6 flex items-center gap-3 p-4 bg-[rgba(251,191,36,0.07)] border border-[rgba(251,191,36,0.18)] rounded-[12px]"
               >
-                <AlertCircle className="w-5 h-5 text-amber-400" />
-                <span className="text-amber-300">
-                  Multiple failed attempts detected. Please wait before trying
-                  again.
+                <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                <span className="text-[13px] text-amber-300">
+                  Multiple failed attempts detected. Please wait before retrying.
                 </span>
               </motion.div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Email Field */}
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Email */}
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm font-semibold text-slate-300 mb-3"
+                  className="block text-[12px] font-semibold text-[rgba(240,237,232,0.5)] uppercase tracking-[0.08em] mb-2.5"
                 >
-                  Email Address <span className="text-[#ff6800]">*</span>
+                  Email address <span className="text-[#E07328] normal-case tracking-normal">*</span>
                 </label>
                 <div className="relative group">
                   <input
@@ -200,162 +192,166 @@ export default function Login() {
                     onChange={handleInputChange}
                     required
                     autoComplete="email"
-                    className={`w-full px-4 py-4 pl-12 border-2 rounded-2xl focus:ring-2 focus:ring-[#ff6800] focus:border-[#ff6800] transition-all duration-200 bg-slate-700/50 hover:bg-slate-700 text-white placeholder-slate-400 ${
+                    placeholder="you@store.com"
+                    className={`w-full bg-[rgba(255,255,255,0.04)] border rounded-[10px] px-4 py-3.5 pl-11 text-[14px] text-[#f0ede8] placeholder-[rgba(240,237,232,0.25)] outline-none transition-all duration-200 focus:bg-[rgba(255,255,255,0.06)] ${
                       errors.email
-                        ? 'border-red-500/50 bg-red-500/10 focus:border-red-500 focus:ring-red-500'
-                        : 'border-slate-600 hover:border-slate-500'
+                        ? "border-red-500/40 focus:border-red-500/70 focus:ring-1 focus:ring-red-500/30"
+                        : "border-[rgba(255,255,255,0.08)] hover:border-[rgba(255,255,255,0.14)] focus:border-[rgba(224,115,40,0.5)] focus:ring-1 focus:ring-[rgba(224,115,40,0.2)]"
                     }`}
-                    placeholder="john@company.com"
                   />
                   <Mail
-                    className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
+                    className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors duration-200 ${
                       errors.email
-                        ? 'text-red-400'
-                        : 'text-slate-400 group-hover:text-[#ff6800]'
+                        ? "text-red-400"
+                        : "text-[rgba(240,237,232,0.3)] group-focus-within:text-[#E07328]"
                     }`}
                   />
                 </div>
                 {errors.email && (
                   <motion.p
-                    initial={{ opacity: 0, x: -10 }}
+                    initial={{ opacity: 0, x: -6 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="mt-2 text-sm text-red-400 flex items-center"
+                    className="mt-1.5 text-[12px] text-red-400 flex items-center gap-1.5"
                   >
-                    <span className="w-1 h-1 bg-red-400 rounded-full mr-2"></span>
+                    <span className="w-1 h-1 rounded-full bg-red-400 shrink-0" />
                     {errors.email}
                   </motion.p>
                 )}
               </div>
 
-              {/* Password Field */}
+              {/* Password */}
               <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-semibold text-slate-300 mb-3"
-                >
-                  Password <span className="text-[#ff6800]">*</span>
-                </label>
+                <div className="flex items-center justify-between mb-2.5">
+                  <label
+                    htmlFor="password"
+                    className="text-[12px] font-semibold text-[rgba(240,237,232,0.5)] uppercase tracking-[0.08em]"
+                  >
+                    Password <span className="text-[#E07328] normal-case tracking-normal">*</span>
+                  </label>
+                  <Link
+                    href="/forgot-password"
+                    className="text-[12px] text-[rgba(224,115,40,0.7)] hover:text-[#E07328] transition-colors"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
                 <div className="relative group">
                   <input
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     id="password"
                     name="password"
                     value={loginData.password}
                     onChange={handleInputChange}
                     required
                     autoComplete="current-password"
-                    className={`w-full px-4 py-4 pl-12 pr-12 border-2 rounded-2xl focus:ring-2 focus:ring-[#ff6800] focus:border-[#ff6800] transition-all duration-200 bg-slate-700/50 hover:bg-slate-700 text-white placeholder-slate-400 ${
-                      errors.password
-                        ? 'border-red-500/50 bg-red-500/10 focus:border-red-500 focus:ring-red-500'
-                        : 'border-slate-600 hover:border-slate-500'
-                    }`}
                     placeholder="Enter your password"
+                    className={`w-full bg-[rgba(255,255,255,0.04)] border rounded-[10px] px-4 py-3.5 pl-11 pr-11 text-[14px] text-[#f0ede8] placeholder-[rgba(240,237,232,0.25)] outline-none transition-all duration-200 focus:bg-[rgba(255,255,255,0.06)] ${
+                      errors.password
+                        ? "border-red-500/40 focus:border-red-500/70 focus:ring-1 focus:ring-red-500/30"
+                        : "border-[rgba(255,255,255,0.08)] hover:border-[rgba(255,255,255,0.14)] focus:border-[rgba(224,115,40,0.5)] focus:ring-1 focus:ring-[rgba(224,115,40,0.2)]"
+                    }`}
                   />
                   <Lock
-                    className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
+                    className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors duration-200 ${
                       errors.password
-                        ? 'text-red-400'
-                        : 'text-slate-400 group-hover:text-[#ff6800]'
+                        ? "text-red-400"
+                        : "text-[rgba(240,237,232,0.3)] group-focus-within:text-[#E07328]"
                     }`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-[#ff6800] transition-colors p-1 rounded-lg hover:bg-slate-700"
-                    aria-label={
-                      showPassword ? 'Hide password' : 'Show password'
-                    }
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[rgba(240,237,232,0.3)] hover:text-[rgba(240,237,232,0.7)] transition-colors p-0.5"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                   >
-                    {showPassword ? (
-                      <EyeOff className="w-5 h-5" />
-                    ) : (
-                      <Eye className="w-5 h-5" />
-                    )}
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 {errors.password && (
                   <motion.p
-                    initial={{ opacity: 0, x: -10 }}
+                    initial={{ opacity: 0, x: -6 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="mt-2 text-sm text-red-400 flex items-center"
+                    className="mt-1.5 text-[12px] text-red-400 flex items-center gap-1.5"
                   >
-                    <span className="w-1 h-1 bg-red-400 rounded-full mr-2"></span>
+                    <span className="w-1 h-1 rounded-full bg-red-400 shrink-0" />
                     {errors.password}
                   </motion.p>
                 )}
               </div>
 
-              {/* Remember Me & Forgot Password */}
-              <div className="flex items-center justify-between pt-2">
-                <div className="flex items-center">
-                  <input
-                    id="rememberMe"
-                    name="rememberMe"
-                    type="checkbox"
-                    checked={loginData.rememberMe}
-                    onChange={handleInputChange}
-                    className="h-4 w-4 text-[#ff6800] focus:ring-[#ff6800] border-slate-600 bg-slate-700 rounded transition-all"
-                  />
-                  <label
-                    htmlFor="rememberMe"
-                    className="ml-3 block text-sm font-medium text-slate-300 cursor-pointer"
-                  >
-                    Remember me for 30 days
-                  </label>
-                </div>
-                <Link
-                  href="/forgot-password"
-                  className="text-sm text-[#ff6800] hover:text-[#ff9d4d] font-medium transition-colors hover:underline"
+              {/* Remember Me */}
+              <div className="flex items-center gap-2.5 pt-0.5">
+                <input
+                  id="rememberMe"
+                  name="rememberMe"
+                  type="checkbox"
+                  checked={loginData.rememberMe}
+                  onChange={handleInputChange}
+                  className="w-4 h-4 rounded border-[rgba(255,255,255,0.15)] bg-[rgba(255,255,255,0.05)] accent-[#E07328] cursor-pointer"
+                />
+                <label
+                  htmlFor="rememberMe"
+                  className="text-[13px] text-[rgba(240,237,232,0.45)] cursor-pointer select-none"
                 >
-                  Forgot password?
-                </Link>
+                  Remember me for 30 days
+                </label>
               </div>
 
-              {/* Submit Button */}
+              {/* Submit */}
               <motion.button
                 type="submit"
                 disabled={isSubmitting || showSuccess || attemptCount >= 5}
-                whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
-                whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
-                className="w-full bg-gradient-to-r from-[#ff6800] to-[#ff9d4d] text-white px-8 py-4 rounded-2xl font-semibold text-lg shadow-lg shadow-[#ff6800]/30 hover:shadow-xl hover:shadow-[#ff6800]/40 transform transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                whileHover={{ scale: isSubmitting ? 1 : 1.015 }}
+                whileTap={{ scale: isSubmitting ? 1 : 0.985 }}
+                className="w-full mt-2 flex items-center justify-center gap-2.5 py-3.5 rounded-[10px] text-[14px] font-semibold text-white bg-[#E07328] shadow-[0_0_24px_rgba(224,115,40,0.35)] hover:bg-[#f07d30] hover:shadow-[0_0_36px_rgba(224,115,40,0.5)] disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none transition-all duration-200"
               >
                 {isSubmitting ? (
                   <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Signing in...</span>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Signing in…</span>
                   </>
                 ) : showSuccess ? (
                   <>
-                    <CheckCircle className="w-5 h-5" />
-                    <span>Success!</span>
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Signed in!</span>
                   </>
                 ) : (
                   <>
-                    <LogIn className="w-5 h-5" />
-                    <span>Sign In</span>
-                    <ArrowRight className="w-5 h-5" />
+                    <LogIn className="w-4 h-4" />
+                    <span>Sign in to your store</span>
+                    <ArrowRight className="w-4 h-4" />
                   </>
                 )}
               </motion.button>
-
-              {/* Sign Up Link */}
-              <div className="text-center pt-6 border-t border-slate-600">
-                <p className="text-slate-400">
-                  Don't have an account?{" "}
-                  <Link
-                    href="/register"
-                    className="text-[#ff6800] hover:text-[#ff9d4d] font-semibold transition-colors hover:underline"
-                  >
-                    Create one now
-                  </Link>
-                </p>
-              </div>
             </form>
+
+            {/* Divider + Register link */}
+            <div className="mt-7 pt-6 border-t border-[rgba(255,255,255,0.07)] text-center">
+              <p className="text-[13px] text-[rgba(240,237,232,0.4)]">
+                Don't have a store yet?{" "}
+                <Link
+                  href="/register"
+                  className="text-[#E07328] hover:text-[#f07d30] font-semibold transition-colors"
+                >
+                  Create one free →
+                </Link>
+              </p>
+            </div>
           </motion.div>
+
+          {/* Trust note */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="mt-5 text-center text-[11px] text-[rgba(240,237,232,0.25)]"
+          >
+            Your data is encrypted and never sold.
+          </motion.p>
         </div>
       </div>
-      {/* Footer */}
+
       <Footer />
     </div>
-  )
+  );
 }

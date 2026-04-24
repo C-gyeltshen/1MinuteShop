@@ -1,43 +1,28 @@
-import React from "react";
-import { motion } from "framer-motion";
-import { Zap, ArrowRight } from "lucide-react";
+"use client";
 
-interface CTASectionProps {
-  onGetStarted: () => void;
-}
+import Link from "next/link";
 
-const CTASection: React.FC<CTASectionProps> = ({ onGetStarted }) => {
+export default function CTASection() {
   return (
-    <section className="py-20 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-r from-[#ff6800]/20 to-[#ff9d4d]/20 blur-3xl"></div>
-      <div className="max-w-4xl mx-auto text-center px-4 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+    <section className="relative py-20 md:py-[120px] text-center overflow-hidden">
+      <div className="relative max-w-[1200px] mx-auto px-5 md:px-10">
+
+        {/* Glow orb */}
+        <div className="absolute w-[300px] md:w-[500px] h-[200px] md:h-[300px] bg-[rgba(224,115,40,0.07)] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full blur-[120px] pointer-events-none" />
+
+        <h2 className="relative text-[clamp(26px,4vw,52px)] font-bold tracking-[-2px] text-[#f0ede8] mb-4">
+          Ready to open your store?
+        </h2>
+        <p className="relative text-[17px] text-[rgba(240,237,232,0.45)] leading-relaxed max-w-[480px] mx-auto mb-10">
+          Join store owners building their business on Laso.la — free for your first 30 days.
+        </p>
+        <Link
+          href="/register"
+          className="relative inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-[15px] font-semibold no-underline bg-[#E07328] text-white shadow-[0_0_24px_rgba(224,115,40,0.35)] transition-all duration-200 hover:bg-[#f07d30] hover:shadow-[0_0_36px_rgba(224,115,40,0.5)] hover:-translate-y-px"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Ready to Build Your Empire?
-          </h2>
-          <p className="text-xl text-slate-300 mb-8">
-            Join over 50,000 entrepreneurs who chose 1MinuteShop to launch their
-            dreams
-          </p>
-          <button
-            onClick={onGetStarted}
-            className="bg-[#ff6800] text-white px-10 py-5 rounded-xl font-bold text-lg hover:bg-[#e55f00] transform hover:scale-105 transition-all duration-200 inline-flex items-center space-x-3 shadow-xl shadow-[#ff6800]/30"
-          >
-            <Zap className="w-6 h-6" />
-            <span>Start Your Free Store Now</span>
-            <ArrowRight className="w-5 h-5" />
-          </button>
-          <p className="text-slate-400 text-sm mt-6">
-            No credit card required • Free forever plan available
-          </p>
-        </motion.div>
+          Get started free →
+        </Link>
       </div>
     </section>
   );
-};
-
-export default CTASection;
+}
