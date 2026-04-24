@@ -1,83 +1,82 @@
-import React from "react";
-import { motion } from "framer-motion";
-import {
-  PlayCircle,
-  ArrowRight,
-  CheckCircle,
-} from "lucide-react";
+"use client";
 
-interface HeroSectionProps {
-  onGetStarted: () => void;
-  onWatchDemo?: () => void;
-}
+import Link from "next/link";
 
-const HeroSection: React.FC<HeroSectionProps> = ({
-  onGetStarted,
-  onWatchDemo,
-}) => {
+const stats = [
+  { val: "1", unit: " min", label: "To launch your store" },
+  { val: "BTN ", unit: "0", label: "Upfront cost" },
+  { val: "30", unit: " days", label: "Free trial" },
+  { val: "0", unit: "", label: "Maintenance fees" },
+];
+
+export default function HeroSection() {
   return (
-    <section className="pt-32 pb-20 px-4">
-      <div className="max-w-7xl mx-auto text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+    <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-5 md:px-10 pt-[120px] pb-16 md:pb-20">
+
+      {/* Glow orb */}
+      <div className="absolute w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-[rgba(224,115,40,0.08)] -top-[150px] left-1/2 -translate-x-1/2 rounded-full blur-[120px] pointer-events-none" />
+
+      {/* Badge */}
+      <div className="inline-flex items-center gap-2 bg-[rgba(224,115,40,0.15)] border border-[rgba(224,115,40,0.3)] rounded-full px-4 py-1.5 text-xs font-semibold text-[#E07328] uppercase tracking-[0.08em] mb-8">
+        <span className="w-1.5 h-1.5 bg-[#E07328] rounded-full inline-block animate-[pulseDot_2s_infinite]" />
+        1-minute setup · zero code
+      </div>
+
+      {/* Headline */}
+      <h1 className="text-[clamp(36px,6vw,82px)] font-bold leading-[1.06] tracking-[-2px] max-w-[900px] text-[#f0ede8] mb-6">
+        Your store, <span className="text-[#E07328]">live</span>
+        <br />
+        in under a minute.
+      </h1>
+
+      {/* Subheading */}
+      <p className="text-[clamp(15px,2vw,20px)] text-[rgba(240,237,232,0.45)] max-w-[560px] leading-relaxed mb-10 md:mb-12 font-normal px-2">
+        Laso.la builds your complete e-commerce store the moment you register — free
+        subdomain, product management, order tracking, and more.
+      </p>
+
+      {/* Actions */}
+      <div className="flex flex-col sm:flex-row gap-3 items-center justify-center flex-wrap mb-14 md:mb-16 w-full sm:w-auto">
+        <Link
+          href="/register"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl text-[15px] font-semibold no-underline bg-[#E07328] text-white shadow-[0_0_24px_rgba(224,115,40,0.35)] transition-all duration-200 hover:bg-[#f07d30] hover:shadow-[0_0_36px_rgba(224,115,40,0.5)] hover:-translate-y-px"
         >
-          <div className="inline-block bg-[#ff6800]/10 border border-[#ff6800]/30 rounded-full px-6 py-2 mb-8">
-            <span className="text-[#ff6800] font-medium">
-              🚀 Launch Your Store in 60 Seconds
-            </span>
-          </div>
+          Get started free →
+        </Link>
+        <a
+          href="#how"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl text-[15px] font-semibold no-underline bg-transparent text-[#f0ede8] border border-white/[0.07] transition-all duration-200 hover:border-[#E07328] hover:text-[#E07328] hover:bg-[rgba(224,115,40,0.15)]"
+        >
+          See how it works
+        </a>
+      </div>
 
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-            Build Your Dream Store
-            <span className="block bg-gradient-to-r from-[#ff6800] to-[#ff9d4d] bg-clip-text text-transparent">
-              Without the Hassle
-            </span>
-          </h1>
-
-          <p className="text-xl text-slate-400 mb-10 max-w-3xl mx-auto leading-relaxed">
-            No coding. No complexity. Just pure ecommerce magic. From zero to
-            selling in less time than it takes to order lunch.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-            <button
-              onClick={onGetStarted}
-              className="bg-[#ff6800] text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-[#e55f00] transform hover:scale-105 transition-all duration-200 flex items-center space-x-2 shadow-lg shadow-[#ff6800]/20"
-            >
-              <PlayCircle className="w-6 h-6" />
-              <span>Start Building Now</span>
-              <ArrowRight className="w-5 h-5" />
-            </button>
-            {onWatchDemo && (
-              <button
-                onClick={onWatchDemo}
-                className="border-2 border-slate-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:border-[#ff6800] hover:bg-[#ff6800]/10 transition-all duration-200"
-              >
-                Watch Demo
-              </button>
+      {/* Stats */}
+      <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12">
+        {stats.map((stat, i) => (
+          <div key={i} className="flex items-center gap-6 md:gap-12">
+            <div className="text-center">
+              <div className="text-2xl md:text-[28px] font-bold text-[#f0ede8] tracking-[-1px]">
+                <span className="text-[#E07328]">{stat.val}</span>
+                {stat.unit}
+              </div>
+              <div className="text-[11px] text-[rgba(240,237,232,0.45)] font-medium uppercase tracking-[0.08em] mt-0.5">
+                {stat.label}
+              </div>
+            </div>
+            {i < stats.length - 1 && (
+              <div className="hidden sm:block w-px h-9 bg-white/[0.07]" />
             )}
           </div>
-
-          <div className="flex flex-wrap justify-center items-center gap-8 text-sm text-slate-400">
-            <div className="flex items-center space-x-2">
-              <CheckCircle className="w-5 h-5 text-[#ff6800]" />
-              <span>Free forever plan</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <CheckCircle className="w-5 h-5 text-[#ff6800]" />
-              <span>No credit card needed</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <CheckCircle className="w-5 h-5 text-[#ff6800]" />
-              <span>Launch instantly</span>
-            </div>
-          </div>
-        </motion.div>
+        ))}
       </div>
+
+      <style>{`
+        @keyframes pulseDot {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.4; transform: scale(0.7); }
+        }
+      `}</style>
     </section>
   );
-};
-
-export default HeroSection;
+}

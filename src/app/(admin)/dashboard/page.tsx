@@ -1,61 +1,82 @@
 "use client";
 
-import React from "react";
-import { useRouter } from "next/navigation";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
-
-import SplashScreen from "../components/SplashScreen";
+import { useState, useCallback } from "react";
+import dynamic from "next/dynamic";
+import LandingNavbar from "../components/LandingNavbar";
 import HeroSection from "../components/HeroSection";
 import HowItWorksSection from "../components/HowItWorksSection";
 import FeaturesSection from "../components/FeaturesSection";
-import TestimonialsSection from "../components/TestimonialsSection";
+import DomainSection from "../components/DomainSection";
+import PricingSection from "../components/PricingSection";
 import CTASection from "../components/CTASection";
-import { useSplashScreen } from "../hooks/useSplashScreen";
-import { features, splashMessages, steps, testimonials } from "../data/landingData";
+import LandingFooter from "../components/LandingFooter";
+import SplashScreen from "../components/SplashScreen";
 
-export default function Dashboard() {
-  const router = useRouter();
-  const { showSplash, currentMessage, isLastMessage } =
-    useSplashScreen(splashMessages);
+// Dynamically import the canvas-heavy AnimatedBackground (no SSR)
+const AnimatedBackground = dynamic(() => import("../components/AnimatedBackground"), {
+  ssr: false,
+});
 
-  const handleGetStarted = () => {
-    router.push("/register");
-  };
+export default function LandingPage() {
+  const [splashDone, setSplashDone] = useState(false);
 
-  const handleWatchDemo = () => {
-    // Implement demo video logic
-    console.log("Watch demo clicked");
-  };
+  const handleSplashComplete = useCallback(() => {
+    setSplashDone(true);
+  }, []);
 
   return (
     <>
-      <SplashScreen
-        show={showSplash}
-        currentMessage={currentMessage}
-        isLastMessage={isLastMessage}
-      />
+      {/* Google Fonts */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
-      {!showSplash && (
-        <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
-          <Navbar />
+        *, *::before, *::after {
+          box-sizing: border-box;
+        }
 
-          <HeroSection
-            onGetStarted={handleGetStarted}
-            onWatchDemo={handleWatchDemo}
-          />
+        html {
+          scroll-behavior: smooth;
+        }
 
-          <HowItWorksSection steps={steps} />
+        body {
+          background: #080808;
+          color: #f0ede8;
+          overflow-x: hidden;
+          min-height: 100vh;
+        }
 
-          <FeaturesSection features={features} />
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(224,115,40,0.3); border-radius: 4px; }
+      `}</style>
 
-          <TestimonialsSection testimonials={testimonials} />
+      {/* Splash screen — shows first */}
+      <SplashScreen onComplete={handleSplashComplete} />
 
-          <CTASection onGetStarted={handleGetStarted} />
+      {/* Main page — fades in after splash */}
+      <div
+        style={{
+          opacity: splashDone ? 1 : 0,
+          transition: "opacity 0.9s ease",
+          position: "relative",
+          minHeight: "100vh",
+        }}
+      >
+        {/* Background canvas layers (z-index 0 & 1) */}
+        <AnimatedBackground />
 
-          <Footer />
+        {/* Page content (z-index 2) */}
+        <div style={{ position: "relative", zIndex: 2 }}>
+          <LandingNavbar />
+          <HeroSection />
+          <HowItWorksSection />
+          <FeaturesSection />
+          <DomainSection />
+          <PricingSection />
+          <CTASection />
+          <LandingFooter />
         </div>
-      )}
+      </div>
     </>
   );
 }
