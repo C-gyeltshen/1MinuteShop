@@ -29,7 +29,7 @@ export const useProducts = () => {
               "Content-Type": "application/json",
             },
           },
-        );
+        ); 
 
         if (!response.ok) {
           throw new Error(`Request failed with status: ${response.status}`);
@@ -76,8 +76,36 @@ export const useProducts = () => {
     setProducts([newProduct, ...products]);
   };
 
-  const editProduct = (productId: string, formData: ProductFormData) => {
-    // ... logic ...
+const editProduct = async (productId: string, formData: ProductFormData) => {
+  if (!storeOwnerId) {
+    throw new Error("Store owner ID is not available");
+  }
+
+  try {
+    const response = await fetch(
+      `http://localhost:8080/api/products/${productId}/store/${storeOwnerId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({  
+          productName: formData.productName,
+          price: Number.parseFloat(formData.price),
+          stockQuantity: Number.parseInt(formData.stockQuantity),
+          description: formData.description,
+          productImageUrl: formData.productImageUrl,
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to update product: ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    // Update local state after successful response
     setProducts(
       products.map((product) =>
         product.id === productId
@@ -92,7 +120,13 @@ export const useProducts = () => {
           : product,
       ),
     );
-  };
+
+    return result;
+  } catch (error) {
+    console.error("Error updating product:", error);
+    throw error;
+  }
+};
 
   return {
     products,
