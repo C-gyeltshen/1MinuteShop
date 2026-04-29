@@ -1,20 +1,13 @@
 "use client";
 
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AuthContext } from "@/app/shared/store/authStore";
-import {
-  Store,
-  Globe,
-  Package,
-  ShoppingCart,
-  TrendingUp,
-  CheckCircle2,
-  Sparkles,
-  ExternalLink,
-  ArrowRight,
-  Copy,
-  Check,
+import { 
+  Copy, 
+  ExternalLink, 
+  ArrowRight, 
+  Store, 
+  CheckCircle2 
 } from "lucide-react";
 
 type StoreData = {
@@ -26,439 +19,319 @@ type StoreData = {
   createdAt: string;
 };
 
-const StoreSuccessPage = () => {
+export default function StoreSuccessPage() {
   const router = useRouter();
-  const auth = useContext(AuthContext);
-  const user = auth?.user;
-  console.log("user data:", user)
+  
+  const [storeData, setStoreData] = useState<StoreData>({
+    storeName: "Druk Gifts",
+    ownerName: "Tashi Wangchuk",
+    email: "tashi@drukgifts.bt",
+    subdomain: "druk-gifts",
+    storeUrl: "https://druk-gifts.1minuteshop.com",
+    createdAt: new Date().toISOString(),
+  });
 
-  const [mounted, setMounted] = useState(false);
-  const [showConfetti, setShowConfetti] = useState(true);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [copiedUrl, setCopiedUrl] = useState(false);
-  const [redirectCountdown, setRedirectCountdown] = useState(10);
+  const [copied, setCopied] = useState(false);
+  const [redirectCountdown, setRedirectCountdown] = useState(8);
   const [autoRedirect, setAutoRedirect] = useState(true);
 
-  // Mock store data - replace with actual data from your API/context
-  const storeData: StoreData = {
-    storeName: user?.storeName || "Amazing Store",
-    ownerName: user?.ownerName || "Store Owner",
-    email: user?.email || "owner@example.com",
-    subdomain: user?.storeSubdomain || "amazing-store",
-    storeUrl: `https://${user?.storeSubdomain}.laso.la`,
-    createdAt: new Date().toISOString(),
-  };
-
-  // Set mounted state
+  // Populate real user data from context or props in real implementation
   useEffect(() => {
-    setMounted(true);
+    // TODO: Replace with real data from AuthContext or API
+    // const user = auth?.user;
+    // if (user) {
+    //   setStoreData({
+    //     storeName: user.storeName || "Your Store",
+    //     ownerName: user.ownerName || "Store Owner",
+    //     email: user.email || "",
+    //     subdomain: user.storeSubdomain || "",
+    //     storeUrl: `https://${user.storeSubdomain}.1minuteshop.com`,
+    //     createdAt: new Date().toISOString(),
+    //   });
+    // }
   }, []);
 
-  // Set mounted state
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Auto-advance through celebration steps - only after mount
-  useEffect(() => {
-    if (!mounted) return;
-    
-    const stepTimers = [
-      setTimeout(() => setCurrentStep(1), 1000),
-      setTimeout(() => setCurrentStep(2), 2000),
-      setTimeout(() => setCurrentStep(3), 3000),
-      setTimeout(() => setCurrentStep(4), 4000),
-    ];
-
-    return () => stepTimers.forEach(clearTimeout);
-  }, [mounted]);
-
-  // Countdown timer for auto-redirect
+  // Auto redirect countdown
   useEffect(() => {
     if (!autoRedirect) return;
 
-    const interval = setInterval(() => {
+    const timer = setInterval(() => {
       setRedirectCountdown((prev) => {
         if (prev <= 1) {
+          clearInterval(timer);
+          router.push("/store/dashboard");
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, [autoRedirect]);
+    return () => clearInterval(timer);
+  }, [autoRedirect, router]);
 
-  // Handle redirect when countdown reaches 0
-  useEffect(() => {
-    if (redirectCountdown === 0 && autoRedirect) {
-      router.push("/store/dashboard");
-    }
-  }, [redirectCountdown, autoRedirect, router]);
-
-  // Hide confetti after animation - only after mount
-  useEffect(() => {
-    if (!mounted) return;
-    const timer = setTimeout(() => setShowConfetti(false), 5000);
-    return () => clearTimeout(timer);
-  }, [mounted]);
-
-  const handleCopyUrl = async () => {
+  const copyStoreUrl = async () => {
     try {
       await navigator.clipboard.writeText(storeData.storeUrl);
-      setCopiedUrl(true);
-      setTimeout(() => setCopiedUrl(false), 2000);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error("Failed to copy:", err);
+      console.error("Failed to copy URL", err);
     }
   };
 
-  const handleGoToDashboard = () => {
+  const goToDashboard = () => {
     router.push("/store/dashboard");
   };
 
-  // Prevent hydration mismatch
-  if (!mounted) {
-    return (
-      <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-gray-500 font-medium">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  const features = [
-    {
-      icon: Package,
-      title: "Product Management",
-      description: "Add and organize your products with ease",
-      color: "bg-blue-500",
-    },
-    {
-      icon: ShoppingCart,
-      title: "Order Tracking",
-      description: "Monitor and fulfill customer orders",
-      color: "bg-green-500",
-    },
-    {
-      icon: TrendingUp,
-      title: "Sales Analytics",
-      description: "Track your performance and growth",
-      color: "bg-purple-500",
-    },
-    {
-      icon: Globe,
-      title: "Live Storefront",
-      description: "Your store is live and ready for customers",
-      color: "bg-orange-500",
-    },
-  ];
+  const visitStore = () => {
+    window.open(storeData.storeUrl, "_blank", "noopener,noreferrer");
+  };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-purple-50 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
-      </div>
+    <div className="min-h-screen bg-[#080808] text-[#f0ede8] overflow-hidden relative">
+      {/* Background Canvases */}
+      <canvas id="canvas-hyperspeed" className="fixed inset-0 z-0 opacity-35 pointer-events-none" />
+      <canvas id="canvas-dotgrid" className="fixed inset-0 z-1 pointer-events-none" />
 
-      {/* Confetti Effect */}
-      {mounted && showConfetti && (
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {[...Array(50)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute animate-confetti"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `-${Math.random() * 20}%`,
-                animationDelay: `${Math.random() * 3}s`,
-                animationDuration: `${3 + Math.random() * 2}s`,
-              }}
+      <div className="relative z-10">
+        {/* Navigation */}
+        <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-10 h-16 bg-[#080808]/90 backdrop-blur-xl border-b border-white/10">
+          <a href="/" className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-[#E07328] rounded-lg flex items-center justify-center font-mono text-xs font-bold text-white">
+              01<br />10
+            </div>
+            <span className="text-xl font-semibold tracking-tight">1MinuteShop</span>
+          </a>
+
+          <div className="flex items-center gap-4">
+            <button
+              onClick={goToDashboard}
+              className="px-5 py-2 text-sm font-medium text-[#f0ede8]/70 hover:text-white transition-colors"
             >
-              <div
-                className={`w-3 h-3 ${
-                  ["bg-blue-500", "bg-purple-500", "bg-pink-500", "bg-yellow-500", "bg-green-500"][
-                    Math.floor(Math.random() * 5)
-                  ]
-                }`}
-                style={{
-                  transform: `rotate(${Math.random() * 360}deg)`,
-                }}
-              />
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div className="relative z-10 container mx-auto px-4 py-8 sm:py-12">
-        {/* Success Header */}
-        <div className="text-center mb-8 sm:mb-12 animate-fade-in-up">
-          <div className="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 bg-green-100 rounded-full mb-6 animate-scale-in">
-            <CheckCircle2 className="w-12 h-12 sm:w-16 sm:h-16 text-green-600" />
+              Dashboard
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-2 bg-[#E07328] hover:bg-[#f07d30] text-white text-sm font-semibold rounded-xl transition-all active:scale-95"
+            >
+              New Store
+            </button>
           </div>
-          
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-3 flex-wrap">
-            <span>Congratulations</span>
-            <Sparkles className="w-8 h-8 text-yellow-500 animate-pulse" />
+        </nav>
+
+        {/* Hero Section */}
+        <section className="min-h-screen flex flex-col items-center justify-center text-center px-6 pt-20 pb-24 relative">
+          <div className="absolute inset-0 bg-[radial-gradient(at_30%_20%,rgba(224,115,40,0.12),transparent_50%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(at_70%_80%,rgba(224,115,40,0.08),transparent_60%)]" />
+
+          <div className="inline-flex items-center gap-2 bg-[#E07328]/10 border border-[#E07328]/30 rounded-full px-6 py-2 text-sm font-semibold text-[#E07328] mb-8">
+            INSTANT • LIVE • READY
+          </div>
+
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tighter leading-[1.05] max-w-4xl mb-6">
+            Congratulations, <span className="text-[#E07328]">{storeData.ownerName.split(" ")[0]}</span>!
+            <br />
+            Your store is <span className="text-[#E07328]">live</span>.
           </h1>
-          
-          <p className="text-xl sm:text-2xl text-gray-700 mb-2">
-            Welcome, <span className="font-semibold text-blue-600">{storeData.ownerName}</span>!
-          </p>
-          
-          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
-            Your online store is now live and ready to start selling. Let's get you started with managing your business.
-          </p>
-        </div>
 
-        {/* Store Details Card */}
-        <div className="max-w-4xl mx-auto mb-8">
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden transform transition-all duration-300 hover:shadow-2xl">
-            {/* Store Header */}
-            <div className="bg-linear-to-r from-blue-600 to-purple-600 p-6 sm:p-8 text-white">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                    <Store className="w-6 h-6 sm:w-8 sm:h-8" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl sm:text-3xl font-bold">{storeData.storeName}</h2>
-                    <p className="text-blue-100 text-sm sm:text-base">Your Online Store</p>
-                  </div>
-                </div>
-                <div className="hidden sm:block">
-                  <div className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium">
-                    Live Now! 🎉
-                  </div>
-                </div>
+          <p className="text-xl md:text-2xl text-[#f0ede8]/60 max-w-2xl mx-auto mb-16">
+            Built in under a minute. No code. No waiting.<br />
+            Your full e-commerce store is now online and ready to sell.
+          </p>
+
+          {/* Store Card */}
+          <div className="w-full max-w-2xl mx-auto bg-[#0C0C0C] border border-white/10 rounded-3xl overflow-hidden backdrop-blur-xl shadow-2xl">
+            {/* Browser Bar */}
+            <div className="h-14 bg-[#111] border-b border-white/10 flex items-center px-5 gap-3">
+              <div className="flex gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
+                <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
+                <div className="w-3 h-3 rounded-full bg-[#27c93f]" />
               </div>
-
-              {/* Store URL Section */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 border border-white/20">
-                <div className="flex items-center justify-between gap-3 mb-2">
-                  <div className="flex items-center gap-2 text-sm text-blue-100">
-                    <Globe className="w-4 h-4" />
-                    <span>Your Store URL</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={handleCopyUrl}
-                      className="flex items-center gap-2 px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors text-sm"
-                    >
-                      {copiedUrl ? (
-                        <>
-                          <Check className="w-4 h-4" />
-                          <span className="hidden sm:inline">Copied!</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          <span className="hidden sm:inline">Copy</span>
-                        </>
-                      )}
-                    </button>
-                    <a
-                      href={storeData.storeUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-3 py-1.5 bg-white text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-sm font-medium"
-                    >
-                      <span className="hidden sm:inline">Visit Store</span>
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  </div>
-                </div>
-                <div className="font-mono text-lg sm:text-xl font-semibold break-all">
-                  {storeData.storeUrl}
-                </div>
+              <div className="flex-1 bg-[#1A1A1A] border border-white/10 rounded-lg py-1 px-4 text-xs font-mono text-[#f0ede8]/60 text-center overflow-hidden text-ellipsis whitespace-nowrap">
+                {storeData.storeUrl}
               </div>
             </div>
 
-            {/* Store Info Grid */}
-            <div className="p-6 sm:p-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <div className="text-sm text-gray-500 font-medium">Store Name</div>
-                <div className="text-lg font-semibold text-gray-900">{storeData.storeName}</div>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="text-sm text-gray-500 font-medium">Owner Email</div>
-                <div className="text-lg font-semibold text-gray-900">{storeData.email}</div>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="text-sm text-gray-500 font-medium">Subdomain</div>
-                <div className="text-lg font-semibold text-gray-900">{storeData.subdomain}</div>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="text-sm text-gray-500 font-medium">Created On</div>
-                <div className="text-lg font-semibold text-gray-900">
-                  {new Date(storeData.createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
+            {/* Card Content */}
+            <div className="p-8 md:p-10">
+              <div className="flex justify-between items-start mb-8">
+                <div>
+                  <div className="text-3xl font-semibold tracking-tight">{storeData.storeName}</div>
+                  <div className="text-[#E07328] text-sm font-medium mt-1">YOUR STORE • 1MINUTESHOP</div>
                 </div>
+                <div className="flex items-center gap-2 bg-[#27c93f]/10 text-[#27c93f] text-sm font-semibold px-5 py-1.5 rounded-full">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#27c93f] opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#27c93f]" />
+                  </span>
+                  LIVE NOW
+                </div>
+              </div>
+
+              {/* Info Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
+                  <div className="uppercase text-xs tracking-widest text-[#f0ede8]/50 mb-1">Subdomain</div>
+                  <div className="font-mono text-lg font-medium">{storeData.subdomain}</div>
+                </div>
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
+                  <div className="uppercase text-xs tracking-widest text-[#f0ede8]/50 mb-1">Owner</div>
+                  <div className="text-lg font-medium">{storeData.ownerName}</div>
+                  <div className="text-sm text-[#f0ede8]/60">{storeData.email}</div>
+                </div>
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
+                  <div className="uppercase text-xs tracking-widest text-[#f0ede8]/50 mb-1">Created</div>
+                  <div className="text-lg font-medium">
+                    {new Date(storeData.createdAt).toLocaleDateString("en-US", {
+                      month: "long",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </div>
+                </div>
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
+                  <div className="uppercase text-xs tracking-widest text-[#f0ede8]/50 mb-1">Trial</div>
+                  <div className="text-[#27c93f] text-lg font-semibold">30 days free</div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={copyStoreUrl}
+                  className="flex-1 flex items-center justify-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/30 transition-all py-4 rounded-2xl font-medium"
+                >
+                  {copied ? (
+                    <>✓ Copied to clipboard</>
+                  ) : (
+                    <>
+                      <Copy className="w-5 h-5" />
+                      Copy Store URL
+                    </>
+                  )}
+                </button>
+
+                <button
+                  onClick={visitStore}
+                  className="flex-1 flex items-center justify-center gap-3 bg-[#E07328] hover:bg-[#f07d30] transition-all py-4 rounded-2xl font-semibold text-white"
+                >
+                  Visit Your Store
+                  <ExternalLink className="w-5 h-5" />
+                </button>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Features Grid */}
-        <div className="max-w-6xl mx-auto mb-8">
-          <h3 className="text-2xl font-bold text-center text-gray-900 mb-6">
-            What's Next? Explore Your Dashboard
-          </h3>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                className={`bg-white rounded-xl p-6 shadow-lg border border-gray-100 transform transition-all duration-500 hover:scale-105 hover:shadow-xl ${
-                  currentStep >= index ? 'animate-fade-in-up opacity-100' : 'opacity-0'
-                }`}
-                style={{ animationDelay: `${index * 200}ms` }}
-              >
-                <div className={`w-12 h-12 ${feature.color} rounded-lg flex items-center justify-center mb-4`}>
-                  <feature.icon className="w-6 h-6 text-white" />
-                </div>
-                <h4 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h4>
-                <p className="text-gray-600 text-sm">{feature.description}</p>
-              </div>
-            ))}
+          {/* Quick Stats */}
+          <div className="flex flex-wrap justify-center gap-x-12 gap-y-8 mt-16 text-center">
+            <div>
+              <div className="text-5xl font-bold text-[#E07328]">1</div>
+              <div className="text-xs uppercase tracking-[2px] text-[#f0ede8]/50 mt-2">Minute to launch</div>
+            </div>
+            <div className="hidden sm:block w-px h-12 bg-white/10 self-center" />
+            <div>
+              <div className="text-5xl font-bold">BTN 0</div>
+              <div className="text-xs uppercase tracking-[2px] text-[#f0ede8]/50 mt-2">Upfront cost</div>
+            </div>
+            <div className="hidden sm:block w-px h-12 bg-white/10 self-center" />
+            <div>
+              <div className="text-5xl font-bold text-[#27c93f]">30</div>
+              <div className="text-xs uppercase tracking-[2px] text-[#f0ede8]/50 mt-2">Days free trial</div>
+            </div>
           </div>
-        </div>
+        </section>
 
-        {/* CTA Section */}
-        <div className="max-w-2xl mx-auto text-center">
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8">
-            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">
-              Ready to Start Managing Your Store?
-            </h3>
-            
-            <p className="text-gray-600 mb-6">
-              Head to your dashboard to add products, manage orders, and grow your business.
+        {/* Features Section */}
+        <section className="py-24 border-t border-white/10">
+          <div className="max-w-6xl mx-auto px-6">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-3 text-[#E07328] text-sm font-semibold tracking-widest mb-4">
+                <div className="h-px w-8 bg-[#E07328]" /> NEXT STEPS <div className="h-px w-8 bg-[#E07328]" />
+              </div>
+              <h2 className="text-4xl md:text-5xl font-semibold tracking-tight mb-4">
+                Everything you need is already here
+              </h2>
+              <p className="text-[#f0ede8]/60 text-lg max-w-md mx-auto">
+                Your dashboard is ready. Start adding products and watching orders roll in.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                { icon: Store, title: "Auto-generated Storefront", desc: "Your beautiful store is already live at your custom subdomain." },
+                { icon: Copy, title: "Product Management", desc: "Add unlimited products, images, prices, and manage stock easily." },
+                { icon: ArrowRight, title: "Order Tracking", desc: "Real-time order management and customer updates." },
+                { icon: CheckCircle2, title: "Built for Bhutan", desc: "Local currency (BTN), local support, and seamless experience." },
+              ].map((feature, i) => (
+                <div
+                  key={i}
+                  className="group bg-[#0C0C0C] border border-white/10 hover:border-[#E07328]/30 rounded-3xl p-8 transition-all hover:-translate-y-1"
+                >
+                  <div className="w-14 h-14 bg-[#E07328]/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <feature.icon className="w-7 h-7 text-[#E07328]" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+                  <p className="text-[#f0ede8]/70 leading-relaxed">{feature.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Final CTA */}
+        <section className="py-20 border-t border-white/10 text-center">
+          <div className="max-w-2xl mx-auto px-6">
+            <h2 className="text-5xl font-bold tracking-tighter mb-6">
+              Ready to start selling?
+            </h2>
+            <p className="text-xl text-[#f0ede8]/60 mb-10">
+              Your dashboard is waiting. Add your first product in seconds.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
-                onClick={handleGoToDashboard}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-all transform hover:scale-105 shadow-lg hover:shadow-xl"
+                onClick={goToDashboard}
+                className="px-10 py-4 bg-[#E07328] hover:bg-[#f07d30] text-white font-semibold rounded-2xl text-lg transition-all flex items-center justify-center gap-3"
               >
-                <span>Go to Dashboard</span>
+                Open Dashboard
                 <ArrowRight className="w-5 h-5" />
               </button>
 
-              <a
-                href={storeData.storeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-xl font-semibold transition-all"
+              <button
+                onClick={visitStore}
+                className="px-10 py-4 border border-white/20 hover:border-white/40 font-semibold rounded-2xl text-lg transition-all"
               >
-                <span>Preview Store</span>
-                <ExternalLink className="w-5 h-5" />
-              </a>
+                Preview Store
+              </button>
             </div>
 
             {autoRedirect && (
-              <div className="mt-6 flex items-center justify-center gap-2 text-sm text-gray-500">
-                <div className="flex items-center gap-2">
-                  <span>Auto-redirecting to dashboard in</span>
-                  <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-600 rounded-full font-bold">
-                    {redirectCountdown}
-                  </span>
-                  <span>seconds</span>
-                </div>
+              <div className="mt-10 text-sm text-[#f0ede8]/50 flex items-center justify-center gap-2">
+                Auto-redirecting to dashboard in{" "}
+                <span className="font-mono font-bold text-[#E07328] text-base">{redirectCountdown}</span> seconds
                 <button
                   onClick={() => setAutoRedirect(false)}
-                  className="text-blue-600 hover:text-blue-700 underline"
+                  className="underline hover:text-white ml-2"
                 >
                   Cancel
                 </button>
               </div>
             )}
           </div>
-        </div>
+        </section>
       </div>
 
-      {/* Custom Styles */}
-      <style jsx>{`
-        @keyframes confetti {
-          0% {
-            transform: translateY(0) rotate(0deg);
-            opacity: 1;
-          }
-          100% {
-            transform: translateY(100vh) rotate(720deg);
-            opacity: 0;
-          }
-        }
-
-        @keyframes blob {
-          0%, 100% {
-            transform: translate(0, 0) scale(1);
-          }
-          33% {
-            transform: translate(30px, -50px) scale(1.1);
-          }
-          66% {
-            transform: translate(-20px, 20px) scale(0.9);
-          }
-        }
-
-        @keyframes fade-in-up {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes scale-in {
-          from {
-            transform: scale(0);
-            opacity: 0;
-          }
-          to {
-            transform: scale(1);
-            opacity: 1;
-          }
-        }
-
-        .animate-confetti {
-          animation: confetti linear forwards;
-        }
-
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-
-        .animate-fade-in-up {
-          animation: fade-in-up 0.6s ease-out forwards;
-        }
-
-        .animate-scale-in {
-          animation: scale-in 0.5s ease-out forwards;
-        }
-      `}</style>
+      {/* Footer */}
+      <footer className="border-t border-white/10 py-8 text-center text-xs text-[#f0ede8]/40">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-6 h-6 bg-[#E07328] rounded-md flex items-center justify-center font-mono text-[8px]">01<br/>10</div>
+            <span>1MinuteShop — Built for Bhutan</span>
+          </div>
+          <div>© 2026 1MinuteShop. All rights reserved.</div>
+        </div>
+      </footer>
     </div>
   );
-};
-
-export default StoreSuccessPage;
+}
