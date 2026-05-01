@@ -31,7 +31,7 @@ export default function HeroSection() {
 
       {/* Subheading */}
       <p className="text-[clamp(15px,2vw,20px)] text-[rgba(240,237,232,0.45)] max-w-[560px] leading-relaxed mb-10 md:mb-12 font-normal px-2">
-        1MinuteShop builds your complete e-commerce store the moment you register — free
+        1MinuteShop builds your complete e-commerce store the moment you register free
         subdomain, product management, order tracking, and more.
       </p>
 
