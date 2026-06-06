@@ -2,14 +2,14 @@
 
 import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
-import LandingNavbar from "../components/LandingNavbar";
+import LandingNavbar from "../components/Navbar";
 import HeroSection from "../components/HeroSection";
 import HowItWorksSection from "../components/HowItWorksSection";
 import FeaturesSection from "../components/FeaturesSection";
 import DomainSection from "../components/DomainSection";
 import PricingSection from "../components/PricingSection";
 import CTASection from "../components/CTASection";
-import LandingFooter from "../components/LandingFooter";
+import LandingFooter from "../components/Footer";
 import SplashScreen from "../components/SplashScreen";
 
 // Dynamically import the canvas-heavy AnimatedBackground (no SSR)

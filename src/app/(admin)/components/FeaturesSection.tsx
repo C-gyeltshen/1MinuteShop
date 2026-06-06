@@ -9,7 +9,7 @@ const features = [
       </svg>
     ),
     title: "Auto-generated storefront",
-    desc: "A complete, polished e-commerce website is created the second you register — no design skills needed.",
+    desc: "A complete, polished e-commerce website is created the second you register, no design skills needed.",
   },
   {
     icon: (
@@ -29,7 +29,7 @@ const features = [
       </svg>
     ),
     title: "Order management",
-    desc: "Track every order, update statuses, and keep customers informed — all from your dashboard.",
+    desc: "Track every order, update statuses, and keep customers informed all from your dashboard.",
   },
   {
     icon: (
@@ -42,7 +42,7 @@ const features = [
     desc: (
       <>
         Your store gets a clean{" "}
-        <strong className="text-[#E07328]">yourstore.laso.la</strong> address — free
+        <strong className="text-[#E07328]">yourstore.laso.la</strong> address free
         forever, no DNS hassle.
       </>
     ),

@@ -122,7 +122,8 @@ export default function Register() {
       setShowSuccess(true);
       setRegisterData({ ownerName: "", storeName: "", email: "", password: "", confirmPassword: "", status: "" });
       setPasswordStrength({ score: 0, feedback: [], color: "bg-[rgba(255,255,255,0.08)]" });
-    } catch {
+    } catch (error: unknown) {
+      if ((error as { digest?: string })?.digest?.startsWith("NEXT_REDIRECT")) throw error;
       setErrors({ general: "Registration failed. Please try again." });
     } finally {
       setIsSubmitting(false);

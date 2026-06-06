@@ -80,7 +80,7 @@ export default function PricingSection() {
               ✦ Everything included
             </div>
             <h3 className="text-[22px] font-bold text-[#f0ede8] tracking-[-0.5px] mb-1">
-              Laso.la
+              1MinuteShop
             </h3>
             <p className="text-[13px] text-[rgba(240,237,232,0.45)] mb-6">
               Full platform, all features

@@ -73,7 +73,8 @@ export default function Login() {
         setShowSuccess(true);
         setLoginData({ email: "", password: "", rememberMe: false });
       }
-    } catch {
+    } catch (error: unknown) {
+      if ((error as { digest?: string })?.digest?.startsWith("NEXT_REDIRECT")) throw error;
       setErrors({ general: "An unexpected error occurred. Please try again." });
     } finally {
       setIsSubmitting(false);

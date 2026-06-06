@@ -10,7 +10,7 @@ const steps = [
       </svg>
     ),
     title: "Register your store",
-    desc: "Sign up and fill in your store details. That's it — we do the rest.",
+    desc: "Sign up and fill in your store details. That's it, we do the rest.",
     hasArrow: true,
   },
   {
@@ -25,7 +25,7 @@ const steps = [
     desc: (
       <>
         Your full e-commerce site is generated and published at{" "}
-        <strong className="text-[#E07328]">yourstore.laso.la</strong> — no setup required.
+        <strong className="text-[#E07328]">yourstore.laso.la</strong> no setup required.
       </>
     ),
     hasArrow: true,

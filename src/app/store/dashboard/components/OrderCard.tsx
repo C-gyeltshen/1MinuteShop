@@ -1,65 +1,67 @@
+"use client";
 import React from "react";
-import { ChevronUp, ChevronDown, Edit, Eye } from "lucide-react";
+import { ChevronUp, ChevronDown } from "lucide-react";
 import StatusBadge from "./StatusBadge";
 import { OrderCardProps } from "./Types";
 
-const OrderCard: React.FC<OrderCardProps> = ({
-  order,
-  isExpanded,
-  onToggle,
-}) => (
-  <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+const OrderCard: React.FC<OrderCardProps> = ({ order, isExpanded, onToggle }) => {
+  const itemCount = order.orderItems.reduce((s, i) => s + i.quantity, 0);
+  return (
     <div
-      className="p-4 flex items-center justify-between cursor-pointer"
-      onClick={onToggle}
+      className={`rounded-[14px] border bg-[rgba(18,18,20,0.72)] backdrop-blur-xl overflow-hidden transition-all duration-200
+        ${isExpanded ? "border-brand-orange/[0.25] shadow-glow-orange" : "border-white/[0.07] hover:border-white/[0.12]"}`}
     >
-      <div className="flex-1 min-w-0">
-        <h3 className="font-semibold text-gray-900">{order.orderNumber}</h3>
-        <p className="text-sm text-gray-600">{order.customer?.customerName}</p>
-      </div>
-      <div className="text-right mr-2">
-        <p className="font-semibold text-gray-900">${order.totalAmount}</p>
-      </div>
-      {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-    </div>
-
-    {isExpanded && (
-      <div className="px-4 pb-4 space-y-3 border-t border-gray-100 pt-3">
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div>
-            <span className="text-gray-600">Order Status:</span>
-            <div className="mt-1">
-              <StatusBadge status={order.orderStatus} type="order" />
-            </div>
+      <div
+        className="flex items-center gap-3 p-4 cursor-pointer select-none"
+        onClick={onToggle}
+      >
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <span className="font-bold text-[#F0EDE8] font-space-mono">#{order.orderNumber}</span>
+            <span className="font-semibold text-[#F0EDE8] shrink-0 font-space-mono text-[14px]">
+              Nu.{parseFloat(order.totalAmount).toLocaleString()}
+            </span>
           </div>
-          <div>
-            <span className="text-gray-600">Payment:</span>
-            <div className="mt-1">
-              <StatusBadge status={order.paymentStatus} type="payment" />
-            </div>
-          </div>
-          <div>
-            <span className="text-gray-600">Items:</span>
-            <p className="font-semibold text-gray-900">{order.orderItems.length}</p>
-          </div>
-          <div>
-            <span className="text-gray-600">Date:</span>
-            <p className="font-semibold text-gray-900">
-              {new Date(order.createdAt || "").toLocaleDateString()}
+          {order.customer && (
+            <p className="text-[12px] text-[#F0EDE8]/46 mt-0.5 font-space-grotesk truncate">
+              {order.customer.customerName}
             </p>
+          )}
+          <p className="text-[11px] text-[#F0EDE8]/34 mt-0.5 font-space-grotesk">
+            {itemCount} item{itemCount !== 1 ? "s" : ""}
+          </p>
+          <div className="flex items-center gap-2 mt-2 flex-wrap">
+            <StatusBadge status={order.orderStatus} type="order" />
+            <StatusBadge status={order.paymentStatus} type="payment" />
           </div>
         </div>
-        <div className="flex gap-2 pt-2">
-          <button className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center justify-center gap-2">
-            <Eye size={16} /> View Details
-          </button>
-          <button className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200">
-            <Edit size={16} />
-          </button>
-        </div>
+        <span className="text-[#F0EDE8]/34 ml-1 shrink-0">
+          {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+        </span>
       </div>
-    )}
-  </div>
-);
+
+      {isExpanded && (
+        <div className="px-4 pb-4 border-t border-white/[0.07] pt-4 space-y-3">
+          {order.customer && (
+            <div className="text-[13px] text-[#F0EDE8]/58 space-y-1 font-space-grotesk">
+              <p>{order.customer.email}</p>
+              <p>{order.customer.phoneNumber}</p>
+            </div>
+          )}
+          {order.shippingAddress && (
+            <p className="text-[12px] text-[#F0EDE8]/46 font-space-grotesk">
+              {order.shippingAddress}, {order.shippingCity}
+            </p>
+          )}
+          {order.createdAt && (
+            <p className="text-[11px] text-[#F0EDE8]/34 font-space-mono">
+              {new Date(order.createdAt).toLocaleDateString()}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default OrderCard;

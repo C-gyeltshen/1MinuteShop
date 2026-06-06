@@ -21,7 +21,7 @@ export default function LandingNavbar() {
           01<br />10
         </div>
         <span className="text-lg font-bold text-[#f0ede8] tracking-tight">
-          Laso<span className="text-[#E07328]">.la</span>
+          1Minute<span className="text-[#E07328]">Shop</span>
         </span>
       </Link>
 

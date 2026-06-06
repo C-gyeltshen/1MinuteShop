@@ -11,7 +11,7 @@ export default function LandingFooter() {
             01<br />10
           </div>
           <span className="text-[15px] font-bold text-[#f0ede8] tracking-tight">
-            Laso<span className="text-[#E07328]">.la</span>
+            1Minute<span className="text-[#E07328]">Shop</span>
           </span>
         </div>
 
@@ -30,7 +30,7 @@ export default function LandingFooter() {
 
         {/* Copyright */}
         <div className="text-xs text-[rgba(240,237,232,0.45)]">
-          © 2026 Laso.la. All rights reserved.
+          © 2026 1MinuteShop All rights reserved.
         </div>
 
       </div>
