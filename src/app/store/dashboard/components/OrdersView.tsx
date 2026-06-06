@@ -1,94 +1,80 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
-  Package,
-  ChevronDown,
-  ChevronUp,
-  RefreshCw,
-  ShoppingBag,
-  AlertCircle,
-  MapPin,
-  Phone,
-  Mail,
-  StickyNote,
-  ImageOff,
-  X,
-  ZoomIn,
-  Check,
-  AlertTriangle,
-  Receipt,
+  RefreshCw, ShoppingBag, AlertCircle, MapPin, Phone, Mail,
+  StickyNote, ImageOff, X, ZoomIn, Check, AlertTriangle,
+  Receipt, ChevronRight, Package, ChevronDown
 } from "lucide-react";
 import { Order, OrdersViewProps } from "./Types";
-import { useOrders } from "../hooks/Useorders";
+import StatusBadge from "./StatusBadge";
 import {
-  ORDER_STATUS_CONFIG,
-  PAYMENT_STATUS_CONFIG,
-  ORDER_STATUSES,
-  PAYMENT_STATUSES,
+  ORDER_STATUS_CONFIG, PAYMENT_STATUS_CONFIG, ORDER_STATUSES, PAYMENT_STATUSES,
 } from "../assets/contents/OrdersViewContents";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ── Colorful customer avatar ───────────────────────────────────────────────
 
-interface PendingUpdate {
-  orderId: string;
-  type: "order" | "payment";
-  newStatus: string;
+const AV_COLORS = ["#E07328", "#60A5FA", "#A78BFA", "#27C93F", "#FBBF24", "#2DD4BF", "#F472B6"];
+function avatarColor(name: string) {
+  let h = 0;
+  for (const c of name) h = ((h * 31 + c.charCodeAt(0)) >>> 0);
+  return AV_COLORS[h % AV_COLORS.length];
+}
+function getInitials(name: string) {
+  const p = name.trim().split(/\s+/);
+  return ((p[0]?.[0] ?? "") + (p[1]?.[0] ?? "")).toUpperCase();
+}
+function CustomerAvatar({ name, size = 34 }: { name: string; size?: number }) {
+  const color = avatarColor(name);
+  return (
+    <div
+      className="rounded-full flex items-center justify-center shrink-0 font-bold text-white font-space-grotesk"
+      style={{
+        width: size, height: size, fontSize: size * 0.38, letterSpacing: "-0.02em",
+        background: `linear-gradient(135deg, ${color}, color-mix(in srgb, ${color} 60%, #000))`,
+      }}
+    >
+      {getInitials(name)}
+    </div>
+  );
 }
 
-// ─── Confirm Dialog ───────────────────────────────────────────────────────────
+const ORDER_FLOW = ["PENDING", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED"] as const;
+const NEXT_LABEL: Record<string, string> = {
+  PENDING: "Confirm order",
+  CONFIRMED: "Start processing",
+  PROCESSING: "Mark as shipped",
+  SHIPPED: "Mark as delivered",
+};
+
+// ── Confirm dialog ──────────────────────────────────────────────────────────
 
 interface ConfirmDialogProps {
-  isOpen: boolean;
-  title: string;
-  message: string;
-  onConfirm: () => void;
-  onCancel: () => void;
-  isLoading?: boolean;
+  isOpen: boolean; title: string; message: string;
+  onConfirm: () => void; onCancel: () => void; isLoading?: boolean;
 }
-
-const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
-  isOpen,
-  title,
-  message,
-  onConfirm,
-  onCancel,
-  isLoading,
-}) => {
+const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ isOpen, title, message, onConfirm, onCancel, isLoading }) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={onCancel}
-      />
-      <div className="relative bg-white rounded-2xl shadow-xl max-w-sm w-full p-6">
+    <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onCancel} />
+      <div className="relative bg-[#131316] border border-white/[0.07] rounded-[18px] shadow-dm-card max-w-sm w-full p-6 motion-safe:animate-scale-in">
         <div className="flex items-start gap-4">
-          <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
-            <AlertTriangle size={20} className="text-amber-600" />
+          <div className="w-10 h-10 rounded-full bg-dm-warning/[0.12] border border-dm-warning/[0.20] flex items-center justify-center shrink-0">
+            <AlertTriangle size={18} className="text-dm-warning" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 text-base">{title}</h3>
-            <p className="text-sm text-gray-500 mt-1">{message}</p>
+            <h3 className="font-semibold text-[#F0EDE8] text-[15px] font-space-grotesk">{title}</h3>
+            <p className="text-[13px] text-[#F0EDE8]/46 mt-1 font-space-grotesk">{message}</p>
           </div>
         </div>
-        <div className="flex items-center gap-3 mt-6">
-          <button
-            onClick={onCancel}
-            disabled={isLoading}
-            className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
-          >
+        <div className="flex gap-3 mt-6">
+          <button onClick={onCancel} disabled={isLoading}
+            className="flex-1 px-4 py-2.5 rounded-[10px] border border-white/[0.08] text-[13px] font-semibold text-[#F0EDE8]/72 hover:bg-white/[0.06] transition-colors disabled:opacity-50 font-space-grotesk">
             Cancel
           </button>
-          <button
-            onClick={onConfirm}
-            disabled={isLoading}
-            className="flex-1 px-4 py-2.5 rounded-xl bg-indigo-600 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors disabled:opacity-70 flex items-center justify-center gap-2"
-          >
-            {isLoading ? (
-              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <Check size={15} />
-            )}
+          <button onClick={onConfirm} disabled={isLoading}
+            className="flex-1 px-4 py-2.5 rounded-[10px] bg-brand-orange text-[13px] font-semibold text-white shadow-glow-orange hover:bg-brand-orange-hover transition-all disabled:opacity-60 flex items-center justify-center gap-2 font-space-grotesk">
+            {isLoading ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Check size={14} />}
             {isLoading ? "Updating…" : "Confirm"}
           </button>
         </div>
@@ -97,166 +83,73 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   );
 };
 
-// ─── Screenshot Lightbox ──────────────────────────────────────────────────────
+// ── Screenshot lightbox ────────────────────────────────────────────────────
 
-const ScreenshotLightbox = ({
-  url,
-  onClose,
-}: {
-  url: string;
-  onClose: () => void;
-}) => {
+const ScreenshotLightbox = ({ url, onClose }: { url: string; onClose: () => void }) => {
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    const h = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
   }, [onClose]);
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-        onClick={onClose}
-      />
+    <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
       <div className="relative max-w-2xl w-full max-h-[90vh] flex flex-col items-center">
-        <button
-          onClick={onClose}
-          className="absolute -top-3 -right-3 z-10 w-8 h-8 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-gray-100 transition-colors"
-        >
-          <X size={16} className="text-gray-700" />
+        <button onClick={onClose}
+          className="absolute -top-3 -right-3 z-10 w-8 h-8 rounded-full bg-[#131316] border border-white/[0.07] flex items-center justify-center hover:bg-white/[0.08] transition-colors">
+          <X size={14} className="text-[#F0EDE8]/72" />
         </button>
-        <img
-          src={url}
-          alt="Payment screenshot"
-          className="rounded-xl max-h-[85vh] w-auto object-contain shadow-2xl"
-        />
-        <p className="text-white/60 text-xs mt-3">
-          Payment Screenshot · Press Esc to close
-        </p>
+        <img src={url} alt="Payment screenshot"
+          className="rounded-[12px] max-h-[85vh] w-auto object-contain shadow-dm-card" />
+        <p className="text-[#F0EDE8]/34 text-[11px] mt-3 font-space-grotesk">Payment Screenshot · Press Esc to close</p>
       </div>
     </div>
   );
 };
 
-// ─── Static Status Badge (collapsed row) ─────────────────────────────────────
-
-const StaticOrderBadge = ({ status }: { status: string }) => {
-  const cfg = ORDER_STATUS_CONFIG[status] ?? {
-    label: status,
-    dot: "bg-gray-400",
-    badge: "bg-gray-50 text-gray-600 ring-1 ring-gray-200",
-  };
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${cfg.badge}`}
-    >
-      <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
-      {cfg.label}
-    </span>
-  );
-};
-
-const StaticPaymentBadge = ({ status }: { status: string }) => {
-  const cfg = PAYMENT_STATUS_CONFIG[status] ?? {
-    label: status,
-    dot: "bg-gray-400",
-    badge: "bg-gray-50 text-gray-600 ring-1 ring-gray-200",
-  };
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${cfg.badge}`}
-    >
-      <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
-      {cfg.label}
-    </span>
-  );
-};
-
-// ─── Status Dropdown (expanded row only) ─────────────────────────────────────
+// ── Status dropdown (in drawer) ────────────────────────────────────────────
 
 interface StatusDropdownProps {
-  type: "order" | "payment";
-  current: string;
-  orderId: string;
-  onUpdate: (
-    orderId: string,
-    type: "order" | "payment",
-    newStatus: string
-  ) => void;
+  type: "order" | "payment"; current: string; orderId: string;
+  onUpdate: (id: string, type: "order" | "payment", status: string) => void;
 }
-
-const StatusDropdown: React.FC<StatusDropdownProps> = ({
-  type,
-  current,
-  orderId,
-  onUpdate,
-}) => {
+const StatusDropdown: React.FC<StatusDropdownProps> = ({ type, current, orderId, onUpdate }) => {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-
   const config = type === "order" ? ORDER_STATUS_CONFIG : PAYMENT_STATUS_CONFIG;
   const options = type === "order" ? ORDER_STATUSES : PAYMENT_STATUSES;
-  const currentCfg = config[current] ?? {
-    label: current,
-    dot: "bg-gray-400",
-    badge: "bg-gray-50 text-gray-600 ring-1 ring-gray-200",
-  };
+  const cur = config[current] ?? { label: current, dot: "bg-gray-400", badge: "" };
 
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node))
-        setOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    const h = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
   }, []);
 
   return (
     <div ref={ref} className="relative inline-block">
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          setOpen((o) => !o);
-        }}
-        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold transition-all hover:opacity-80 active:scale-95 ${currentCfg.badge}`}
-      >
-        <span className={`w-1.5 h-1.5 rounded-full ${currentCfg.dot}`} />
-        {currentCfg.label}
-        <ChevronDown
-          size={11}
-          className={`transition-transform ${open ? "rotate-180" : ""}`}
-        />
+      <button onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
+        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[12px] font-semibold border transition-all duration-150 hover:opacity-80">
+        <span className={`w-1.5 h-1.5 rounded-full ${cur.dot}`} />
+        <span className="text-[#F0EDE8]/72">{cur.label}</span>
+        <ChevronDown size={11} className={`text-[#F0EDE8]/34 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
-
       {open && (
-        <div
-          className="absolute top-full left-0 mt-1.5 z-30 bg-white rounded-xl shadow-lg border border-gray-100 py-1 min-w-[150px]"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <p className="px-3 py-1.5 text-[10px] font-semibold text-gray-400 uppercase tracking-wider border-b border-gray-100 mb-1">
+        <div className="absolute top-full left-0 mt-1.5 z-30 bg-[#131316] border border-white/[0.07] rounded-[10px] shadow-dm-drop py-1 min-w-[150px] motion-safe:animate-slide-down"
+          onClick={(e) => e.stopPropagation()}>
+          <p className="px-3 py-1.5 text-[10px] font-semibold text-[#F0EDE8]/34 uppercase tracking-wider border-b border-white/[0.05] mb-1 font-space-grotesk">
             {type === "order" ? "Order Status" : "Payment Status"}
           </p>
-          {options.map((status) => {
-            const cfg = config[status];
-            const isActive = status === current;
+          {options.map((s) => {
+            const cfg = config[s];
+            const isActive = s === current;
             return (
-              <button
-                key={status}
-                onClick={() => {
-                  setOpen(false);
-                  if (!isActive) onUpdate(orderId, type, status);
-                }}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium transition-colors text-left ${
-                  isActive
-                    ? "bg-indigo-50 text-indigo-700"
-                    : "text-gray-700 hover:bg-gray-50"
-                }`}
-              >
+              <button key={s} onClick={() => { setOpen(false); if (!isActive) onUpdate(orderId, type, s); }}
+                className={`w-full flex items-center gap-2.5 px-3 py-2 text-[12px] font-medium transition-colors text-left font-space-grotesk
+                  ${isActive ? "bg-brand-orange/[0.12] text-brand-orange" : "text-[#F0EDE8]/58 hover:bg-white/[0.04]"}`}>
                 <span className={`w-2 h-2 rounded-full shrink-0 ${cfg.dot}`} />
                 {cfg.label}
-                {isActive && (
-                  <Check size={12} className="ml-auto text-indigo-500" />
-                )}
+                {isActive && <Check size={12} className="ml-auto text-brand-orange" />}
               </button>
             );
           })}
@@ -266,520 +159,347 @@ const StatusDropdown: React.FC<StatusDropdownProps> = ({
   );
 };
 
-// ─── Expanded Detail Panel ────────────────────────────────────────────────────
+// ── Order drawer ────────────────────────────────────────────────────────────
 
-interface OrderDetailProps {
+interface OrderDrawerProps {
   order: Order;
-  onUpdate: (
-    orderId: string,
-    type: "order" | "payment",
-    newStatus: string
-  ) => void;
+  onClose: () => void;
+  onUpdate: (id: string, type: "order" | "payment", status: string) => void;
   onViewScreenshot: (url: string) => void;
 }
 
-const OrderDetail: React.FC<OrderDetailProps> = ({
-  order,
-  onUpdate,
-  onViewScreenshot,
-}) => (
-  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-    {/* Left col: all order items */}
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-      <div className="px-4 py-3 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
-        <Receipt size={13} className="text-gray-400" />
-        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-          Order Items
-        </h4>
-      </div>
-      <div className="divide-y divide-gray-100">
-        {order.orderItems.map((item) => (
-          <div key={item.id} className="flex items-center gap-3 px-4 py-3">
-            {item.product?.productImageUrl ? (
-              <img
-                src={item.product.productImageUrl}
-                alt={item.product.productName}
-                className="w-12 h-12 rounded-lg object-cover border border-gray-200 shrink-0"
-              />
-            ) : (
-              <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
-                <Package size={18} className="text-gray-400" />
-              </div>
-            )}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-gray-800 truncate">
-                {item.product?.productName ?? "Unknown Product"}
-              </p>
-              <p className="text-xs text-gray-500">
-                Qty: {item.quantity} × Nu.
-                {Number.parseFloat(item.unitPrice).toLocaleString()}
-              </p>
+const OrderDrawer: React.FC<OrderDrawerProps> = ({ order, onClose, onUpdate, onViewScreenshot }) => {
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [onClose]);
+
+  const itemsCount = order.orderItems.reduce((s, i) => s + i.quantity, 0);
+  const stepIdx = ORDER_FLOW.indexOf(order.orderStatus as typeof ORDER_FLOW[number]);
+  const cancelled = order.orderStatus === "CANCELLED";
+
+  const payBg = order.paymentStatus === "PENDING"
+    ? "border-dm-warning/[0.20] bg-dm-warning/[0.07]"
+    : order.paymentStatus === "FAILED"
+    ? "border-dm-danger/[0.20] bg-dm-danger/[0.07]"
+    : "border-dm-success/[0.20] bg-dm-success/[0.07]";
+
+  return (
+    <div className="fixed inset-0 z-[80] flex justify-end">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-[3px] motion-safe:animate-fade-in" onClick={onClose} />
+      <aside className="relative w-full max-w-[460px] h-full bg-[#0f0f11] border-l border-white/[0.07] shadow-dm-drawer overflow-y-auto dm-scroll motion-safe:animate-drawer-in flex flex-col">
+        {/* Header */}
+        <div className="sticky top-0 z-10 bg-[#0f0f11] border-b border-white/[0.07] px-5 py-4 flex items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-3">
+              <h2 className="text-[19px] font-bold text-[#F0EDE8] tracking-tight font-space-grotesk">
+                Order #{order.orderNumber}
+              </h2>
+              <StatusBadge status={order.orderStatus} type="order" />
             </div>
-            <span className="text-sm font-semibold text-gray-900 shrink-0">
-              Nu.
-              {(
-                item.quantity * Number.parseFloat(item.unitPrice)
-              ).toLocaleString()}
-            </span>
-          </div>
-        ))}
-        <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
-          <span className="text-sm font-semibold text-gray-600">Total</span>
-          <span className="text-sm font-bold text-gray-900">
-            Nu.{Number.parseFloat(order.totalAmount).toLocaleString()}
-          </span>
-        </div>
-      </div>
-    </div>
-
-    {/* Right col: status controls, screenshot, customer, shipping, notes */}
-    <div className="space-y-3">
-      {/* Status dropdowns */}
-      <div className="bg-white rounded-xl border border-gray-200 px-4 py-4">
-        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-          Update Status
-        </h4>
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600 font-medium">Order</span>
-            <StatusDropdown
-              type="order"
-              current={order.orderStatus}
-              orderId={order.id}
-              onUpdate={onUpdate}
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600 font-medium">Payment</span>
-            <StatusDropdown
-              type="payment"
-              current={order.paymentStatus}
-              orderId={order.id}
-              onUpdate={onUpdate}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Payment screenshot */}
-      {order.paymentScreenshotUrl && (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
-            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              Payment Screenshot
-            </h4>
-          </div>
-          <div className="p-3">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onViewScreenshot(order.paymentScreenshotUrl!);
-              }}
-              className="relative group w-full rounded-lg overflow-hidden border border-gray-200 block"
-            >
-              <img
-                src={order.paymentScreenshotUrl}
-                alt="Payment screenshot"
-                className="w-full h-36 object-cover transition-transform group-hover:scale-105 duration-200"
-              />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white rounded-full p-2 shadow-lg">
-                  <ZoomIn size={18} className="text-gray-700" />
-                </div>
-              </div>
-            </button>
-            <p className="text-xs text-gray-400 mt-2 text-center">
-              Click to view full screenshot
+            <p className="text-[12.5px] text-[#F0EDE8]/46 mt-1 font-space-grotesk">
+              {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "—"} · {itemsCount} item{itemsCount > 1 ? "s" : ""}
             </p>
           </div>
+          <button onClick={onClose}
+            className="w-9 h-9 rounded-[8px] border border-white/[0.08] bg-white/[0.04] flex items-center justify-center text-[#F0EDE8]/46 hover:bg-white/[0.08] transition-all shrink-0">
+            <X size={16} />
+          </button>
         </div>
-      )}
 
-      {/* Customer */}
-      {order.customer && (
-        <div className="bg-white rounded-xl border border-gray-200 px-4 py-4 space-y-2">
-          <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-            Customer
-          </h4>
-          <div className="flex items-center gap-2 text-sm text-gray-700">
-            <ShoppingBag size={13} className="text-gray-400" />
-            <span className="font-medium">{order.customer.customerName}</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Mail size={13} className="text-gray-400" />
-            {order.customer.email}
-          </div>
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Phone size={13} className="text-gray-400" />
-            {order.customer.phoneNumber}
-          </div>
-        </div>
-      )}
-
-      {/* Shipping */}
-      {order.shippingAddress && (
-        <div className="bg-white rounded-xl border border-gray-200 px-4 py-4">
-          <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-            Shipping
-          </h4>
-          <div className="flex items-start gap-2 text-sm text-gray-700">
-            <MapPin size={13} className="text-gray-400 mt-0.5 shrink-0" />
-            <span>
-              {order.shippingAddress}, {order.shippingCity},{" "}
-              {order.shippingState}, {order.shippingCountry}
-            </span>
-          </div>
-        </div>
-      )}
-
-      {/* Notes */}
-      {order.customerNotes && (
-        <div className="bg-amber-50 rounded-xl border border-amber-200 px-4 py-3">
-          <div className="flex items-start gap-2 text-sm text-amber-800">
-            <StickyNote size={13} className="text-amber-500 mt-0.5 shrink-0" />
-            <span>{order.customerNotes}</span>
-          </div>
-        </div>
-      )}
-
-      {/* Meta */}
-      <div className="flex items-center gap-3 text-xs text-gray-400 px-1">
-        <span>Store: {order.storeSubdomain}</span>
-        {order.createdAt && (
-          <>
-            <span>·</span>
-            <span>{new Date(order.createdAt).toLocaleDateString()}</span>
-          </>
-        )}
-      </div>
-    </div>
-  </div>
-);
-
-// ─── Desktop Table Row (lg+) ──────────────────────────────────────────────────
-
-interface OrderRowProps {
-  order: Order;
-  isExpanded: boolean;
-  onToggle: () => void;
-  onUpdate: (
-    orderId: string,
-    type: "order" | "payment",
-    newStatus: string
-  ) => void;
-  onViewScreenshot: (url: string) => void;
-}
-
-const OrderRow: React.FC<OrderRowProps> = ({
-  order,
-  isExpanded,
-  onToggle,
-  onUpdate,
-  onViewScreenshot,
-}) => {
-  const itemCount = order.orderItems.reduce((s, i) => s + i.quantity, 0);
-
-  return (
-    <>
-      {/* ── Collapsed row ── */}
-      <tr
-        className={`group transition-colors cursor-pointer select-none ${
-          isExpanded ? "bg-indigo-50/60" : "hover:bg-gray-50"
-        }`}
-        onClick={onToggle}
-      >
-        {/* Order # */}
-        <td className="px-5 py-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center shrink-0">
-              <ShoppingBag size={14} className="text-indigo-600" />
-            </div>
-            <span className="font-semibold text-gray-900 tabular-nums">
-              #{order.orderNumber}
-            </span>
-          </div>
-        </td>
-
-        {/* Payment screenshot thumbnail */}
-        <td className="px-5 py-4">
-          {order.paymentScreenshotUrl ? (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onViewScreenshot(order.paymentScreenshotUrl!);
-              }}
-              className="relative group/thumb w-10 h-10 rounded-lg overflow-hidden border border-gray-200 block shrink-0 hover:ring-2 hover:ring-indigo-400 transition-all"
-            >
-              <img
-                src={order.paymentScreenshotUrl}
-                alt="Payment"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-black/0 group-hover/thumb:bg-black/30 transition-colors flex items-center justify-center">
-                <ZoomIn
-                  size={12}
-                  className="text-white opacity-0 group-hover/thumb:opacity-100 transition-opacity"
-                />
+        <div className="flex-1 px-5 py-5 space-y-5">
+          {/* Payment verification */}
+          <section className={`border rounded-[14px] overflow-hidden ${payBg}`}>
+            <div className="px-4 pt-4 pb-0 flex justify-between items-center">
+              <div className="flex items-center gap-2 text-[13px] font-semibold text-[#F0EDE8] font-space-grotesk">
+                <Receipt size={15} /> Payment verification
               </div>
-            </button>
+              <StatusBadge status={order.paymentStatus} type="payment" />
+            </div>
+            <div className="p-4 flex gap-4">
+              {order.paymentScreenshotUrl ? (
+                <button onClick={() => onViewScreenshot(order.paymentScreenshotUrl!)}
+                  className="relative w-24 shrink-0 rounded-[8px] overflow-hidden border border-white/[0.07] group cursor-zoom-in">
+                  <img src={order.paymentScreenshotUrl} alt="Payment" className="w-full h-24 object-cover" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                    <ZoomIn size={18} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </button>
+              ) : (
+                <div className="w-24 h-24 shrink-0 rounded-[8px] border border-dashed border-dm-danger/[0.20] flex flex-col items-center justify-center gap-1.5 text-dm-danger">
+                  <ImageOff size={18} />
+                  <span className="text-[10px] font-space-grotesk">No screenshot</span>
+                </div>
+              )}
+              <div className="flex-1 min-w-0 space-y-2">
+                {order.totalAmount && (
+                  <div className="flex justify-between text-[12.5px]">
+                    <span className="text-[#F0EDE8]/34 font-space-grotesk">Amount</span>
+                    <span className="text-[#F0EDE8] font-bold font-space-mono">
+                      Nu.{parseFloat(order.totalAmount).toLocaleString()}
+                    </span>
+                  </div>
+                )}
+                {order.storeSubdomain && (
+                  <div className="flex justify-between text-[12.5px]">
+                    <span className="text-[#F0EDE8]/34 font-space-grotesk">Store</span>
+                    <span className="text-[#F0EDE8]/72 font-space-mono">{order.storeSubdomain}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            {order.paymentStatus === "PENDING" && !cancelled && (
+              <div className="px-4 pb-4 flex gap-2">
+                <button onClick={() => onUpdate(order.id, "payment", "RECEIVED")}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-[10px] bg-dm-success/[0.12] text-dm-success border border-dm-success/[0.20] text-[13px] font-semibold hover:bg-dm-success/[0.20] transition-colors font-space-grotesk">
+                  <Check size={14} /> Approve
+                </button>
+                <button onClick={() => onUpdate(order.id, "payment", "FAILED")}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-[10px] bg-dm-danger/[0.12] text-dm-danger border border-dm-danger/[0.20] text-[13px] font-semibold hover:bg-dm-danger/[0.20] transition-colors font-space-grotesk">
+                  <X size={14} /> Reject
+                </button>
+              </div>
+            )}
+            {order.paymentStatus === "RECEIVED" && (
+              <div className="px-4 pb-3 flex items-center gap-1.5 text-[12.5px] text-dm-success font-space-grotesk">
+                <Check size={13} /> Verified — funds confirmed.
+              </div>
+            )}
+          </section>
+
+          {/* Order status flow */}
+          {!cancelled ? (
+            <section>
+              <p className="text-[11px] font-semibold text-[#F0EDE8]/34 uppercase tracking-widest font-space-grotesk mb-3">
+                Order status
+              </p>
+              <div className="flex items-center mb-4">
+                {ORDER_FLOW.map((s, i) => (
+                  <React.Fragment key={s}>
+                    <div className="flex flex-col items-center gap-1.5 flex-none w-14">
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold
+                        ${i <= stepIdx ? "bg-brand-orange text-white shadow-glow-orange" : "bg-white/[0.06] text-[#F0EDE8]/34"}`}>
+                        {i < stepIdx ? <Check size={12} /> : i + 1}
+                      </div>
+                      <span className={`text-[9px] text-center leading-tight font-space-grotesk
+                        ${i <= stepIdx ? "text-[#F0EDE8]/58" : "text-[#F0EDE8]/24"}`}>
+                        {ORDER_STATUS_CONFIG[s]?.label ?? s}
+                      </span>
+                    </div>
+                    {i < ORDER_FLOW.length - 1 && (
+                      <div className={`flex-1 h-0.5 mb-4 ${i < stepIdx ? "bg-brand-orange" : "bg-white/[0.06]"}`} />
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                {NEXT_LABEL[order.orderStatus] && (
+                  <button
+                    onClick={() => {
+                      const ni = stepIdx + 1;
+                      if (ni < ORDER_FLOW.length) onUpdate(order.id, "order", ORDER_FLOW[ni]);
+                    }}
+                    disabled={order.paymentStatus !== "RECEIVED"}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-[10px] bg-brand-orange text-white text-[13px] font-semibold shadow-glow-orange hover:bg-brand-orange-hover transition-all disabled:opacity-40 disabled:cursor-not-allowed font-space-grotesk">
+                    <ChevronRight size={14} /> {NEXT_LABEL[order.orderStatus]}
+                  </button>
+                )}
+                {order.orderStatus !== "DELIVERED" && (
+                  <button onClick={() => onUpdate(order.id, "order", "CANCELLED")}
+                    className="px-4 py-2.5 rounded-[10px] border border-white/[0.08] text-[13px] font-semibold text-[#F0EDE8]/58 hover:bg-white/[0.06] transition-colors font-space-grotesk">
+                    Cancel
+                  </button>
+                )}
+              </div>
+              {order.paymentStatus !== "RECEIVED" && order.orderStatus === "PENDING" && (
+                <p className="mt-2 text-[11.5px] text-[#F0EDE8]/34 font-space-grotesk">
+                  Verify the payment above before confirming this order.
+                </p>
+              )}
+            </section>
           ) : (
-            <div className="w-10 h-10 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center shrink-0">
-              <ImageOff size={13} className="text-gray-400" />
+            <div className="flex items-center gap-2 px-4 py-3 rounded-[10px] bg-dm-danger/[0.12] border border-dm-danger/[0.20] text-[13px] text-dm-danger font-space-grotesk">
+              <X size={14} /> This order was cancelled.
             </div>
           )}
-        </td>
 
-        {/* Order status — static badge when collapsed */}
-        <td className="px-5 py-4">
-          <StaticOrderBadge status={order.orderStatus} />
-        </td>
-
-        {/* Payment status — static badge when collapsed */}
-        <td className="px-5 py-4">
-          <StaticPaymentBadge status={order.paymentStatus} />
-        </td>
-
-        {/* Total */}
-        <td className="px-5 py-4">
-          <span className="font-semibold text-gray-900">
-            Nu.{Number.parseFloat(order.totalAmount).toLocaleString()}
-          </span>
-        </td>
-
-        {/* Qty */}
-        <td className="px-5 py-4 text-center">
-          <span className="inline-block bg-gray-100 text-gray-700 text-xs font-semibold rounded-full px-2.5 py-0.5">
-            {itemCount}
-          </span>
-        </td>
-
-        {/* Expand chevron */}
-        <td className="px-5 py-4 text-right">
-          <span className="text-gray-400 group-hover:text-indigo-500 transition-colors">
-            {isExpanded ? (
-              <ChevronUp size={16} />
-            ) : (
-              <ChevronDown size={16} />
-            )}
-          </span>
-        </td>
-      </tr>
-
-      {/* ── Expanded detail row ── */}
-      {isExpanded && (
-        <tr className="bg-indigo-50/40 border-t border-indigo-100">
-          <td colSpan={7} className="px-5 py-5">
-            <OrderDetail
-              order={order}
-              onUpdate={onUpdate}
-              onViewScreenshot={onViewScreenshot}
-            />
-          </td>
-        </tr>
-      )}
-    </>
-  );
-};
-
-// ─── Tablet + Mobile Card (below lg) ─────────────────────────────────────────
-
-interface TabletOrderCardProps {
-  order: Order;
-  isExpanded: boolean;
-  onToggle: () => void;
-  onUpdate: (
-    orderId: string,
-    type: "order" | "payment",
-    newStatus: string
-  ) => void;
-  onViewScreenshot: (url: string) => void;
-}
-
-const TabletOrderCard: React.FC<TabletOrderCardProps> = ({
-  order,
-  isExpanded,
-  onToggle,
-  onUpdate,
-  onViewScreenshot,
-}) => {
-  const itemCount = order.orderItems.reduce((s, i) => s + i.quantity, 0);
-
-  return (
-    <div
-      className={`rounded-2xl border bg-white overflow-hidden transition-shadow ${
-        isExpanded
-          ? "shadow-md border-indigo-200"
-          : "shadow-sm border-gray-200 hover:shadow-md"
-      }`}
-    >
-      {/* ── Collapsed header — click anywhere to expand ── */}
-      <div
-        className="flex items-center gap-3 p-4 cursor-pointer"
-        onClick={onToggle}
-      >
-        {/* Payment screenshot thumbnail */}
-        {order.paymentScreenshotUrl ? (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onViewScreenshot(order.paymentScreenshotUrl!);
-            }}
-            className="relative group/thumb w-14 h-14 rounded-xl overflow-hidden border border-gray-100 shrink-0 hover:ring-2 hover:ring-indigo-400 transition-all"
-          >
-            <img
-              src={order.paymentScreenshotUrl}
-              alt="Payment"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-black/0 group-hover/thumb:bg-black/30 transition-colors flex items-center justify-center">
-              <ZoomIn
-                size={14}
-                className="text-white opacity-0 group-hover/thumb:opacity-100 transition-opacity"
-              />
+          {/* Items */}
+          <section>
+            <p className="text-[11px] font-semibold text-[#F0EDE8]/34 uppercase tracking-widest font-space-grotesk mb-3">Items</p>
+            <div className="border border-white/[0.07] rounded-[10px] overflow-hidden">
+              {order.orderItems.map((item, i) => (
+                <div key={item.id ?? i}
+                  className={`flex items-center gap-3 px-4 py-3 ${i > 0 ? "border-t border-white/[0.05]" : ""}`}>
+                  {item.product?.productImageUrl ? (
+                    <img src={item.product.productImageUrl} alt={item.product.productName}
+                      className="w-11 h-11 rounded-[8px] object-cover border border-white/[0.07] shrink-0" />
+                  ) : (
+                    <div className="w-11 h-11 rounded-[8px] bg-white/[0.04] border border-white/[0.07] flex items-center justify-center shrink-0">
+                      <Package size={16} className="text-[#F0EDE8]/34" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] font-semibold text-[#F0EDE8] truncate font-space-grotesk">
+                      {item.product?.productName ?? "Unknown"}
+                    </p>
+                    <p className="text-[11.5px] text-[#F0EDE8]/46 font-space-mono">
+                      Nu.{parseFloat(item.unitPrice).toLocaleString()} × {item.quantity}
+                    </p>
+                  </div>
+                  <span className="text-[13px] font-bold text-[#F0EDE8] font-space-mono shrink-0">
+                    Nu.{(item.quantity * parseFloat(item.unitPrice)).toLocaleString()}
+                  </span>
+                </div>
+              ))}
+              <div className="flex justify-between px-4 py-3 border-t border-white/[0.07] bg-white/[0.02]">
+                <span className="text-[13px] font-semibold text-[#F0EDE8]/58 font-space-grotesk">Total</span>
+                <span className="text-[15px] font-bold text-brand-orange font-space-mono">
+                  Nu.{parseFloat(order.totalAmount).toLocaleString()}
+                </span>
+              </div>
             </div>
-          </button>
-        ) : (
-          <div className="w-14 h-14 rounded-xl bg-gray-100 border border-gray-100 flex items-center justify-center shrink-0">
-            <ImageOff size={20} className="text-gray-400" />
-          </div>
-        )}
+          </section>
 
-        <div className="flex-1 min-w-0">
-          {/* Order # + total */}
-          <div className="flex items-start justify-between gap-2">
-            <span className="font-bold text-gray-900">#{order.orderNumber}</span>
-            <span className="font-semibold text-gray-900 shrink-0">
-              Nu.{Number.parseFloat(order.totalAmount).toLocaleString()}
-            </span>
-          </div>
+          {/* Customer */}
+          {order.customer && (
+            <section>
+              <p className="text-[11px] font-semibold text-[#F0EDE8]/34 uppercase tracking-widest font-space-grotesk mb-3">Customer</p>
+              <div className="space-y-2 text-[12.5px] text-[#F0EDE8]/58 font-space-grotesk">
+                <div className="flex items-center gap-2">
+                  <ShoppingBag size={13} className="text-[#F0EDE8]/34 shrink-0" />
+                  <span className="font-semibold text-[#F0EDE8]/72">{order.customer.customerName}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Mail size={13} className="text-[#F0EDE8]/34 shrink-0" />
+                  {order.customer.email}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Phone size={13} className="text-[#F0EDE8]/34 shrink-0" />
+                  {order.customer.phoneNumber}
+                </div>
+              </div>
+            </section>
+          )}
 
-          {/* Qty */}
-          <p className="text-xs text-gray-400 mt-0.5">
-            {itemCount} item{itemCount !== 1 ? "s" : ""}
-          </p>
+          {/* Shipping */}
+          {order.shippingAddress && (
+            <section>
+              <p className="text-[11px] font-semibold text-[#F0EDE8]/34 uppercase tracking-widest font-space-grotesk mb-3">Shipping</p>
+              <div className="flex items-start gap-2 text-[12.5px] text-[#F0EDE8]/58 font-space-grotesk">
+                <MapPin size={13} className="text-[#F0EDE8]/34 mt-0.5 shrink-0" />
+                <span>{order.shippingAddress}, {order.shippingCity}, {order.shippingState}, {order.shippingCountry}</span>
+              </div>
+            </section>
+          )}
 
-          {/* Static badges in collapsed state */}
-          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-            <StaticOrderBadge status={order.orderStatus} />
-            <StaticPaymentBadge status={order.paymentStatus} />
-          </div>
+          {/* Notes */}
+          {order.customerNotes && (
+            <div className="flex items-start gap-2 px-4 py-3 rounded-[10px] bg-dm-warning/[0.07] border border-dm-warning/[0.20] text-[12.5px] text-dm-warning font-space-grotesk">
+              <StickyNote size={13} className="mt-0.5 shrink-0" />
+              <span>{order.customerNotes}</span>
+            </div>
+          )}
+
+          {/* Update status controls */}
+          <section>
+            <p className="text-[11px] font-semibold text-[#F0EDE8]/34 uppercase tracking-widest font-space-grotesk mb-3">Update Status</p>
+            <div className="bg-white/[0.02] border border-white/[0.07] rounded-[10px] px-4 py-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[13px] text-[#F0EDE8]/58 font-space-grotesk">Order</span>
+                <StatusDropdown type="order" current={order.orderStatus} orderId={order.id} onUpdate={onUpdate} />
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[13px] text-[#F0EDE8]/58 font-space-grotesk">Payment</span>
+                <StatusDropdown type="payment" current={order.paymentStatus} orderId={order.id} onUpdate={onUpdate} />
+              </div>
+            </div>
+          </section>
         </div>
-
-        <span className="text-gray-400 ml-1 shrink-0">
-          {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-        </span>
-      </div>
-
-      {/* ── Expanded detail ── */}
-      {isExpanded && (
-        <div className="px-4 pb-4 border-t border-gray-100 pt-4">
-          <OrderDetail
-            order={order}
-            onUpdate={onUpdate}
-            onViewScreenshot={onViewScreenshot}
-          />
-        </div>
-      )}
+      </aside>
     </div>
   );
 };
 
-// ─── Empty State ──────────────────────────────────────────────────────────────
+// ── Empty state ────────────────────────────────────────────────────────────
 
 const EmptyOrders = () => (
   <div className="flex flex-col items-center justify-center py-20 text-center">
-    <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center mb-4">
-      <ShoppingBag size={28} className="text-indigo-400" />
+    <div className="w-14 h-14 rounded-[14px] bg-brand-orange/[0.10] border border-brand-orange/[0.20] flex items-center justify-center mb-4">
+      <ShoppingBag size={24} className="text-brand-orange" />
     </div>
-    <h3 className="text-base font-semibold text-gray-800 mb-1">
-      No orders yet
-    </h3>
-    <p className="text-sm text-gray-500 max-w-xs">
-      When customers place orders in your store, they'll show up here.
+    <h3 className="text-[15px] font-semibold text-[#F0EDE8] mb-1 font-space-grotesk">No orders found</h3>
+    <p className="text-[13px] text-[#F0EDE8]/46 max-w-xs font-space-grotesk">
+      Try a different filter or search term.
     </p>
   </div>
 );
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+// ── Main component ─────────────────────────────────────────────────────────
 
 const OrdersView: React.FC<OrdersViewProps> = ({
-  searchQuery,
-  expandedRow,
-  setExpandedRow,
+  orders, loading, error, refetch,
+  updateOrderStatus, updatePaymentStatus,
+  searchQuery, expandedRow, setExpandedRow,
 }) => {
-  const {
-    orders,
-    loading,
-    error,
-    refetch,
-    updateOrderStatus,
-    updatePaymentStatus,
-  } = useOrders();
-
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [screenshotUrl, setScreenshotUrl] = useState<string | null>(null);
-  const [pendingUpdate, setPendingUpdate] = useState<PendingUpdate | null>(null);
+  const [pendingUpdate, setPendingUpdate] = useState<{
+    orderId: string; type: "order" | "payment"; newStatus: string;
+  } | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [page, setPage] = useState(1);
+  const perPage = 10;
 
-  const handleStatusChangeRequest = (
-    orderId: string,
-    type: "order" | "payment",
-    newStatus: string
-  ) => {
-    setPendingUpdate({ orderId, type, newStatus });
-  };
+  const ORDER_TABS = ["ALL", "PENDING", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"];
 
-  const handleConfirmUpdate = async () => {
+  const handleStatusChangeRequest = useCallback(
+    (orderId: string, type: "order" | "payment", newStatus: string) => {
+      setPendingUpdate({ orderId, type, newStatus });
+    }, []
+  );
+
+  const handleConfirmUpdate = useCallback(async () => {
     if (!pendingUpdate) return;
     setIsUpdating(true);
     try {
-      if (pendingUpdate.type === "order") {
-        await updateOrderStatus(pendingUpdate.orderId, pendingUpdate.newStatus);
-      } else {
-        await updatePaymentStatus(pendingUpdate.orderId, pendingUpdate.newStatus);
-      }
+      if (pendingUpdate.type === "order") await updateOrderStatus(pendingUpdate.orderId, pendingUpdate.newStatus);
+      else await updatePaymentStatus(pendingUpdate.orderId, pendingUpdate.newStatus);
     } finally {
       setIsUpdating(false);
       setPendingUpdate(null);
     }
-  };
+  }, [pendingUpdate, updateOrderStatus, updatePaymentStatus]);
 
   const filteredOrders = orders.filter((o) => {
-    const matchesSearch =
+    const matchSearch =
       String(o.orderNumber).includes(searchQuery) ||
       o.storeSubdomain.toLowerCase().includes(searchQuery.toLowerCase()) ||
       o.orderItems.some((item) =>
-        item.product?.productName
-          ?.toLowerCase()
-          .includes(searchQuery.toLowerCase())
-      );
-    const matchesStatus =
-      statusFilter === "ALL" || o.orderStatus === statusFilter;
-    return matchesSearch && matchesStatus;
+        item.product?.productName?.toLowerCase().includes(searchQuery.toLowerCase())
+      ) ||
+      (o.customer?.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
+    const matchTab = statusFilter === "ALL" || o.orderStatus === statusFilter;
+    return matchSearch && matchTab;
   });
 
   const statusCounts = orders.reduce<Record<string, number>>((acc, o) => {
-    acc[o.orderStatus] = (acc[o.orderStatus] || 0) + 1;
+    acc[o.orderStatus] = (acc[o.orderStatus] ?? 0) + 1;
     return acc;
   }, {});
 
-  const confirmMessage = pendingUpdate
-    ? `Change ${pendingUpdate.type === "order" ? "order" : "payment"} status to "${
-        pendingUpdate.type === "order"
-          ? ORDER_STATUS_CONFIG[pendingUpdate.newStatus]?.label
-          : PAYMENT_STATUS_CONFIG[pendingUpdate.newStatus]?.label
-      }"?`
-    : "";
+  const pages = Math.ceil(filteredOrders.length / perPage);
+  const shown = filteredOrders.slice((page - 1) * perPage, page * perPage);
+
+  useEffect(() => { setPage(1); }, [statusFilter, searchQuery]);
+
+  const selectedOrder = expandedRow ? orders.find((o) => o.id === expandedRow) ?? null : null;
 
   if (loading) {
     return (
       <div className="space-y-3">
-        {[...Array(4)].map((_, i) => (
-          <div
-            key={i}
-            className="h-16 bg-gray-100 rounded-xl animate-pulse"
-            style={{ animationDelay: `${i * 80}ms` }}
-          />
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="h-14 bg-white/[0.04] rounded-[12px] animate-pulse" style={{ animationDelay: `${i * 80}ms` }} />
         ))}
       </div>
     );
@@ -788,15 +508,13 @@ const OrdersView: React.FC<OrdersViewProps> = ({
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
-        <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center">
-          <AlertCircle size={22} className="text-red-400" />
+        <div className="w-12 h-12 rounded-full bg-dm-danger/[0.12] border border-dm-danger/[0.20] flex items-center justify-center">
+          <AlertCircle size={20} className="text-dm-danger" />
         </div>
-        <p className="text-sm font-medium text-gray-700">{error}</p>
-        <button
-          onClick={refetch}
-          className="flex items-center gap-1.5 text-sm text-indigo-600 hover:text-indigo-800 font-medium"
-        >
-          <RefreshCw size={14} /> Retry
+        <p className="text-[13px] font-medium text-[#F0EDE8]/72 font-space-grotesk">{error}</p>
+        <button onClick={refetch}
+          className="flex items-center gap-1.5 text-[13px] text-brand-orange hover:text-brand-orange-hover font-semibold font-space-grotesk transition-colors">
+          <RefreshCw size={13} /> Retry
         </button>
       </div>
     );
@@ -805,146 +523,212 @@ const OrdersView: React.FC<OrdersViewProps> = ({
   return (
     <>
       <div className="space-y-5">
-        {/* Status filter pills */}
+        {/* Filters row */}
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          <div className="flex items-center gap-2 flex-wrap">
-            {[
-              "ALL",
-              "PENDING",
-              "CONFIRMED",
-              "PROCESSING",
-              "SHIPPED",
-              "DELIVERED",
-              "CANCELLED",
-            ].map((s) => {
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {ORDER_TABS.map((s) => {
               const cfg = ORDER_STATUS_CONFIG[s];
-              const count =
-                s === "ALL" ? orders.length : (statusCounts[s] ?? 0);
+              const count = s === "ALL" ? orders.length : (statusCounts[s] ?? 0);
               const isActive = statusFilter === s;
               return (
-                <button
-                  key={s}
-                  onClick={() => setStatusFilter(s)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                    isActive
-                      ? "bg-indigo-600 text-white shadow-sm"
-                      : "bg-white text-gray-600 border border-gray-200 hover:border-indigo-300"
-                  }`}
-                >
-                  {cfg && (
-                    <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
-                  )}
+                <button key={s} onClick={() => setStatusFilter(s)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold transition-all duration-150 font-space-grotesk
+                    ${isActive
+                      ? "bg-brand-orange/[0.15] text-brand-orange border border-brand-orange/[0.30]"
+                      : "bg-white/[0.04] text-[#F0EDE8]/46 border border-white/[0.08] hover:border-white/[0.14] hover:text-[#F0EDE8]/72"
+                    }`}>
+                  {cfg && <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />}
                   {s === "ALL" ? "All" : (cfg?.label ?? s)}
-                  <span
-                    className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
-                      isActive
-                        ? "bg-white/20 text-white"
-                        : "bg-gray-100 text-gray-500"
-                    }`}
-                  >
+                  <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold font-space-mono
+                    ${isActive ? "bg-brand-orange/[0.20] text-brand-orange" : "bg-white/[0.06] text-[#F0EDE8]/34"}`}>
                     {count}
                   </span>
                 </button>
               );
             })}
           </div>
-          <button
-            onClick={refetch}
-            className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-indigo-600 transition-colors"
-          >
+          <button onClick={refetch}
+            className="flex items-center gap-1.5 text-[12px] text-[#F0EDE8]/46 hover:text-brand-orange transition-colors font-space-grotesk">
             <RefreshCw size={13} /> Refresh
           </button>
         </div>
 
-        {/* Desktop Table — lg and above */}
-        <div className="hidden lg:block bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-          {filteredOrders.length === 0 ? (
-            <EmptyOrders />
-          ) : (
+        {/* Desktop table */}
+        <div className="hidden lg:block bg-[#131316] border border-white/[0.07] rounded-[18px] overflow-hidden">
+          {shown.length === 0 ? <EmptyOrders /> : (
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50/60">
-                  {[
-                    "Order",
-                    "Screenshot",
-                    "Status",
-                    "Payment",
-                    "Total",
-                    "Qty",
-                    "",
-                  ].map((h, i) => (
-                    <th
-                      key={i}
-                      className={`px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider ${
-                        h === "Qty" ? "text-center" : ""
-                      }`}
-                    >
+                <tr className="border-b border-white/[0.07] bg-white/[0.02]">
+                  {["Order", "Customer", "Items", "Total", "Payment", "Status", ""].map((h, i) => (
+                    <th key={i} className="px-5 py-3.5 text-left text-[11px] font-semibold text-[#F0EDE8]/34 uppercase tracking-[0.06em] font-space-grotesk">
                       {h}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filteredOrders.map((order) => (
-                  <OrderRow
-                    key={order.id}
-                    order={order}
-                    isExpanded={expandedRow === order.id}
-                    onToggle={() =>
-                      setExpandedRow(
-                        expandedRow === order.id ? null : order.id
-                      )
-                    }
-                    onUpdate={handleStatusChangeRequest}
-                    onViewScreenshot={setScreenshotUrl}
-                  />
-                ))}
+              <tbody>
+                {shown.map((order) => {
+                  const items = order.orderItems.reduce((s, i) => s + i.quantity, 0);
+                  const needsAttention = order.paymentStatus === "PENDING";
+                  return (
+                    <tr key={order.id}
+                      className={`border-b border-white/[0.05] cursor-pointer transition-colors
+                        ${needsAttention ? "bg-dm-warning/[0.02] hover:bg-dm-warning/[0.04]" : "hover:bg-white/[0.03]"}`}
+                      style={needsAttention ? { boxShadow: "inset 3px 0 0 #FBBF24" } : undefined}
+                      onClick={() => setExpandedRow(expandedRow === order.id ? null : order.id)}>
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-8 h-8 rounded-[8px] flex items-center justify-center shrink-0
+                            ${needsAttention ? "bg-dm-warning/[0.12] border border-dm-warning/[0.20]" : "bg-brand-orange/[0.12]"}`}>
+                            <ShoppingBag size={14} className={needsAttention ? "text-dm-warning" : "text-brand-orange"} />
+                          </div>
+                          <div>
+                            <span className="font-bold text-[#F0EDE8] font-space-mono">#{order.orderNumber}</span>
+                            {order.createdAt && (
+                              <p className="text-[11px] text-[#F0EDE8]/34 font-space-mono">
+                                {new Date(order.createdAt).toLocaleDateString()}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-2.5">
+                          <CustomerAvatar name={order.customer?.customerName ?? "?"} size={32} />
+                          <div>
+                            <p className="text-[13px] font-semibold text-[#F0EDE8] font-space-grotesk">
+                              {order.customer?.customerName ?? "—"}
+                            </p>
+                            {order.shippingCity && (
+                              <p className="text-[11px] text-[#F0EDE8]/34 font-space-grotesk">{order.shippingCity}</p>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-5 py-4 text-[13px] text-[#F0EDE8]/46 font-space-grotesk">
+                        {items} item{items > 1 ? "s" : ""}
+                      </td>
+                      <td className="px-5 py-4 font-bold text-[#F0EDE8] font-space-mono text-[13.5px]">
+                        Nu.{parseFloat(order.totalAmount).toLocaleString()}
+                      </td>
+                      <td className="px-5 py-4">
+                        <StatusBadge status={order.paymentStatus} type="payment" />
+                      </td>
+                      <td className="px-5 py-4">
+                        <StatusBadge status={order.orderStatus} type="order" />
+                      </td>
+                      <td className="px-5 py-4 text-right">
+                        {needsAttention ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-dm-warning/[0.12] border border-dm-warning/[0.25] text-[11px] font-semibold text-dm-warning font-space-grotesk whitespace-nowrap">
+                            <span className="w-1.5 h-1.5 rounded-full bg-dm-warning animate-pulse-dot shrink-0" />
+                            Verify payment
+                          </span>
+                        ) : (
+                          <ChevronRight size={15} className="text-[#F0EDE8]/34 inline" />
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}
-        </div>
-
-        {/* Tablet + Mobile Cards — below lg */}
-        <div className="lg:hidden space-y-3">
-          {filteredOrders.length === 0 ? (
-            <EmptyOrders />
-          ) : (
-            filteredOrders.map((order) => (
-              <TabletOrderCard
-                key={order.id}
-                order={order}
-                isExpanded={expandedRow === order.id}
-                onToggle={() =>
-                  setExpandedRow(expandedRow === order.id ? null : order.id)
-                }
-                onUpdate={handleStatusChangeRequest}
-                onViewScreenshot={setScreenshotUrl}
-              />
-            ))
+          {shown.length > 0 && (
+            <div className="flex items-center justify-between px-5 py-4 border-t border-white/[0.07] flex-wrap gap-3">
+              <span className="text-[12.5px] text-[#F0EDE8]/34 font-space-grotesk">
+                Showing {shown.length} of {filteredOrders.length} orders
+              </span>
+              {pages > 1 && (
+                <div className="flex items-center gap-1.5">
+                  {Array.from({ length: pages }, (_, i) => i + 1).map((n) => (
+                    <button key={n} onClick={() => setPage(n)}
+                      className={`w-8 h-8 rounded-[8px] text-[12px] font-semibold transition-colors font-space-mono
+                        ${n === page
+                          ? "bg-brand-orange text-white shadow-glow-orange"
+                          : "bg-white/[0.04] text-[#F0EDE8]/46 border border-white/[0.08] hover:bg-white/[0.08]"
+                        }`}>
+                      {n}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
         </div>
 
-        {filteredOrders.length > 0 && (
-          <p className="text-xs text-gray-400 text-right">
-            Showing {filteredOrders.length} of {orders.length} order
-            {orders.length !== 1 ? "s" : ""}
-          </p>
-        )}
+        {/* Mobile cards */}
+        <div className="lg:hidden space-y-3">
+          {shown.length === 0 ? <EmptyOrders /> : shown.map((order) => {
+            const items = order.orderItems.reduce((s, i) => s + i.quantity, 0);
+            const needsAttention = order.paymentStatus === "PENDING";
+            return (
+              <div key={order.id}
+                className={`rounded-[14px] border overflow-hidden cursor-pointer transition-all duration-200
+                  ${needsAttention
+                    ? "bg-dm-warning/[0.02] border-dm-warning/[0.30]"
+                    : `bg-[#131316] ${expandedRow === order.id ? "border-brand-orange/[0.25]" : "border-white/[0.07] hover:border-white/[0.12]"}`
+                  }`}
+                style={needsAttention ? { boxShadow: "inset 3px 0 0 #FBBF24" } : undefined}
+                onClick={() => setExpandedRow(expandedRow === order.id ? null : order.id)}>
+                <div className="p-4 flex items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-[#F0EDE8] font-space-mono">#{order.orderNumber}</span>
+                        {needsAttention && (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-dm-warning/[0.12] border border-dm-warning/[0.25] text-[10px] font-semibold text-dm-warning font-space-grotesk">
+                            <span className="w-1 h-1 rounded-full bg-dm-warning animate-pulse-dot" />
+                            Verify
+                          </span>
+                        )}
+                      </div>
+                      <span className="font-bold text-[#F0EDE8] font-space-mono text-[14px] shrink-0">
+                        Nu.{parseFloat(order.totalAmount).toLocaleString()}
+                      </span>
+                    </div>
+                    {order.customer && (
+                      <p className="text-[12px] text-[#F0EDE8]/46 mt-0.5 font-space-grotesk">{order.customer.customerName}</p>
+                    )}
+                    <p className="text-[11px] text-[#F0EDE8]/34 mt-0.5 font-space-grotesk">
+                      {items} item{items !== 1 ? "s" : ""}
+                    </p>
+                    <div className="flex gap-2 mt-2 flex-wrap">
+                      <StatusBadge status={order.orderStatus} type="order" />
+                      <StatusBadge status={order.paymentStatus} type="payment" />
+                    </div>
+                  </div>
+                  <ChevronRight size={16} className={`text-[#F0EDE8]/34 mt-1 shrink-0 transition-transform duration-200 ${expandedRow === order.id ? "rotate-90" : ""}`} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Screenshot lightbox */}
-      {screenshotUrl && (
-        <ScreenshotLightbox
-          url={screenshotUrl}
-          onClose={() => setScreenshotUrl(null)}
+      {/* Order drawer */}
+      {selectedOrder && (
+        <OrderDrawer
+          order={selectedOrder}
+          onClose={() => setExpandedRow(null)}
+          onUpdate={handleStatusChangeRequest}
+          onViewScreenshot={setScreenshotUrl}
         />
       )}
 
-      {/* Confirm status change dialog */}
+      {/* Screenshot lightbox */}
+      {screenshotUrl && <ScreenshotLightbox url={screenshotUrl} onClose={() => setScreenshotUrl(null)} />}
+
+      {/* Confirm dialog */}
       <ConfirmDialog
         isOpen={!!pendingUpdate}
         title="Update Status"
-        message={confirmMessage}
+        message={pendingUpdate
+          ? `Change ${pendingUpdate.type} status to "${
+              pendingUpdate.type === "order"
+                ? ORDER_STATUS_CONFIG[pendingUpdate.newStatus]?.label
+                : PAYMENT_STATUS_CONFIG[pendingUpdate.newStatus]?.label
+            }"?`
+          : ""}
         onConfirm={handleConfirmUpdate}
         onCancel={() => setPendingUpdate(null)}
         isLoading={isUpdating}

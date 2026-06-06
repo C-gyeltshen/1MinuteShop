@@ -72,9 +72,6 @@ export interface EditProductFormData {
 
 export interface ContentSectionProps {
   activeTab: string;
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  onAddProduct: () => void;
   children: React.ReactNode;
 }
 
@@ -84,8 +81,10 @@ export interface DashboardHeaderProps {
   email?: string;
   isMobileMenuOpen: boolean;
   storeUrl?: string;
-
   onToggleMobileMenu: () => void;
+  products?: Product[];
+  orders?: Order[];
+  onSearchSelect?: (tab: string, id?: string) => void;
 }
 
 export interface OrderCardProps {
@@ -99,16 +98,17 @@ export interface ProductCardProps {
   isExpanded: boolean;
   onToggle: () => void;
   onEdit: (product: Product) => void;
+  onDelete: (productId: string) => Promise<void>;
 }
 
 export interface ProductsViewProps {
   products: Product[];
-  searchQuery: string;
   loading: boolean;
   error: string | null;
   expandedRow: string | null;
   setExpandedRow: (id: string | null) => void;
   onEdit: (product: Product) => void;
+  onDelete: (productId: string) => Promise<void>;
   onAddProduct: () => void;
 }
 
@@ -119,6 +119,7 @@ export interface NavItemProps {
   activeTab: string;
   setActiveTab: (t: string) => void;
   setIsMobileMenuOpen?: (o: boolean) => void;
+  badge?: number;
 }
 
 export interface StatusBadgeProps {
@@ -128,10 +129,27 @@ export interface StatusBadgeProps {
 
 export interface StatsCardsProps {
   products: Product[];
+  orders: Order[];
 }
 
 export interface OrdersViewProps {
+  orders: Order[];
+  loading: boolean;
+  error: string | null;
+  refetch: () => void;
+  updateOrderStatus: (id: string, status: string) => Promise<void>;
+  updatePaymentStatus: (id: string, status: string) => Promise<void>;
   searchQuery: string;
   expandedRow: string | null;
   setExpandedRow: (id: string | null) => void;
+}
+
+export interface SidebarProps {
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+  setIsMobileMenuOpen?: (open: boolean) => void;
+  orderBadge?: number;
+  productBadge?: number;
+  ownerName?: string;
+  storeName?: string;
 }
