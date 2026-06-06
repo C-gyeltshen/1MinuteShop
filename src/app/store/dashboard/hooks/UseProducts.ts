@@ -25,6 +25,7 @@ export const useProducts = () => {
           `${BACKEND_URL}/products/store/${storeOwnerId}`,
           {
             method: "GET",
+            cache: "no-store",
             headers: {
               "Content-Type": "application/json",
             },
@@ -83,7 +84,7 @@ const editProduct = async (productId: string, formData: ProductFormData) => {
 
   try {
     const response = await fetch(
-      `http://localhost:8080/api/products/${productId}/store/${storeOwnerId}`,
+      `${BACKEND_URL}/products/${productId}/store/${storeOwnerId}`,
       {
         method: "PATCH",
         headers: {
@@ -128,11 +129,32 @@ const editProduct = async (productId: string, formData: ProductFormData) => {
   }
 };
 
+  const deleteProduct = async (productId: string) => {
+    if (!storeOwnerId) throw new Error("Store owner ID is not available");
+
+    const token = localStorage.getItem("accessToken");
+
+    const response = await fetch(
+      `${BACKEND_URL}/products/${productId}/store/${storeOwnerId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    if (!response.ok) throw new Error(`Failed to delete product: ${response.status}`);
+
+    setProducts((prev) => prev.filter((p) => p.id !== productId));
+  };
+
   return {
     products,
     loading,
     error,
     addProduct,
     editProduct,
+    deleteProduct,
   };
 };

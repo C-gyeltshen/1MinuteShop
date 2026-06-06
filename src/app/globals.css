@@ -1,8 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #080808;
+  --foreground: #F0EDE8;
+  /* Dashboard dark theme tokens */
+  --dm-accent: #E07328;
+  --dm-accent-glow: 0 0 24px rgba(224, 115, 40, 0.35);
+  --dm-surface: rgba(18, 18, 20, 0.72);
+  --dm-surface-raised: rgba(26, 26, 30, 0.72);
+  --dm-hair: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 @theme inline {
@@ -10,17 +16,115 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Brand */
+  --color-brand-orange: #E07328;
+  --color-brand-orange-hover: #F07D30;
+
+  /* Dark-mode surface palette */
+  --color-dm-bg: #080808;
+  --color-dm-bg-1: #0b0b0d;
+  --color-dm-surface-solid: #131316;
+  --color-dm-fg-1: #F0EDE8;
+
+  /* Semantic */
+  --color-dm-success: #27C93F;
+  --color-dm-info: #60A5FA;
+  --color-dm-warning: #FBBF24;
+  --color-dm-danger: #EF4444;
+  --color-dm-violet: #A78BFA;
+  --color-dm-teal: #2DD4BF;
+
+  /* Shadows */
+  --shadow-glow-orange: 0 0 24px rgba(224, 115, 40, 0.35);
+  --shadow-glow-orange-lg: 0 0 36px rgba(224, 115, 40, 0.5);
+  --shadow-dm-card: 0 24px 80px rgba(0, 0, 0, 0.55);
+  --shadow-dm-drop: 0 8px 28px rgba(0, 0, 0, 0.45);
+  --shadow-dm-drawer: -20px 0 60px rgba(0, 0, 0, 0.5);
+
+  /* Animations */
+  --animate-gradient-x: gradient-x 3s ease infinite;
+  --animate-fade-up: fade-up 0.3s ease-out both;
+  --animate-fade-in: fade-in 0.2s ease-out;
+  --animate-scale-in: scale-in 0.22s cubic-bezier(0.16, 1, 0.30, 1);
+  --animate-drawer-in: drawer-in 0.3s cubic-bezier(0.16, 1, 0.30, 1);
+  --animate-slide-down: slide-down 0.2s ease-out;
+  --animate-pulse-dot: pulse-dot 1.6s ease-in-out infinite;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Dashboard background dot grid */
+.dm-bg-field::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 38px 38px;
+  mask-image: radial-gradient(1200px 800px at 50% 0%, #000 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(1200px 800px at 50% 0%, #000 30%, transparent 80%);
+}
+
+.dm-bg-field {
+  background:
+    radial-gradient(900px 600px at 78% -8%, rgba(224, 115, 40, 0.06), transparent 60%),
+    radial-gradient(700px 500px at -6% 12%, rgba(96, 165, 250, 0.04), transparent 55%),
+    #080808;
+}
+
+/* Sidebar glass */
+.dm-glass {
+  background: var(--dm-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: var(--dm-hair);
+}
+
+/* Scrollbar for dark surfaces */
+.dm-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+.dm-scroll::-webkit-scrollbar-track { background: transparent; }
+.dm-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 6px; }
+.dm-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.14); }
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+@keyframes gradient-x {
+  0%, 100% { background-size: 200% 200%; background-position: left center; }
+  50%       { background-size: 200% 200%; background-position: right center; }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes drawer-in {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
 }
