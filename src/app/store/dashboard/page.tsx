@@ -544,9 +544,7 @@ const DashboardContent = () => {
   const productBadge = useMemo(() => products.filter((p) => p.stockQuantity <= 0).length, [products]);
   const notificationCount = orderBadge + productBadge;
 
-  const storeUrl = user?.storeName
-    ? `https://${user.storeName.toLowerCase().replace(/\s+/g, "-")}.laso.la`
-    : undefined;
+  const storeUrl = user?.storeUrl;
 
   if (isLoading) {
     return (

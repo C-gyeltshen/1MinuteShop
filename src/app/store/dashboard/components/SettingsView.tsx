@@ -50,8 +50,8 @@ export default function SettingsView({ storeName, email, storeUrl }: SettingsVie
   const [shippingEnabled, setShippingEnabled] = useState(true);
   const [shippingCost,    setShippingCost]    = useState("60");
 
-  const displayUrl = storeUrl ?? `https://${(storeName ?? "my-store").toLowerCase().replace(/\s+/g, "-")}.laso.la`;
-  const shortUrl   = displayUrl.replace("https://", "");
+  const displayUrl = storeUrl ?? "";
+  const shortUrl   = displayUrl ? displayUrl.replace(/^https?:\/\//, "") : "Store URL unavailable";
 
   const selectedTheme = THEMES.find(t => t.name === theme) ?? THEMES[1];
 
@@ -160,14 +160,16 @@ export default function SettingsView({ storeName, email, storeUrl }: SettingsVie
                 Style your public store — changes apply to your live storefront
               </p>
             </div>
-            <a
-              href={displayUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-[12.5px] font-semibold text-brand-orange hover:text-brand-orange-hover transition-colors font-space-grotesk shrink-0"
-            >
-              Open storefront <ExternalLink size={13} />
-            </a>
+            {displayUrl && (
+              <a
+                href={displayUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-[12.5px] font-semibold text-brand-orange hover:text-brand-orange-hover transition-colors font-space-grotesk shrink-0"
+              >
+                Open storefront <ExternalLink size={13} />
+              </a>
+            )}
           </div>
 
           {/* Theme selector pills */}
