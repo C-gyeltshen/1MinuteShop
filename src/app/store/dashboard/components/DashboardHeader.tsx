@@ -43,8 +43,8 @@ const DashboardHeader: React.FC<TopbarProps> = ({
   const [searchFocused, setSearchFocused] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
 
-  const displayUrl = storeUrl ?? `https://${(storeName ?? "my-store").toLowerCase().replace(/\s+/g, "-")}.laso.la`;
-  const shortUrl = displayUrl.replace("https://", "");
+  const displayUrl = storeUrl ?? "";
+  const shortUrl = displayUrl.replace(/^https?:\/\//, "");
 
   const handleDownloadQr = useCallback(() => {
     const canvas = qrRef.current;
@@ -305,26 +305,27 @@ const DashboardHeader: React.FC<TopbarProps> = ({
         </div>
 
         {/* Store URL pill */}
-        <div className="relative">
-          <button
-            ref={pillRef}
-            onClick={() => setPillOpen((v) => !v)}
-            className="hidden sm:inline-flex items-center gap-2 px-3 h-9 rounded-[8px] border border-white/[0.08] bg-white/[0.04] hover:border-white/[0.14] hover:bg-white/[0.06] transition-all duration-150 cursor-pointer"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-dm-success shadow-[0_0_7px_#27C93F] animate-pulse-dot" />
-            <span className="font-space-mono text-[12px] text-[#F0EDE8]/72 max-w-[160px] truncate">
-              {shortUrl}
-            </span>
-            <Store size={13} className="text-[#F0EDE8]/34 shrink-0" />
-          </button>
-
-          {/* URL pill popover */}
-          {pillOpen && (
-            <div
-              ref={pillMenuRef}
-              className="absolute top-full right-0 mt-2 w-72 bg-[#131316] border border-white/[0.07] rounded-[14px] shadow-dm-card motion-safe:animate-scale-in overflow-hidden z-50"
-              style={{ transformOrigin: "top right" }}
+        {displayUrl && (
+          <div className="relative">
+            <button
+              ref={pillRef}
+              onClick={() => setPillOpen((v) => !v)}
+              className="hidden sm:inline-flex items-center gap-2 px-3 h-9 rounded-[8px] border border-white/[0.08] bg-white/[0.04] hover:border-white/[0.14] hover:bg-white/[0.06] transition-all duration-150 cursor-pointer"
             >
+              <span className="w-1.5 h-1.5 rounded-full bg-dm-success shadow-[0_0_7px_#27C93F] animate-pulse-dot" />
+              <span className="font-space-mono text-[12px] text-[#F0EDE8]/72 max-w-[160px] truncate">
+                {shortUrl}
+              </span>
+              <Store size={13} className="text-[#F0EDE8]/34 shrink-0" />
+            </button>
+
+            {/* URL pill popover */}
+            {pillOpen && (
+              <div
+                ref={pillMenuRef}
+                className="absolute top-full right-0 mt-2 w-72 bg-[#131316] border border-white/[0.07] rounded-[14px] shadow-dm-card motion-safe:animate-scale-in overflow-hidden z-50"
+                style={{ transformOrigin: "top right" }}
+              >
               <div className="px-4 pt-4 pb-3 border-b border-white/[0.07]">
                 <div className="flex items-center gap-2 text-[13px] font-semibold text-[#F0EDE8] font-space-grotesk">
                   <span className="w-2 h-2 rounded-full bg-dm-success shadow-[0_0_8px_#27C93F]" />
@@ -385,7 +386,8 @@ const DashboardHeader: React.FC<TopbarProps> = ({
               </div>
             </div>
           )}
-        </div>
+          </div>
+        )}
 
         {/* Notifications bell */}
         <div className="relative">
