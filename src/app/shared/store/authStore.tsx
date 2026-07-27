@@ -19,6 +19,7 @@ export interface User {
   storeName?: string;
   storeSubdomain?: string;
   storeUrl?: string;
+  storeURL?: string;
   createdAt: string;
 }
 
@@ -41,6 +42,15 @@ export interface AuthContextType {
 export const AuthContext = createContext<AuthContextType | undefined>(
   undefined,
 );
+
+const normalizeUser = (userData: User | null | undefined): User | null => {
+  if (!userData) return null;
+
+  return {
+    ...userData,
+    storeUrl: userData.storeURL ?? userData.storeUrl,
+  };
+};
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
@@ -106,7 +116,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       if (response.ok) {
         const resData = await response.json();
         // FIX: Access user data from resData.data instead of resData.user
-        const userData = resData.data || resData.user; 
+        const userData = normalizeUser(resData.data || resData.user); 
         
         setUser(userData);
         console.log("User authenticated:");
@@ -191,7 +201,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       }
 
       // FIX: Access user data correctly
-      const userData = resData.data || resData.user;
+      const userData = normalizeUser(resData.data || resData.user);
       setUser(userData);
       
       console.log("Login successful:", userData?.email || userData?.ownerName);
