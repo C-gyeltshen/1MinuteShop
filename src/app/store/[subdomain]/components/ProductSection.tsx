@@ -1,4 +1,4 @@
-import { Heart, ShoppingCart } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useCart } from "../context/Cartcontext ";
 
@@ -139,9 +139,6 @@ export default function ProductsSection() {
                     Low Stock
                   </div>
                 )}
-                <button className="absolute top-2 left-2 sm:top-3 sm:left-3 p-1.5 sm:p-2 bg-white rounded-full shadow-md hover:bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity text-lg">
-                  <Heart className="w-5 h-5 text-gray-700" />
-                </button>
               </div>
               <div className="p-3 sm:p-4 flex flex-col flex-grow">
                 <h3 className="font-semibold text-xs sm:text-sm md:text-base text-gray-900 mb-1 sm:mb-1.5 line-clamp-2">
