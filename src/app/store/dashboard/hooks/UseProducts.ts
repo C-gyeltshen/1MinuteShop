@@ -28,6 +28,7 @@ export const useProducts = () => {
             cache: "no-store",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
           },
         ); 
@@ -89,6 +90,7 @@ const editProduct = async (productId: string, formData: ProductFormData) => {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
         body: JSON.stringify({  
           productName: formData.productName,

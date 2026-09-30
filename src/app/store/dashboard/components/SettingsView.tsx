@@ -1,6 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Check, ExternalLink, Info } from "lucide-react";
+import TelegramCard from "./TelegramCard";
 
 const ACCENT_COLORS = [
   { label: "Brand orange", hex: "#E07328" },
@@ -24,6 +25,8 @@ const THEMES = [
 
 const FIELD = "w-full px-3 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-[8px] text-[13px] text-[#F0EDE8] font-space-grotesk outline-none transition-colors placeholder:text-[#F0EDE8]/20";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+
 interface SettingsViewProps {
   storeName?: string;
   email?: string;
@@ -39,7 +42,7 @@ export default function SettingsView({ storeName, email, storeUrl }: SettingsVie
   const [liveTheme,   setLiveTheme]   = useState("Charcoal Pro");
 
   // ── Store profile ────────────────────────────────────────────────
-  const [profileName,    setProfileName]    = useState(storeName ?? "");
+  const profileName = storeName ?? "";
   const [description,    setDescription]    = useState("");
   const [contactEmail,   setContactEmail]   = useState(email ?? "");
   const [contactPhone,   setContactPhone]   = useState("");
@@ -50,13 +53,79 @@ export default function SettingsView({ storeName, email, storeUrl }: SettingsVie
   const [shippingEnabled, setShippingEnabled] = useState(true);
   const [shippingCost,    setShippingCost]    = useState("60");
 
+  const [saving,     setSaving]     = useState(false);
+  const [saveStatus, setSaveStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+  // Load saved settings (falls back to the defaults above when none are saved yet)
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/store-settings`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+        });
+        if (!res.ok) return;
+        const json = await res.json();
+        const saved = json.data;
+        if (!saved) return;
+
+        setDescription(saved.storeDescription ?? "");
+        setContactEmail(saved.contactEmail || (email ?? ""));
+        setContactPhone(saved.contactPhone ?? "");
+        setPickupAddress(saved.address ?? "");
+        setTax(String(saved.taxPercentage ?? 0));
+        setShippingEnabled(Boolean(saved.shippingEnabled));
+        setShippingCost(saved.shippingCost == null ? "" : String(saved.shippingCost));
+      } catch (err) {
+        console.error("Failed to load store settings:", err);
+      }
+    };
+
+    loadSettings();
+  }, [email]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setSaveStatus(null);
+
+    try {
+      const res = await fetch(`${API_BASE}/store-settings`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        body: JSON.stringify({
+          storeDescription: description,
+          contactEmail,
+          contactPhone,
+          address: pickupAddress,
+          currency: "BTN",
+          taxPercentage: Number(tax) || 0,
+          shippingEnabled,
+          shippingCost: shippingEnabled ? Number(shippingCost) || 0 : 0,
+        }),
+      });
+
+      const json = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(json?.errors?.[0]?.message || json?.message || "Failed to save settings");
+      }
+
+      setSaveStatus({ type: "success", message: "Settings saved" });
+    } catch (err) {
+      setSaveStatus({ type: "error", message: err instanceof Error ? err.message : "Failed to save settings" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const displayUrl = storeUrl ?? "";
   const shortUrl   = displayUrl ? displayUrl.replace(/^https?:\/\//, "") : "Store URL unavailable";
 
   const selectedTheme = THEMES.find(t => t.name === theme) ?? THEMES[1];
 
   const handleReset = () => {
-    setProfileName(storeName ?? "");
+    setSaveStatus(null);
     setDescription("");
     setContactEmail(email ?? "");
     setContactPhone("");
@@ -320,9 +389,10 @@ export default function SettingsView({ storeName, email, storeUrl }: SettingsVie
               <input
                 type="text"
                 value={profileName}
-                onChange={e => setProfileName(e.target.value)}
+                readOnly
+                title="Store name is set when you register"
                 placeholder="Your store name"
-                className={FIELD}
+                className={`${FIELD} cursor-not-allowed opacity-60`}
               />
             </div>
 
@@ -466,8 +536,19 @@ export default function SettingsView({ storeName, email, storeUrl }: SettingsVie
         </div>
       </div>
 
+      {/* ── Telegram order notifications ─────────────────────────── */}
+      <TelegramCard />
+
       {/* ── Actions ──────────────────────────────────────────────── */}
       <div className="flex items-center justify-end gap-3 pb-2">
+        {saveStatus && (
+          <span
+            role="status"
+            className={`text-[12.5px] font-space-grotesk ${saveStatus.type === "success" ? "text-emerald-400" : "text-red-400"}`}
+          >
+            {saveStatus.message}
+          </span>
+        )}
         <button
           onClick={handleReset}
           className="px-5 py-2.5 rounded-[10px] border border-white/[0.08] text-[13px] font-semibold text-[#F0EDE8]/58 hover:bg-white/[0.06] transition-colors font-space-grotesk"
@@ -475,10 +556,12 @@ export default function SettingsView({ storeName, email, storeUrl }: SettingsVie
           Reset
         </button>
         <button
-          className="px-5 py-2.5 rounded-[10px] text-[13px] font-semibold text-white font-space-grotesk hover:opacity-90 transition-opacity"
+          onClick={handleSave}
+          disabled={saving}
+          className="px-5 py-2.5 rounded-[10px] text-[13px] font-semibold text-white font-space-grotesk hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
           style={{ background: "#E07328", boxShadow: "0 0 16px rgba(224,115,40,0.25)" }}
         >
-          Save changes
+          {saving ? "Saving…" : "Save changes"}
         </button>
       </div>
     </div>

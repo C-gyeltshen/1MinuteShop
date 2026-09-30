@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+ <title>Nikto Report</title>
+ <style type="text/css">
+  .dataTable
+  {
+   font-family: tahoma, sans-serif;
+   font-size: 11pt; 
+   font-weight: normal; 
+   color: #000066;
+   background: #EEEEEE;
+   border: thin solid black;
+   width: 95%;
+  }
+  .headerTable
+  {
+   font-family: tahoma, sans-serif;
+   font-size: 15pt; 
+   font-weight: normal; 
+   color: white;
+   background: #000066;
+   border: thin solid black;
+   width: 300px;
+  }
+  .column-head
+  {
+   width: 15em;
+   font-weight:bold;
+   vertical-align: top;
+  }
+  .copyright
+  {
+   font-family: tahoma, sans-serif;
+   font-size: 10pt;
+   font-weight: normal;
+   font-style: italic;
+   color: black;
+  }
+  body
+  {
+   background: white;
+  }
+ </style>
+</head>
+<body>
+<div>
+<a name="1"></a>
+<table class="headerTable">
+ <tr>
+   <td>test1.localhost / 127.0.0.1 port 3000</td>
+ </tr>
+</table>
+<table class="dataTable">
+ <tr>
+   <td class="column-head">Target IP</td>
+   <td>127.0.0.1</td>
+ </tr>
+ <tr>
+   <td class="column-head">Target hostname</td>
+   <td>test1.localhost</td>
+ </tr>
+  <tr>
+   <td class="column-head">Target Port</td>
+   <td>3000</td>
+ </tr>
+  <tr>
+   <td class="column-head">HTTP Server</td>
+   <td></td>
+ </tr>
+ <tr>
+   <td class="column-head">Site Link (Name)</td>
+   <td><a href="http://test1.localhost:3000/">http://test1.localhost:3000/</a></td>
+ </tr>
+ <tr>
+   <td class="column-head">Site Link (IP)</td>
+   <td><a href="http://127.0.0.1:3000/">http://127.0.0.1:3000/</a></td>
+ </tr>
+
+
+
+
+
+ </table>
+</div>
+<p></p>
+
+<table class="dataTable">
+  <tr>
+    <td class="column-head">URI</td>
+    <td>/</td>
+  </tr>
+  <tr>
+    <td class="column-head">HTTP Method</td>
+    <td>GET</td>
+  </tr>
+  <tr>
+    <td class="column-head">Description</td>
+    <td>/: Retrieved x-powered-by header: Next.js.</td>
+  </tr>
+  <tr>
+    <td class="column-head">Link</td>
+    <td>
+      <a href="http://test1.localhost:3000/">http://test1.localhost:3000/</a><br>
+    </td>
+  </tr>
+
+</table>
+
+<table class="dataTable">
+  <tr>
+    <td class="column-head">URI</td>
+    <td>/</td>
+  </tr>
+  <tr>
+    <td class="column-head">HTTP Method</td>
+    <td>GET</td>
+  </tr>
+  <tr>
+    <td class="column-head">Description</td>
+    <td>/: Link header(s) found with value(s): &lt;/_next/static/media/25ff19af8c74c1ce-s.p.db698206.woff2&gt;; rel=preload; as=&quot;font&quot;; crossorigin=&quot;&quot;; type=&quot;font/woff2&quot;, &lt;/_next/static/media/3365e13b43001fa0-s.p.204fe9ec.woff2&gt;; rel=preload; as=&quot;font&quot;; crossorigin=&quot;&quot;; type=&quot;font/woff2&quot;, &lt;/_next/static/media/8ee3a1ba4ed5baee-s.p.9593fb78.woff2&gt;; rel=preload; as=&quot;font&quot;; crossorigin=&quot;&quot;; type=&quot;font/woff2&quot;, &lt;/_next/static/media/b0a57561b6cb5495-s.p.d06edde1.woff2&gt;; rel=preload; as=&quot;font&quot;; crossorigin=&quot;&quot;; type=&quot;font/woff2&quot;, &lt;/_next/static/media/b8bcd9c5cf11560c-s.p.e562386e.woff2&gt;; rel=preload; as=&quot;font&quot;; crossorigin=&quot;&quot;; type=&quot;font/woff2&quot;.</td>
+  </tr>
+  <tr>
+    <td class="column-head">Link</td>
+    <td>
+      <a href="http://test1.localhost:3000/">http://test1.localhost:3000/</a><br>
+    </td>
+  </tr>
+<tr>
+    <td class="column-head">Reference(s)</td>
+    <td><a href='https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Link'>https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Link</a></td>
+  </tr>
+</table>
+
+<table class="dataTable">
+  <tr>
+    <td class="column-head">URI</td>
+    <td>/</td>
+  </tr>
+  <tr>
+    <td class="column-head">HTTP Method</td>
+    <td>GET</td>
+  </tr>
+  <tr>
+    <td class="column-head">Description</td>
+    <td>/: Uncommon header(s) &#x27;x-middleware-rewrite&#x27; found, with contents: /store/test1.</td>
+  </tr>
+  <tr>
+    <td class="column-head">Link</td>
+    <td>
+      <a href="http://test1.localhost:3000/">http://test1.localhost:3000/</a><br>
+    </td>
+  </tr>
+
+</table>
+
+<table class="dataTable">
+  <tr>
+    <td class="column-head">URI</td>
+    <td>/icons/</td>
+  </tr>
+  <tr>
+    <td class="column-head">HTTP Method</td>
+    <td>GET</td>
+  </tr>
+  <tr>
+    <td class="column-head">Description</td>
+    <td>/icons/: Uncommon header(s) &#x27;refresh&#x27; found, with contents: 0;url=/icons.</td>
+  </tr>
+  <tr>
+    <td class="column-head">Link</td>
+    <td>
+      <a href="http://test1.localhost:3000/icons/">http://test1.localhost:3000/icons/</a><br>
+    </td>
+  </tr>
+
+</table>
+
+<table class="dataTable">
+  <tr>
+    <td class="column-head">URI</td>
+    <td>/</td>
+  </tr>
+  <tr>
+    <td class="column-head">HTTP Method</td>
+    <td>GET</td>
+  </tr>
+  <tr>
+    <td class="column-head">Description</td>
+    <td>/: Suggested security header missing: x-content-type-options.</td>
+  </tr>
+  <tr>
+    <td class="column-head">Link</td>
+    <td>
+      <a href="http://test1.localhost:3000/">http://test1.localhost:3000/</a><br>
+    </td>
+  </tr>
+<tr>
+    <td class="column-head">Reference(s)</td>
+    <td><a href='https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options'>https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options</a></td>
+  </tr>
+</table>
+
+<table class="dataTable">
+  <tr>
+    <td class="column-head">URI</td>
+    <td>/</td>
+  </tr>
+  <tr>
+    <td class="column-head">HTTP Method</td>
+    <td>GET</td>
+  </tr>
+  <tr>
+    <td class="column-head">Description</td>
+    <td>/: Suggested security header missing: strict-transport-security.</td>
+  </tr>
+  <tr>
+    <td class="column-head">Link</td>
+    <td>
+      <a href="http://test1.localhost:3000/">http://test1.localhost:3000/</a><br>
+    </td>
+  </tr>
+<tr>
+    <td class="column-head">Reference(s)</td>
+    <td><a href='https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security'>https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security</a></td>
+  </tr>
+</table>
+
+<table class="dataTable">
+  <tr>
+    <td class="column-head">URI</td>
+    <td>/</td>
+  </tr>
+  <tr>
+    <td class="column-head">HTTP Method</td>
+    <td>GET</td>
+  </tr>
+  <tr>
+    <td class="column-head">Description</td>
+    <td>/: Suggested security header missing: permissions-policy.</td>
+  </tr>
+  <tr>
+    <td class="column-head">Link</td>
+    <td>
+      <a href="http://test1.localhost:3000/">http://test1.localhost:3000/</a><br>
+    </td>
+  </tr>
+<tr>
+    <td class="column-head">Reference(s)</td>
+    <td><a href='https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy'>https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy</a></td>
+  </tr>
+</table>
+
+<table class="dataTable">
+  <tr>
+    <td class="column-head">URI</td>
+    <td>/</td>
+  </tr>
+  <tr>
+    <td class="column-head">HTTP Method</td>
+    <td>GET</td>
+  </tr>
+  <tr>
+    <td class="column-head">Description</td>
+    <td>/: Suggested security header missing: content-security-policy.</td>
+  </tr>
+  <tr>
+    <td class="column-head">Link</td>
+    <td>
+      <a href="http://test1.localhost:3000/">http://test1.localhost:3000/</a><br>
+    </td>
+  </tr>
+<tr>
+    <td class="column-head">Reference(s)</td>
+    <td><a href='https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP'>https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP</a></td>
+  </tr>
+</table>
+
+<table class="dataTable">
+  <tr>
+    <td class="column-head">URI</td>
+    <td>/</td>
+  </tr>
+  <tr>
+    <td class="column-head">HTTP Method</td>
+    <td>GET</td>
+  </tr>
+  <tr>
+    <td class="column-head">Description</td>
+    <td>/: Suggested security header missing: referrer-policy.</td>
+  </tr>
+  <tr>
+    <td class="column-head">Link</td>
+    <td>
+      <a href="http://test1.localhost:3000/">http://test1.localhost:3000/</a><br>
+    </td>
+  </tr>
+<tr>
+    <td class="column-head">Reference(s)</td>
+    <td><a href='https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy'>https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy</a></td>
+  </tr>
+</table>
+
+<table class="dataTable">
+  <tr>
+    <td class="column-head">URI</td>
+    <td>/SilverStream</td>
+  </tr>
+  <tr>
+    <td class="column-head">HTTP Method</td>
+    <td>GET</td>
+  </tr>
+  <tr>
+    <td class="column-head">Description</td>
+    <td>/SilverStream: SilverStream allows directory listing.</td>
+  </tr>
+  <tr>
+    <td class="column-head">Link</td>
+    <td>
+      <a href="http://test1.localhost:3000/SilverStream">http://test1.localhost:3000/SilverStream</a><br>
+    </td>
+  </tr>
+<tr>
+    <td class="column-head">Reference(s)</td>
+    <td><a href='https://web.archive.org/web/20011226154728/http://archives.neohapsis.com/archives/sf/pentest/2000-11/0147.html'>https://web.archive.org/web/20011226154728/http://archives.neohapsis.com/archives/sf/pentest/2000-11/0147.html</a></td>
+  </tr>
+</table>
+
+<table class="dataTable">
+  <tr>
+    <td class="column-head">URI</td>
+    <td>/user.php?op=confirmnewuser&amp;module=NS-NewUser&amp;uNikto=%22%3E%3Cimg%20src=%22javascript:alert(document.cookie);%22%3E&amp;email=test@test.com</td>
+  </tr>
+  <tr>
+    <td class="column-head">HTTP Method</td>
+    <td>GET</td>
+  </tr>
+  <tr>
+    <td class="column-head">Description</td>
+    <td>/user.php?op=confirmnewuser&amp;module=NS-NewUser&amp;uNikto=%22%3E%3Cimg%20src=%22javascript:alert(document.cookie);%22%3E&amp;email=test@test.com: Post Nuke 0.7.2.3-Phoenix is vulnerable to Cross Site Scripting (XSS).</td>
+  </tr>
+  <tr>
+    <td class="column-head">Link</td>
+    <td>
+      <a href="http://test1.localhost:3000/user.php?op=confirmnewuser&amp;module=NS-NewUser&amp;uNikto=%22%3E%3Cimg%20src=%22javascript:alert(document.cookie);%22%3E&amp;email=test@test.com">http://test1.localhost:3000/user.php?op=confirmnewuser&amp;module=NS-NewUser&amp;uNikto=%22%3E%3Cimg%20src=%22javascript:alert(document.cookie);%22%3E&amp;email=test@test.com</a><br>
+    </td>
+  </tr>
+
+</table>
+
+<table class="dataTable">
+  <tr>
+    <td class="column-head">URI</td>
+    <td>/node/view/666\&quot;&gt;&lt;script&gt;alert(document.domain)&lt;/script&gt;</td>
+  </tr>
+  <tr>
+    <td class="column-head">HTTP Method</td>
+    <td>GET</td>
+  </tr>
+  <tr>
+    <td class="column-head">Description</td>
+    <td>/node/view/666\&quot;&gt;&lt;script&gt;alert(document.domain)&lt;/script&gt;: Drupal 4.2.0 RC is vulnerable to Cross Site Scripting (XSS).</td>
+  </tr>
+  <tr>
+    <td class="column-head">Link</td>
+    <td>
+      <a href="http://test1.localhost:3000/node/view/666\&quot;&gt;&lt;script&gt;alert(document.domain)&lt;/script&gt;">http://test1.localhost:3000/node/view/666\&quot;&gt;&lt;script&gt;alert(document.domain)&lt;/script&gt;</a><br>
+    </td>
+  </tr>
+
+</table>
+
+<table class="dataTable">
+  <tr>
+    <td class="column-head">URI</td>
+    <td>/index.php/\&quot;&gt;&lt;script&gt;&lt;script&gt;alert(document.cookie)&lt;/script&gt;&lt;</td>
+  </tr>
+  <tr>
+    <td class="column-head">HTTP Method</td>
+    <td>GET</td>
+  </tr>
+  <tr>
+    <td class="column-head">Description</td>
+    <td>/index.php/\&quot;&gt;&lt;script&gt;&lt;script&gt;alert(document.cookie)&lt;/script&gt;&lt;: eZ publish v3 and prior allow Cross Site Scripting (XSS).</td>
+  </tr>
+  <tr>
+    <td class="column-head">Link</td>
+    <td>
+      <a href="http://test1.localhost:3000/index.php/\&quot;&gt;&lt;script&gt;&lt;script&gt;alert(document.cookie)&lt;/script&gt;&lt;">http://test1.localhost:3000/index.php/\&quot;&gt;&lt;script&gt;&lt;script&gt;alert(document.cookie)&lt;/script&gt;&lt;</a><br>
+    </td>
+  </tr>
+
+</table>
+
+<table class="dataTable">
+  <tr>
+    <td class="column-head">URI</td>
+    <td>/DB4Web/10.10.10.10:100</td>
+  </tr>
+  <tr>
+    <td class="column-head">HTTP Method</td>
+    <td>GET</td>
+  </tr>
+  <tr>
+    <td class="column-head">Description</td>
+    <td>/DB4Web/10.10.10.10:100: RFC-1918 IP address found in the &#x27;x-middleware-rewrite&#x27; header. The IP is &quot;10.10.10.10&quot;.</td>
+  </tr>
+  <tr>
+    <td class="column-head">Link</td>
+    <td>
+      <a href="http://test1.localhost:3000/DB4Web/10.10.10.10:100">http://test1.localhost:3000/DB4Web/10.10.10.10:100</a><br>
+    </td>
+  </tr>
+<tr>
+    <td class="column-head">Reference(s)</td>
+    <td><a href='https://portswigger.net/kb/issues/00600300_private-ip-addresses-disclosed'>https://portswigger.net/kb/issues/00600300_private-ip-addresses-disclosed</a></td>
+  </tr>
+</table>
+
+<div>
+<p></p>
+<table class="headerTable">
+ <tr>
+  <td>Host Summary</td>
+ </tr>
+</table>
+<table  class="dataTable">
+ <tr>
+  <td class="column-head">Start Time</td>
+  <td>2026-09-23 22:09:33</td>
+ </tr>
+ <tr>
+  <td class="column-head">End Time</td>
+  <td>2026-09-24 06:41:24</td>
+ </tr>
+ <tr>
+  <td class="column-head">Elapsed Time</td>
+  <td>30711 seconds</td>
+ </tr>
+ <tr>
+  <td class="column-head">Statistics</td>
+  <td>2592 requests, 13 errors, 14 findings</td>
+ </tr>
+</table>
+</div>
+<p></p>
+
+<p></p>
+<table class="headerTable">
+  <tr>
+    <td>Scan Summary</td>
+  </tr>
+</table>
+<table class="dataTable">
+  <tr>
+    <td class="column-head">Software Details</td>
+    <td><a href="http://cirt.net/">Nikto 2.6.1</a></td>
+  </tr>
+  <tr>
+    <td class="column-head">CLI Options</td>
+    <td>-h http://test1.localhost:3000 -o test/nikto/storefront-20260923-2209.html -Format htm</td>
+  </tr>
+  <tr>
+    <td class="column-head">Hosts Tested</td>
+    <td>1</td>
+  </tr>
+  <tr>
+    <td class="column-head">Start Time</td>
+    <td>Wed Sep 23 22:09:32 2026</td>
+  </tr>
+  <tr>
+    <td class="column-head">End Time</td>
+    <td>Thu Sep 24 06:41:24 2026</td>
+  </tr>
+  <tr>
+    <td class="column-head">Elapsed Time</td>
+    <td>30712 seconds</td>
+  </tr>
+</table>
+<p></p>
+<p class="copyright">&copy; 2008 Chris Sullo</p>
+
+<!-- (c) 2008 Chris Sullo -->
+
+</body>
+</html>
+
