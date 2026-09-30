@@ -50,7 +50,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSu
     setUploadProgress("Uploading image to server...");
     const response = await fetch(`${BACKEND_URL}/upload/image`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
       body: JSON.stringify({ file: base64, fileName: file.name, fileType: file.type, userId: user?.id }),
     });
     if (!response.ok) {
@@ -76,7 +76,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSu
       setUploadProgress("Creating product...");
       const response = await fetch(`${BACKEND_URL}/products/store/${user.id}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
         body: JSON.stringify({
           productName: formData.productName,
           price: parseFloat(formData.price),

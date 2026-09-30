@@ -31,7 +31,7 @@ export default function SuccessPage() {
 
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/orders/${orderId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/orders/confirmation/${orderId}`
         );
 
         if (response.ok) {
