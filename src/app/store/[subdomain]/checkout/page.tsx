@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 import { ArrowLeft } from "lucide-react";
 import { useCart } from "../context/Cartcontext ";
@@ -34,8 +33,7 @@ export interface PaymentInfo {
 
 export default function CheckoutPage() {
 
-  const router = useRouter();
-  const { cartItems, getTotalPrice, clearCart } = useCart();
+  const { cartItems, getTotalPrice, clearCart, hasLoadedCart } = useCart();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -63,11 +61,11 @@ export default function CheckoutPage() {
 
   // Redirect if cart is empty
   useEffect(() => {
-    if (cartItems.length === 0) {
+    if (hasLoadedCart && cartItems.length === 0) {
       console.log("Cart is empty, redirecting to home");
       globalThis.location.href = "/";
     }
-  }, [cartItems]);
+  }, [cartItems, hasLoadedCart]);
 
   const handleNext = () => {
     if (currentStep < 3) {
@@ -163,7 +161,7 @@ export default function CheckoutPage() {
       };
 
       const orderResponse = await fetch(
-        "https://oneminuteshop-be.onrender.com/api/orders",
+        `${process.env.NEXT_PUBLIC_API_URL}/orders`,
         {
           method: "POST",
           headers: {
@@ -183,7 +181,7 @@ export default function CheckoutPage() {
 
       // 4. Clear cart and redirect to success page
       clearCart();
-      globalThis.location.href = `/success?orderId=${orderResult.data.id}`;
+      globalThis.location.href = `/success?orderId=${orderResult.data.orderId}`;
     } catch (error) {
       console.error("Order submission failed:", error);
       alert(
@@ -195,7 +193,7 @@ export default function CheckoutPage() {
   };
 
   // Show checkout form if cart has items
-  if (cartItems.length === 0) {
+  if (!hasLoadedCart || cartItems.length === 0) {
     return null; // Will redirect via useEffect
   }
 

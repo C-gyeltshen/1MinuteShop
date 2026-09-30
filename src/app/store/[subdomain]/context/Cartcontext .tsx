@@ -14,6 +14,7 @@ interface CartItem {
 interface CartContextType {
   cartItems: CartItem[];
   cartCount: number;
+  hasLoadedCart: boolean;
   isCartOpen: boolean;
   addToCart: (item: Omit<CartItem, "quantity">) => void;
   removeFromCart: (id: string) => void;
@@ -27,10 +28,8 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-// Helper function to load cart from localStorage
-const getInitialCart = (): CartItem[] => {
-  if (typeof window === "undefined") return [];
-  
+// Helper function to load cart from localStorage after hydration
+const getSavedCart = (): CartItem[] => {
   try {
     const savedCart = localStorage.getItem("cart");
     if (savedCart) {
@@ -43,13 +42,21 @@ const getInitialCart = (): CartItem[] => {
 };
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [cartItems, setCartItems] = useState<CartItem[]>(getInitialCart);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [hasLoadedCart, setHasLoadedCart] = useState(false);
+
+  // Load saved cart only after hydration so server and client first render match.
+  useEffect(() => {
+    setCartItems(getSavedCart());
+    setHasLoadedCart(true);
+  }, []);
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
+    if (!hasLoadedCart) return;
     localStorage.setItem("cart", JSON.stringify(cartItems));
-  }, [cartItems]);
+  }, [cartItems, hasLoadedCart]);
 
   const addToCart = (item: Omit<CartItem, "quantity">) => {
     setCartItems((prev) => {
@@ -125,6 +132,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       value={{
         cartItems,
         cartCount,
+        hasLoadedCart,
         isCartOpen,
         addToCart,
         removeFromCart,
