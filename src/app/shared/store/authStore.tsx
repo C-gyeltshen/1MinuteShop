@@ -70,58 +70,33 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       setIsLoading(true);
       setError(null);
 
-      let accessToken = localStorage.getItem("accessToken");
-
-      if (!accessToken) {
-        setUser(null);
-        setIsLoading(false);
-        return;
-      }
-
       let response = await fetch(`${API_BASE_URL}/store-owners/me`, {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
       });
 
       if (response.status === 401) {
         const refreshRes = await fetch(`${API_BASE_URL}/store-owners/refresh`, {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
         });
 
         if (refreshRes.ok) {
-          const refreshData = await refreshRes.json();
-          // Adjust this if your refresh endpoint structure is different
-          if (refreshData.accessToken) {
-            localStorage.setItem("accessToken", refreshData.accessToken);
-            accessToken = refreshData.accessToken;
-          }
-
           response = await fetch(`${API_BASE_URL}/store-owners/me`, {
             method: "GET",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-            },
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
           });
         }
       }
 
       if (response.ok) {
         const resData = await response.json();
-        // FIX: Access user data from resData.data instead of resData.user
-        const userData = normalizeUser(resData.data || resData.user); 
-        
+        const userData = normalizeUser(resData.data || resData.user);
         setUser(userData);
-        console.log("User authenticated:");
       } else {
-        localStorage.removeItem("accessToken");
         setUser(null);
         router.push("/dashboard");
       }
@@ -141,14 +116,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
         const response = await fetch(`${API_BASE_URL}/store-owners/register`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name,
-            phoneNumber,
-            password,
-          }),
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, phoneNumber, password }),
         });
 
         const data = await response.json();
@@ -157,7 +127,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
           throw new Error(data.error || "Registration failed");
         }
 
-        await login(phoneNumber, password);
+        const userData = normalizeUser(data.data?.user || data.user);
+        setUser(userData);
+        router.push("/store/dashboard");
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "Registration failed";
@@ -167,7 +139,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         setIsLoading(false);
       }
     },
-    [],
+    [router],
   );
 
   const login = useCallback(async (phoneNumber: string, password: string) => {
@@ -177,13 +149,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
       const response = await fetch(`${API_BASE_URL}/store-owners/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          phoneNumber,
-          password,
-        }),
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phoneNumber, password }),
       });
 
       const resData = await response.json();
@@ -192,21 +160,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         throw new Error(resData.error || "Login failed");
       }
 
-      // Store Access Token
-      if (resData.accessToken) {
-        localStorage.setItem("accessToken", resData.accessToken);
-      } else if (resData.data?.accessToken) {
-         // handle case where token is inside data object
-         localStorage.setItem("accessToken", resData.data.accessToken);
-      }
-
-      // FIX: Access user data correctly
-      const userData = normalizeUser(resData.data || resData.user);
+      const userData = normalizeUser(resData.data?.user || resData.data || resData.user);
       setUser(userData);
-      
-      console.log("Login successful:", userData?.email || userData?.ownerName);
       router.push("/store/dashboard");
-
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Login failed";
       setError(errorMessage);
@@ -220,24 +176,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const logout = useCallback(async () => {
     try {
       setIsLoading(true);
-      const accessToken = localStorage.getItem("accessToken");
-      localStorage.removeItem("accessToken");
-
       await fetch(`${API_BASE_URL}/store-owners/logout`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
-        },
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
       });
-
-      setUser(null);
-      router.push("/dashboard");
-    } catch (err) {
-      setUser(null); 
-      router.push("/dashboard");
     } finally {
+      setUser(null);
       setIsLoading(false);
+      router.push("/dashboard");
     }
   }, [router]);
 

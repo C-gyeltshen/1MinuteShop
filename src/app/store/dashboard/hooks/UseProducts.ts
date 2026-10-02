@@ -26,10 +26,8 @@ export const useProducts = () => {
           {
             method: "GET",
             cache: "no-store",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
           },
         ); 
 
@@ -88,11 +86,9 @@ const editProduct = async (productId: string, formData: ProductFormData) => {
       `${BACKEND_URL}/products/${productId}/store/${storeOwnerId}`,
       {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-        body: JSON.stringify({  
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           productName: formData.productName,
           price: Number.parseFloat(formData.price),
           stockQuantity: Number.parseInt(formData.stockQuantity),
@@ -134,15 +130,11 @@ const editProduct = async (productId: string, formData: ProductFormData) => {
   const deleteProduct = async (productId: string) => {
     if (!storeOwnerId) throw new Error("Store owner ID is not available");
 
-    const token = localStorage.getItem("accessToken");
-
     const response = await fetch(
       `${BACKEND_URL}/products/${productId}/store/${storeOwnerId}`,
       {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include",
       },
     );
 
