@@ -19,13 +19,9 @@ export const useOrders = () => {
     setError(null);
 
     try {
-      const accessToken = localStorage.getItem("accessToken");
-
       const res = await fetch(`${API_BASE}/orders/${storeOwnerId}`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
       });
 
       if (!res.ok) throw new Error(`Failed to fetch orders: ${res.statusText}`);
@@ -48,14 +44,10 @@ export const useOrders = () => {
   const updateOrderStatus = useCallback(
     async (orderId: string, orderStatus: string) => {
       try {
-        const accessToken = localStorage.getItem("accessToken");
-
         const res = await fetch(`${API_BASE}/orders/${orderId}/status`, {
           method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ orderStatus }),
         });
 
@@ -73,14 +65,10 @@ export const useOrders = () => {
   const updatePaymentStatus = useCallback(
     async (orderId: string, paymentStatus: string) => {
       try {
-        const accessToken = localStorage.getItem("accessToken");
-
         const res = await fetch(`${API_BASE}/orders/${orderId}/payment-status`, {
           method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ paymentStatus }),
         });
 

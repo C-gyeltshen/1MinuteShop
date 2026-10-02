@@ -12,10 +12,7 @@ interface TelegramStatus {
   notificationsEnabled: boolean;
 }
 
-const authHeaders = () => ({
-  "Content-Type": "application/json",
-  Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-});
+const jsonHeaders = { "Content-Type": "application/json" };
 
 const BTN = "px-4 py-2 rounded-[10px] text-[12.5px] font-semibold font-space-grotesk transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
 
@@ -34,7 +31,7 @@ export default function TelegramCard() {
 
   const loadStatus = useCallback(async (): Promise<TelegramStatus | null> => {
     try {
-      const res = await fetch(`${API_BASE}/telegram/status`, { headers: authHeaders() });
+      const res = await fetch(`${API_BASE}/telegram/status`, { credentials: "include", headers: jsonHeaders });
       if (!res.ok) return null;
       const json = await res.json();
       setStatus(json.data);
@@ -55,7 +52,8 @@ export default function TelegramCard() {
     try {
       const res = await fetch(`${API_BASE}/telegram${path}`, {
         method,
-        headers: authHeaders(),
+        credentials: "include",
+        headers: jsonHeaders,
         body: body === undefined ? undefined : JSON.stringify(body),
       });
       const json = await res.json().catch(() => null);
