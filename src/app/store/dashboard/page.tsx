@@ -13,6 +13,7 @@ import SettingsView from "./components/SettingsView";
 import { useProducts } from "./hooks/UseProducts";
 import { useOrders } from "./hooks/Useorders";
 import { Order, Product } from "./components/Types";
+import SubscriptionBanner from "./components/SubscriptionBanner";
 
 // ── Shared color helpers ───────────────────────────────────────────────────
 
@@ -609,6 +610,7 @@ const DashboardContent = () => {
         />
 
         <main className="flex-1 px-4 py-5 sm:px-6 lg:px-[26px] lg:py-6 w-full max-w-[1320px]">
+          <SubscriptionBanner subscription={user?.subscription} isAdmin={user?.isAdmin} />
           <ContentSection activeTab={activeTab}>
             {activeTab === "dashboard" && (
               <DashboardHomeSection

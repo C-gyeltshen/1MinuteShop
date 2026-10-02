@@ -21,6 +21,16 @@ export interface User {
   storeUrl?: string;
   storeURL?: string;
   createdAt: string;
+  isAdmin?: boolean;
+  subscription?: SubscriptionInfo;
+}
+
+export interface SubscriptionInfo {
+  state: "TRIALING" | "ACTIVE" | "EXPIRED";
+  hasAccess: boolean;
+  daysLeft: number;
+  accessEndsAt: string;
+  monthlyPrice: number;
 }
 
 export interface AuthContextType {
