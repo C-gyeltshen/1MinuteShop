@@ -61,7 +61,7 @@ export default function SettingsView({ storeName, email, storeUrl }: SettingsVie
     const loadSettings = async () => {
       try {
         const res = await fetch(`${API_BASE}/store-settings`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+          credentials: "include",
         });
         if (!res.ok) return;
         const json = await res.json();
@@ -90,10 +90,8 @@ export default function SettingsView({ storeName, email, storeUrl }: SettingsVie
     try {
       const res = await fetch(`${API_BASE}/store-settings`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           storeDescription: description,
           contactEmail,
