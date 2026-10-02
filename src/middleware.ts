@@ -31,6 +31,13 @@ export async function middleware(request: NextRequest) {
         return NextResponse.rewrite(url);
       }
       
+      // Trial / subscription ended: show the "store unavailable" page instead of the shop
+      if (response.status === 402) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/store-unavailable";
+        return NextResponse.rewrite(url);
+      }
+
       // 4. If store doesn't exist, we just fall through 
       // (This will show your main website or a 404)
       console.log(`Store ${subdomain} does not exist.`);
