@@ -14,6 +14,8 @@ import { useProducts } from "./hooks/UseProducts";
 import { useOrders } from "./hooks/Useorders";
 import { Order, Product } from "./components/Types";
 import SubscriptionBanner from "./components/SubscriptionBanner";
+import PaymentAccountBanner from "./components/PaymentAccountBanner";
+import { paymentAccountServices, type PaymentAccount } from "@/app/shared/services/paymentAccountServices";
 
 // ── Shared color helpers ───────────────────────────────────────────────────
 
@@ -526,6 +528,16 @@ const DashboardContent = () => {
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
   const [isEditProductModalOpen, setIsEditProductModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [paymentAccount, setPaymentAccount] = useState<PaymentAccount | null>(null);
+  const [paymentAccountLoaded, setPaymentAccountLoaded] = useState(false);
+
+  useEffect(() => {
+    paymentAccountServices
+      .getMine()
+      .then(setPaymentAccount)
+      .catch((e) => console.error("Failed to load payment account:", e))
+      .finally(() => setPaymentAccountLoaded(true));
+  }, []);
 
   const { products, loading: productsLoading, error: productsError, addProduct, editProduct, deleteProduct } = useProducts();
   const { orders, loading: ordersLoading, error: ordersError, refetch, updateOrderStatus, updatePaymentStatus } = useOrders();
@@ -611,6 +623,9 @@ const DashboardContent = () => {
 
         <main className="flex-1 px-4 py-5 sm:px-6 lg:px-[26px] lg:py-6 w-full max-w-[1320px]">
           <SubscriptionBanner subscription={user?.subscription} isAdmin={user?.isAdmin} />
+          {paymentAccountLoaded && !paymentAccount && activeTab !== "settings" && (
+            <PaymentAccountBanner onAdd={() => setActiveTab("settings")} />
+          )}
           <ContentSection activeTab={activeTab}>
             {activeTab === "dashboard" && (
               <DashboardHomeSection
@@ -650,6 +665,9 @@ const DashboardContent = () => {
                 storeName={user?.storeName}
                 email={user?.email}
                 storeUrl={storeUrl}
+                paymentAccount={paymentAccount}
+                paymentAccountLoaded={paymentAccountLoaded}
+                onPaymentAccountSaved={setPaymentAccount}
               />
             )}
           </ContentSection>
