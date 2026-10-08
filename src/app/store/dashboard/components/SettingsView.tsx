@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Check, ExternalLink, Info } from "lucide-react";
 import TelegramCard from "./TelegramCard";
+import SubscriptionManager from "@/app/shared/components/SubscriptionManager";
 
 const ACCENT_COLORS = [
   { label: "Brand orange", hex: "#E07328" },
@@ -532,6 +533,15 @@ export default function SettingsView({ storeName, email, storeUrl }: SettingsVie
             </div>
           </div>
         </div>
+      </div>
+
+      {/* ── Subscription ─────────────────────────────────────────── */}
+      <div id="subscription" className="scroll-mt-6">
+        <h2 className="text-[16px] font-bold text-[#F0EDE8] font-space-grotesk mb-1">Subscription</h2>
+        <p className="text-[12.5px] text-[#F0EDE8]/46 font-space-grotesk mb-3">
+          Your plan, renewal and payment history
+        </p>
+        <SubscriptionManager />
       </div>
 
       {/* ── Telegram order notifications ─────────────────────────── */}
