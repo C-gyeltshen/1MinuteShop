@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { Check, ExternalLink, Info } from "lucide-react";
 import TelegramCard from "./TelegramCard";
+import PaymentAccountCard from "./PaymentAccountCard";
+import type { PaymentAccount } from "@/app/shared/services/paymentAccountServices";
 import SubscriptionManager from "@/app/shared/components/SubscriptionManager";
 
 const ACCENT_COLORS = [
@@ -32,9 +34,19 @@ interface SettingsViewProps {
   storeName?: string;
   email?: string;
   storeUrl?: string;
+  paymentAccount: PaymentAccount | null;
+  paymentAccountLoaded: boolean;
+  onPaymentAccountSaved: (account: PaymentAccount) => void;
 }
 
-export default function SettingsView({ storeName, email, storeUrl }: SettingsViewProps) {
+export default function SettingsView({
+  storeName,
+  email,
+  storeUrl,
+  paymentAccount,
+  paymentAccountLoaded,
+  onPaymentAccountSaved,
+}: SettingsViewProps) {
   // ── Appearance ──────────────────────────────────────────────────
   const [accentColor, setAccentColor] = useState("#E07328");
   const [density,     setDensity]     = useState<typeof DENSITY_OPTIONS[number]>("Standard");
@@ -136,6 +148,13 @@ export default function SettingsView({ storeName, email, storeUrl }: SettingsVie
 
   return (
     <div className="flex flex-col gap-5 pb-4">
+
+      {/* ── Payment account ──────────────────────────────────────── */}
+      <PaymentAccountCard
+        account={paymentAccount}
+        loaded={paymentAccountLoaded}
+        onSaved={onPaymentAccountSaved}
+      />
 
       {/* ── Dashboard appearance ─────────────────────────────────── */}
       <div className="bg-[#131316] border border-white/[0.07] rounded-[18px] p-6">

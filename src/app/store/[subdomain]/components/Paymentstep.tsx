@@ -3,8 +3,12 @@
 import { useState, useRef } from "react";
 import { Upload, X, CreditCard, AlertCircle, Image as ImageIcon } from "lucide-react";
 import { PaymentInfo } from "../checkout/page";
+import BankLogo from "@/app/shared/components/BankLogo";
+import { getBank } from "@/app/shared/banks";
+import type { PaymentAccount } from "@/app/shared/services/paymentAccountServices";
 
 interface PaymentStepProps {
+  account: PaymentAccount | null;
   paymentInfo: PaymentInfo;
   setPaymentInfo: (info: PaymentInfo) => void;
   onBack: () => void;
@@ -13,6 +17,7 @@ interface PaymentStepProps {
 }
 
 export default function PaymentStep({
+  account,
   paymentInfo,
   setPaymentInfo,
   onBack,
@@ -95,7 +100,7 @@ export default function PaymentStep({
               Payment Instructions
             </h3>
             <ol className="list-decimal list-inside space-y-1 text-sm text-blue-800">
-              <li>Transfer the total amount to our bank account</li>
+              <li>Transfer the total amount to the store's bank account</li>
               <li>Take a screenshot of the payment confirmation</li>
               <li>Upload the screenshot below</li>
               <li>Submit your order</li>
@@ -105,27 +110,27 @@ export default function PaymentStep({
       </div>
 
       {/* Bank Details */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-        <h3 className="font-semibold text-gray-900 mb-3">Bank Account Details</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-          <div>
-            <p className="text-gray-600">Bank Name</p>
-            <p className="font-medium text-gray-900">Bank of Bhutan</p>
+      {account && (
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+          <h3 className="font-semibold text-gray-900 mb-3">Bank Account Details</h3>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="border border-gray-200 rounded-lg">
+              <BankLogo code={account.bank} size={44} />
+            </div>
+            <p className="font-medium text-gray-900">{getBank(account.bank)?.name}</p>
           </div>
-          <div>
-            <p className="text-gray-600">Account Name</p>
-            <p className="font-medium text-gray-900">1MinuteShop</p>
-          </div>
-          <div>
-            <p className="text-gray-600">Account Number</p>
-            <p className="font-medium text-gray-900">123-456-789-0</p>
-          </div>
-          <div>
-            <p className="text-gray-600">Account Type</p>
-            <p className="font-medium text-gray-900">Current Account</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div>
+              <p className="text-gray-600">Account Name</p>
+              <p className="font-medium text-gray-900">{account.accountName}</p>
+            </div>
+            <div>
+              <p className="text-gray-600">Account Number</p>
+              <p className="font-medium text-gray-900 tracking-wide">{account.accountNumber}</p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Upload Section */}
       <div>
@@ -247,7 +252,7 @@ export default function PaymentStep({
         </button>
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || !account}
           className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
         >
           {isSubmitting ? (
