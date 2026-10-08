@@ -3,6 +3,7 @@
 import { X, Plus, Minus, Trash2, ShoppingBag } from "lucide-react";
 import { useEffect } from "react";
 import { useCart } from "../context/Cartcontext ";
+import { useStorePaymentAccount } from "../helper/useStorePaymentAccount";
 
 export default function CartDrawer() {
   const {
@@ -13,6 +14,7 @@ export default function CartDrawer() {
     removeFromCart,
     getTotalPrice,
   } = useCart();
+  const { acceptingOrders } = useStorePaymentAccount();
 
 
   // Prevent body scroll when cart is open
@@ -178,9 +180,15 @@ export default function CartDrawer() {
             </div>
 
             {/* Checkout Button */}
+            {acceptingOrders === false && (
+              <p className="mb-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                This store is not accepting orders yet. Please check back soon.
+              </p>
+            )}
             <button
               onClick={handleCheckout}
-              className="w-full py-3 bg-linear-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
+              disabled={acceptingOrders === false}
+              className="w-full py-3 bg-linear-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:from-blue-600 disabled:hover:to-purple-600"
             >
               Proceed to Checkout
             </button>

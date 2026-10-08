@@ -10,6 +10,7 @@ import ShippingInfoStep from "../components/Shippinginfostep";
 import PaymentStep from "../components/Paymentstep";
 import OrderSummary from "../components/Ordersummary";
 import { getStoreOwnerId } from "../helper/storeHelper";
+import { useStorePaymentAccount } from "../helper/useStorePaymentAccount";
 
 export interface CustomerInfo {
   customerName: string;
@@ -34,6 +35,8 @@ export interface PaymentInfo {
 export default function CheckoutPage() {
 
   const { cartItems, getTotalPrice, clearCart, hasLoadedCart } = useCart();
+
+  const { account: paymentAccount, acceptingOrders } = useStorePaymentAccount();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -197,6 +200,26 @@ export default function CheckoutPage() {
     return null; // Will redirect via useEffect
   }
 
+  if (acceptingOrders === false) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="max-w-md rounded-lg bg-white p-8 text-center shadow-sm">
+          <h1 className="text-xl font-bold text-gray-900 mb-2">Not accepting orders yet</h1>
+          <p className="text-gray-600 mb-6">
+            This store hasn&apos;t finished setting up payments. Please check back soon.
+          </p>
+          <button
+            onClick={() => (globalThis.location.href = "/")}
+            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            Back to Shop
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -242,6 +265,7 @@ export default function CheckoutPage() {
 
               {currentStep === 3 && (
                 <PaymentStep
+                  account={paymentAccount}
                   paymentInfo={paymentInfo}
                   setPaymentInfo={setPaymentInfo}
                   onBack={handleBack}
