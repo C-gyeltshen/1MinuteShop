@@ -24,6 +24,8 @@ export interface SubscriptionPayment {
   rejectReason: string | null;
   createdAt: string;
   reviewedAt: string | null;
+  periodStart?: string | null;
+  periodEnd?: string | null;
 }
 
 export interface AdminSubscriptionPayment extends SubscriptionPayment {
@@ -36,6 +38,9 @@ export interface AdminSubscriptionPayment extends SubscriptionPayment {
     storeSubdomain: string | null;
     state: "TRIALING" | "ACTIVE" | "EXPIRED";
     accessEndsAt: string;
+    trialEndsAt: string;
+    subscriptionEndsAt: string | null;
+    daysLeft: number;
   };
 }
 
